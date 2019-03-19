@@ -5,7 +5,7 @@ authors = ["James Whaley <juicy66173@gmail.com>"]
 description = "A lightweight library for the Discord API."
 
 homepage = "https://github.com/Juici/strife"
-repository = "https://github.com/Juici/strife.git"
+repository = "https://github.com/Juici/strife"
 documentation = "https://docs.rs/strife"
 readme = "README.md"
 license = "MIT"
