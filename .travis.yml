@@ -4,6 +4,10 @@ rust:
 sudo: false
 cache: cargo
 
+stages:
+  - name: test
+  - name: release
+
 matrix:
   include:
     - name: cargo test
@@ -50,15 +54,22 @@ matrix:
       script:
         - cargo build
 
-before_script:
-  - pip install 'travis-cargo<0.2' --user && export PATH=$HOME/.local/bin:$PATH
+    - name: cargo doc
+      rust: nightly
+      script:
+        - cargo doc --no-deps --all-features
+
+    - name: publish docs
+      stage: release
+      rust: nightly
+      before_script:
+        - pip install 'travis-cargo<0.2' --user && export PATH=$HOME/.local/bin:$PATH
+      script:
+        - travis-cargo --only nightly doc-upload
 
 script:
   - cargo test --all-features
   - cargo test --all-features --release
-
-after_success:
-  - travis-cargo --only nightly doc-upload
 
 env:
   global:
