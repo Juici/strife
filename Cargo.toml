@@ -3,15 +3,16 @@ name = "strife"
 version = "0.1.0-alpha.1"
 authors = ["James Whaley <juicy66173@gmail.com>"]
 description = "A lightweight library for the Discord API."
+license = "MIT"
+readme = "README.md"
 
+documentation = "https://docs.rs/strife"
 homepage = "https://github.com/Juici/strife"
 repository = "https://github.com/Juici/strife"
-documentation = "https://docs.rs/strife"
-readme = "README.md"
-license = "MIT"
 
-keywords = ["discord", "api"]
-categories = []
+categories = ["api-bindings", "asynchronous"]
+keywords = ["discord", "api", "async"]
+exclude = ["/.travis.yml"]
 
 edition = "2018"
 
