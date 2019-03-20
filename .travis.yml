@@ -1,8 +1,8 @@
 language: rust
 rust:
-  - stable
-  - beta
   - nightly
+  - beta
+  - stable
 sudo: false
 cache: cargo
 
@@ -18,8 +18,8 @@ matrix:
     - name: cargo test
       os: osx
 
-    - name: cargo test
-      os: windows
+    #- name: cargo test
+    #  os: windows
 
     - name: cargo test (with minimal versions)
       os: linux
