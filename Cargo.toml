@@ -1,6 +1,6 @@
 [package]
 name = "strife"
-version = "0.1.0-alpha.1"
+version = "0.0.1"
 authors = ["James Whaley <juicy66173@gmail.com>"]
 description = "A lightweight library for the Discord API."
 license = "MIT"
