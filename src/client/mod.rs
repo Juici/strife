@@ -8,7 +8,9 @@ mod event_handler;
 
 use std::sync::{Arc, Mutex};
 
-pub use self::event_handler::EventHandler;
+use crate::error::Result;
+
+pub use crate::client::event_handler::EventHandler;
 
 /// A client that connects to Discord via the WebSocket and API.
 pub struct Client {
@@ -24,24 +26,23 @@ impl Client {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
-    /// use std::error::Error;
-    /// use std::env;
-    ///
-    /// use strife::client::{Client, EventHandler};
-    ///
+    /// ```no_run
     /// struct Handler;
     ///
+    /// # use strife::client::EventHandler;
     /// impl EventHandler for Handler {}
     ///
-    /// fn main() -> Result<(), Box<Error>> {
-    ///     let token = env::var("DISCORD_TOKEN")?;
-    ///     let client = Client::new(&token, Handler);
+    /// use std::env;
+    /// use strife::client::Client;
     ///
-    ///     Ok(())
-    /// }
+    /// # use std::error::Error;
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// let token = env::var("DISCORD_TOKEN")?;
+    /// let client = Client::new(&token, Handler)?;
+    /// # Ok(())
+    /// # }
     /// ```
-    pub fn new<S, H>(token: S, _handler: H) -> Client
+    pub fn new<S, H>(token: S, handler: H) -> Result<Client>
     where
         S: AsRef<str>,
         H: EventHandler + Send + Sync + 'static,
@@ -62,8 +63,8 @@ impl Client {
 
         // TODO: shard manager
 
-        Client {
+        Ok(Client {
             token: locked_token,
-        }
+        })
     }
 }
