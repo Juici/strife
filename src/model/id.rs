@@ -1,0 +1,2 @@
+//! Strongly-typed snowflake IDs.
+
