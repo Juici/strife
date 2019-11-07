@@ -24,8 +24,8 @@ const DISCORD_EPOCH: u64 = 1_420_070_400_000;
 pub struct Snowflake(u64);
 
 impl Snowflake {
-    /// Gets the timestamp of the snowflake.
-    pub fn timestamp(&self) -> DateTime<Utc> {
+    /// Gets the timestamp that the snowflake was created at.
+    pub fn created_at(&self) -> DateTime<Utc> {
         // Snowflake timestamp is offset.
         let timestamp = (self.0 >> 22) + DISCORD_EPOCH;
 
