@@ -130,7 +130,7 @@ mod tests {
     use super::*;
 
     const ID: u64 = 80351110224678912;
-    const ID_STR: &'static str = "80351110224678912";
+    const ID_STR: &str = "80351110224678912";
 
     const ID_2: u64 = 41771983423143937;
 
