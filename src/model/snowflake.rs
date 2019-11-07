@@ -132,6 +132,8 @@ mod tests {
     const ID: u64 = 80351110224678912;
     const ID_STR: &'static str = "80351110224678912";
 
+    const ID_2: u64 = 41771983423143937;
+
     #[test]
     fn test_serialize() {
         let snowflake = Snowflake(ID);
@@ -143,5 +145,19 @@ mod tests {
     fn test_deserialize() {
         let deserialized: Snowflake = serde_json::from_str(ID_STR).unwrap();
         assert_eq!(Snowflake(ID), deserialized);
+    }
+
+    #[test]
+    fn test_equal() {
+        let snowflake = Snowflake(ID);
+        assert_eq!(ID, snowflake);
+        assert_eq!(snowflake, ID);
+    }
+
+    #[test]
+    fn test_not_equal() {
+        let snowflake = Snowflake(ID);
+        assert_ne!(ID_2, snowflake);
+        assert_ne!(snowflake, ID_2);
     }
 }
