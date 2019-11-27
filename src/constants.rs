@@ -11,17 +11,11 @@ pub const EMBED_MAX_LENGTH: usize = 6000;
 pub const MESSAGE_MAX_LENGTH: usize = 2000;
 
 /// The UserAgent header sent with every request.
-pub const USER_AGENT: &str = concat!(
-    "DiscordBot (",
-    env!("CARGO_PKG_REPOSITORY"),
-    ", ",
-    env!("CARGO_PKG_VERSION"),
-    ")"
-);
+pub const USER_AGENT: &str = concat!("DiscordBot (", pkg_repo!(), ", ", pkg_version!(), ")");
 
 /// Gateway opcodes.
 #[int_enum(u64)]
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum OpCode {
     /// Dispatches an event.
     Event = 0,

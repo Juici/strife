@@ -52,3 +52,27 @@ macro_rules! enum_constant {
         }
     };
 }
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! pkg_name {
+    () => {
+        env!("CARGO_PKG_NAME")
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! pkg_version {
+    () => {
+        env!("CARGO_PKG_VERSION")
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! pkg_repo {
+    () => {
+        env!("CARGO_PKG_REPOSITORY")
+    };
+}
