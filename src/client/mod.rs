@@ -13,10 +13,7 @@ use crate::error::Result;
 pub use crate::client::event_handler::EventHandler;
 
 /// A client that connects to Discord via the WebSocket and API.
-pub struct Client {
-    /// The token in use by the client.
-    pub token: Arc<Mutex<String>>,
-}
+pub struct Client {}
 
 impl Client {
     /// Creates a Client for a bot user.
@@ -42,7 +39,7 @@ impl Client {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn new<S, H>(token: S, handler: H) -> Result<Client>
+    pub fn new<S, H>(token: S, _handler: H) -> Result<Client>
     where
         S: AsRef<str>,
         H: EventHandler + Send + Sync + 'static,
@@ -56,15 +53,13 @@ impl Client {
             format!("Bot {}", token)
         };
 
-        let locked_token = Arc::new(Mutex::new(token));
 
         // TODO: thread pool
+        let _name = concat!(pkg_name!(), " client");
         // TODO: event handler
 
         // TODO: shard manager
 
-        Ok(Client {
-            token: locked_token,
-        })
+        Ok(Client {})
     }
 }
