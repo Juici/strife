@@ -69,3 +69,27 @@ pub struct UserId(pub Snowflake);
 /// [`Webhook`]: TODO
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
 pub struct WebhookId(pub Snowflake);
+
+macro_rules! impl_display {
+    ($($name:ident,)*) => {$(
+        impl std::fmt::Display for $name {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                std::fmt::Display::fmt(&self.0, f)
+            }
+        }
+    )*}
+}
+
+impl_display! {
+    ApplicationId,
+    AttachmentId,
+    AuditLogEntryId,
+    ChannelId,
+    EmojiId,
+    GuildId,
+    IntegrationId,
+    MessageId,
+    RoleId,
+    UserId,
+    WebhookId,
+}
