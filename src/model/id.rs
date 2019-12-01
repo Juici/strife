@@ -1,5 +1,7 @@
 //! Strongly-typed snowflake IDs.
 
+use std::ops::Deref;
+
 use serde::{Deserialize, Serialize};
 
 use crate::model::snowflake::Snowflake;
@@ -70,8 +72,25 @@ pub struct UserId(pub Snowflake);
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
 pub struct WebhookId(pub Snowflake);
 
-macro_rules! impl_display {
+macro_rules! impl_id {
     ($($name:ident,)*) => {$(
+        impl<T> From<T> for $name
+        where
+            T: Into<Snowflake>,
+        {
+            fn from(into: T) -> Self {
+                Self(into.into())
+            }
+        }
+
+        impl Deref for $name {
+            type Target = Snowflake;
+
+            fn deref(&self) -> &Self::Target {
+                &self.0
+            }
+        }
+
         impl std::fmt::Display for $name {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 std::fmt::Display::fmt(&self.0, f)
@@ -80,7 +99,7 @@ macro_rules! impl_display {
     )*}
 }
 
-impl_display! {
+impl_id! {
     ApplicationId,
     AttachmentId,
     AuditLogEntryId,
