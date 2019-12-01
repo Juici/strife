@@ -51,15 +51,14 @@ impl Eq for Emoji {}
 
 impl Display for Emoji {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self.require_colons {
-            true => match &self.id {
-                Some(id) => match self.animated {
-                    true => write!(f, "<:a:{}:{}>", &self.name, id),
-                    false => write!(f, "<:{}:{}>", &self.name, id),
-                },
+        if self.require_colons {
+            match self.id {
+                Some(id) if self.animated => write!(f, "<:a:{}:{}>", &self.name, id),
+                Some(id) => write!(f, "<:{}:{}>", &self.name, id),
                 None => write!(f, ":{}:", &self.name),
-            },
-            false => f.write_str(&self.name),
+            }
+        } else {
+            f.write_str(&self.name)
         }
     }
 }
