@@ -3,4 +3,5 @@
 pub mod channel;
 pub mod guild;
 pub mod id;
+pub mod permissions;
 pub mod snowflake;
