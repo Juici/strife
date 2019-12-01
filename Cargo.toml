@@ -16,6 +16,7 @@ keywords = ["discord", "api", "async"]
 edition = "2018"
 
 [dependencies]
+bitflags = "1.2"
 chrono = "0.4"
 int-enum = "0.1"
 log = "0.4"
