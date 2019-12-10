@@ -1,9 +1,14 @@
 //! Models related to audit logs.
 
+use std::fmt::{self, Display};
+
+use int_enum::*;
+
 /// The [type of action] that occurred in an [`AuditLogEntry`].
 ///
 /// [type of action]: https://discordapp.com/developers/docs/resources/audit-log#audit-log-entry-object-audit-log-events
 #[allow(missing_docs)]
+#[int_enum(u64)]
 pub enum AuditLogEvent {
     GuildUpdate = 1,
     ChannelCreate = 10,
@@ -31,4 +36,13 @@ pub enum AuditLogEvent {
     EmojiUpdate = 61,
     EmojiDelete = 62,
     MessageDelete = 72,
+}
+
+impl Display for AuditLogEvent {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match IntEnum::as_int(self) {
+            Some(ref n) => Display::fmt(n, f),
+            None => unreachable!(),
+        }
+    }
 }
