@@ -44,7 +44,7 @@ pub enum OpCode {
     #[doc(hidden)]
     __Nonexhaustive,
 }
-enum_constant!(OpCode);
+serde_int_enum!(OpCode);
 
 /// Gateway close event codes.
 pub mod close_codes {

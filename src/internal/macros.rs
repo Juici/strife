@@ -1,6 +1,17 @@
+macro_rules! pkg_version {
+    () => {
+        env!("CARGO_PKG_VERSION")
+    };
+}
+
+macro_rules! pkg_repo {
+    () => {
+        env!("CARGO_PKG_REPOSITORY")
+    };
+}
+
 #[doc(hidden)]
-#[macro_export]
-macro_rules! enum_constant {
+macro_rules! serde_int_enum {
     ($name:ident) => {
         impl ::serde::Serialize for $name {
             fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -53,26 +64,6 @@ macro_rules! enum_constant {
     };
 }
 
-#[doc(hidden)]
-#[macro_export]
-macro_rules! pkg_name {
-    () => {
-        env!("CARGO_PKG_NAME")
-    };
-}
 
-#[doc(hidden)]
-#[macro_export]
-macro_rules! pkg_version {
-    () => {
-        env!("CARGO_PKG_VERSION")
-    };
-}
 
-#[doc(hidden)]
-#[macro_export]
-macro_rules! pkg_repo {
-    () => {
-        env!("CARGO_PKG_REPOSITORY")
-    };
 }
