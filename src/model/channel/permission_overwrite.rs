@@ -1,3 +1,5 @@
+use std::fmt::{self, Display};
+
 use serde::{Serialize, Serializer};
 
 use crate::model::{
@@ -16,6 +18,16 @@ pub enum OverwriteId {
     User(UserId),
     #[doc(hidden)]
     __Nonexhaustive,
+}
+
+impl Display for OverwriteId {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            OverwriteId::Role(id) => id.fmt(f),
+            OverwriteId::User(id) => id.fmt(f),
+            OverwriteId::__Nonexhaustive => unreachable!(),
+        }
+    }
 }
 
 impl From<RoleId> for OverwriteId {
