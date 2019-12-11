@@ -56,13 +56,13 @@ macro_rules! api {
     ($s:expr) => {
         __api!(@s $s)
     };
-    ($s:expr, $($arg:expr),*) => {
+    ($s:expr, $($arg:expr),* $(,)*) => {
         __api!(@s $s; @a $($arg),*)
     };
-    ($s:expr, $($arg:expr),*; []) => {
+    ($s:expr, $($arg:expr),* $(,)*; []) => {
         api!($s, $($arg),*)
     };
-    ($s:expr, $($arg:expr),*; [$($params:tt)*]) => {
+    ($s:expr, $($arg:expr),* $(,)*; [$($params:tt)*]) => {
         __api!(@s concat!($s, "?"); @a $($arg),*; @p [$($params)*]; @o [])
     };
 }
