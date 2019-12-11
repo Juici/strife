@@ -1,3 +1,9 @@
+macro_rules! pkg_name {
+    () => {
+        env!("CARGO_PKG_NAME")
+    };
+}
+
 macro_rules! pkg_version {
     () => {
         env!("CARGO_PKG_VERSION")
