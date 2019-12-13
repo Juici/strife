@@ -1,3 +1,5 @@
+//! Private macros used throughout the library.
+
 macro_rules! pkg_name {
     () => {
         env!("CARGO_PKG_NAME")
