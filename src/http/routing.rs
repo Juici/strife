@@ -291,6 +291,7 @@ pub enum Bucket {
 
 // TODO: Add support for status api (https://status.discordapp.com/api/).
 #[remain::sorted]
+#[derive(Clone, Debug)]
 pub enum Route<'a> {
     AddGroupRecipient {
         channel_id: ChannelId,
@@ -600,14 +601,6 @@ pub enum Route<'a> {
 }
 
 impl<'a> Route<'a> {
-    pub fn request_info(&self) -> RequestInfo<'a> {
-        RequestInfo {
-            method: self.method(),
-            bucket: self.bucket(),
-            url: self.url(),
-        }
-    }
-
     #[remain::check]
     pub fn method(&self) -> Method {
         use self::Route::*;
@@ -1209,15 +1202,7 @@ impl From<Method> for ReqwestMethod {
     }
 }
 
-/// Information for constructing a request to a [`Route`].
-///
-/// [`Route`]: enum.Route.html
-pub struct RequestInfo<'a> {
-    pub method: Method,
-    pub bucket: Bucket,
-    pub url: Cow<'a, str>,
-}
-
+#[derive(Clone, Copy, Debug)]
 pub enum AroundMessage {
     Around(MessageId),
     Before(MessageId),
