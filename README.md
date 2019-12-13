@@ -1,8 +1,12 @@
 strife
 ======
 
+[![CI][ci-badge]][ci-link]
 [![Crates.io][cargo-badge]][cargo-link]
 [![Documentation][docs-badge]][docs-link]
+
+[ci-link]: https://github.com/Juici/strife/actions?query=workflow%3ACI
+[ci-badge]: https://img.shields.io/github/workflow/status/Juici/strife/CI.svg
 
 [cargo-link]: https://crates.io/crates/strife
 [cargo-badge]: https://img.shields.io/crates/v/strife.svg
