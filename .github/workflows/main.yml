@@ -74,7 +74,7 @@ jobs:
       - name: Publish documentation
         run: |
           cd target/doc
-          echo '<meta http-equiv=refresh content=0;url=strife/index.html>' >! index.html
+          echo '<meta http-equiv=refresh content=0;url=strife/index.html>' > index.html
           git init
           git add .
           git -c user.name='ci' -c user.email='ci' commit -m init
