@@ -8,9 +8,9 @@ mod event_handler;
 
 use std::sync::{Arc, Mutex};
 
-use crate::error::Result;
+use crate::internal::prelude::*;
 
-pub use crate::client::event_handler::EventHandler;
+pub use self::event_handler::EventHandler;
 
 /// A client that connects to Discord via the WebSocket and API.
 pub struct Client {}
