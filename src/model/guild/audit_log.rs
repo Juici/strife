@@ -8,7 +8,7 @@ use int_enum::*;
 ///
 /// [type of action]: https://discordapp.com/developers/docs/resources/audit-log#audit-log-entry-object-audit-log-events
 #[allow(missing_docs)]
-#[int_enum(u64)]
+#[int_enum(u8)]
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum AuditLogEvent {
     GuildUpdate = 1,
