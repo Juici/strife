@@ -1,5 +1,7 @@
 //! Permissions for a role or user.
 
+#![allow(clippy::unreadable_literal)]
+
 use std::fmt;
 
 use bitflags::bitflags;
