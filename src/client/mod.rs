@@ -53,7 +53,6 @@ impl Client {
             format!("Bot {}", token)
         };
 
-
         // TODO: thread pool
         let _name = concat!(pkg_name!(), " client");
         // TODO: event handler
