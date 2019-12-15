@@ -6,8 +6,7 @@
 
 mod event_handler;
 
-use std::sync::{Arc, Mutex};
-
+use crate::http::Http;
 use crate::internal::prelude::*;
 
 pub use self::event_handler::EventHandler;
@@ -52,6 +51,8 @@ impl Client {
         } else {
             format!("Bot {}", token)
         };
+
+        let _http = Http::new(token);
 
         // TODO: thread pool
         let _name = concat!(pkg_name!(), " client");

@@ -9,8 +9,9 @@ mod internal;
 
 pub mod client;
 pub mod constants;
-pub mod model;
 pub mod http;
+pub mod model;
 
 pub use crate::client::Client;
 pub use crate::error::{Error, Result};
+pub use crate::http::Http;

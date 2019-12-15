@@ -2,6 +2,8 @@ use std::{fmt, result};
 
 use thiserror::Error;
 
+use crate::http::HttpError;
+
 /// The common result type returned by library functions.
 pub type Result<T> = result::Result<T, Error>;
 
@@ -11,6 +13,9 @@ pub type Result<T> = result::Result<T, Error>;
 #[derive(Debug, Error)]
 pub enum Error {
     /// An error while formatting a message.
-    #[error("format error: {0}")]
+    #[error(transparent)]
     Format(#[from] fmt::Error),
+    /// An HTTP error.
+    #[error(transparent)]
+    HttpError(#[from] HttpError),
 }
