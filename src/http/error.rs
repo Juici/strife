@@ -45,7 +45,7 @@ impl ErrorResponse {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DiscordJsonError {
     /// The error code.
-    pub code: usize,
+    pub code: u32,
     /// A user friendly error message.
     pub message: String,
     #[serde(skip)]
