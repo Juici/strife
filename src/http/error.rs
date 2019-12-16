@@ -1,22 +1,33 @@
-use reqwest::{Response, StatusCode, Url};
+use bytes::Bytes;
+use hyper::http::uri::InvalidUri;
+use hyper::StatusCode;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 /// An HTTP error.
+#[remain::sorted]
 #[derive(Debug, Error)]
 pub enum Error {
+    /// An Hyper error.
+    #[error(transparent)]
+    HyperError(#[from] hyper::Error),
     /// An invalid header value.
     #[error("invalid header value")]
-    InvalidHeader,
-    /// An error parsing a header value.
-    #[error("failed to parse header value")]
-    ParseHeaderValue,
+    InvalidHeader(Bytes),
+    /// Attempted to parse an invalid URI.
+    #[error(transparent)]
+    InvalidUri(#[from] InvalidUri),
+    /// An error parsing a header.
+    #[error("failed to parse header: {name}")]
+    ParseHeaderError {
+        /// The header name.
+        name: String,
+        /// The header value.
+        value: Bytes,
+    },
     /// An unsuccessful request.
     #[error("request to \"{}\" failed: {}", .0.url, .0.status)]
     UnsuccessfulRequest(ErrorResponse),
-    /// A request error.
-    #[error(transparent)]
-    Request(#[from] reqwest::Error),
 }
 
 #[derive(Clone, Debug)]
@@ -24,19 +35,9 @@ pub struct ErrorResponse {
     /// The HTTP status code of the response.
     pub status: StatusCode,
     /// The URL of the request.
-    pub url: Url,
+    pub url: String,
     /// A Discord JSON error object.
     pub error: Option<DiscordJsonError>,
-}
-
-impl ErrorResponse {
-    pub(crate) async fn from_response(response: Response) -> ErrorResponse {
-        ErrorResponse {
-            status: response.status(),
-            url: response.url().clone(),
-            error: response.json().await.ok(),
-        }
-    }
 }
 
 /// A [Discord JSON error].

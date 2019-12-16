@@ -5,13 +5,13 @@ use std::{i64, str};
 
 use async_std::sync::{Arc, Mutex, RwLock};
 
+use bytes::Bytes;
 use futures_timer::Delay;
-use reqwest::header::HeaderMap;
-use reqwest::{Client, Response, StatusCode};
+use hyper::{HeaderMap, StatusCode};
 
 use crate::internal::prelude::*;
 
-use super::error::Error as HttpError;
+use super::prelude::*;
 use super::request::Request;
 use super::routing::Bucket;
 
@@ -28,14 +28,14 @@ const RETRY_AFTER: &str = "Retry-After";
 /// Ratelimiter for requests the the Discord REST API.
 pub struct RateLimiter {
     token: String,
-    client: Arc<Client>,
+    client: Arc<HyperClient>,
     global: Arc<Mutex<()>>,
     routes: Arc<RwLock<HashMap<Bucket, Arc<Mutex<RateLimit>>>>>,
 }
 
 impl RateLimiter {
     /// Creates a new rate limit manager.
-    pub fn new<S: AsRef<str>>(client: Arc<Client>, token: S) -> RateLimiter {
+    pub fn new<S: AsRef<str>>(client: Arc<HyperClient>, token: S) -> RateLimiter {
         RateLimiter {
             token: token.as_ref().to_string(),
             client,
@@ -44,7 +44,7 @@ impl RateLimiter {
         }
     }
 
-    pub async fn perform(&self, request: Request<'_>) -> Result<Response> {
+    pub async fn perform(&self, request: &Request<'_>) -> Result<HttpResponse> {
         let bucket = request.route.bucket();
 
         loop {
@@ -52,7 +52,7 @@ impl RateLimiter {
             // Drop instantly to prevent blocking other threads.
             drop(self.global.lock().await);
 
-            let req = request.build(&self.client, &self.token)?;
+            let req = request.build(&self.token)?;
 
             // No rate limits apply.
             if bucket == Bucket::None {}
@@ -63,7 +63,11 @@ impl RateLimiter {
             // Apply pre-request hooks.
             bucket_mtx.lock().await.pre_hook(&bucket).await;
 
-            let response = req.send().await.map_err(HttpError::Request)?;
+            let response = self
+                .client
+                .request(req)
+                .await
+                .map_err(HttpError::HyperError)?;
 
             // No ratelimits apply to this request.
             if bucket == Bucket::None {
@@ -154,7 +158,7 @@ impl RateLimit {
         self.remaining -= 1;
     }
 
-    async fn post_hook(&mut self, response: &Response, bucket: &Bucket) -> Result<bool> {
+    async fn post_hook(&mut self, response: &HttpResponse, bucket: &Bucket) -> Result<bool> {
         if let Some(limit) = parse_header(&response.headers(), RATELIMIT_LIMIT)? {
             self.limit = limit;
         }
@@ -209,13 +213,18 @@ impl Default for RateLimit {
 }
 
 fn parse_header<T: FromStr>(headers: &HeaderMap, header: &str) -> Result<Option<T>> {
-    let header = match headers.get(header) {
+    let value = match headers.get(header) {
         Some(value) => value,
         None => return Ok(None),
     };
 
-    let s = str::from_utf8(header.as_bytes()).map_err(|_| HttpError::InvalidHeader)?;
-    let value = s.parse().map_err(|_| HttpError::ParseHeaderValue)?;
+    let bytes = value.as_bytes();
+    let s = str::from_utf8(bytes)
+        .map_err(|_| HttpError::InvalidHeader(Bytes::copy_from_slice(bytes)))?;
+    let value: T = s.parse().map_err(|_| HttpError::ParseHeaderError {
+        name: header.to_string(),
+        value: Bytes::copy_from_slice(bytes),
+    })?;
 
     Ok(Some(value))
 }
@@ -223,7 +232,7 @@ fn parse_header<T: FromStr>(headers: &HeaderMap, header: &str) -> Result<Option<
 #[cfg(test)]
 mod tests {
     use super::*;
-    use reqwest::header::{HeaderName, HeaderValue};
+    use hyper::header::{HeaderName, HeaderValue};
     use std::iter::FromIterator;
 
     #[test]

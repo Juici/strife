@@ -18,4 +18,7 @@ pub enum Error {
     /// An HTTP error.
     #[error(transparent)]
     HttpError(#[from] HttpError),
+    /// A JSON error.
+    #[error(transparent)]
+    JsonError(#[from] serde_json::Error),
 }

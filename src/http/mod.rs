@@ -5,10 +5,11 @@
 //! preventative measures to ensure that requests are not ratelimited.
 
 mod client;
+mod error;
+mod prelude;
 mod ratelimit;
 mod request;
 mod routing;
-mod error;
 
 pub use self::client::Http;
 pub use self::error::Error as HttpError;

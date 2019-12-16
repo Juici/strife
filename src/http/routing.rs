@@ -5,7 +5,7 @@
 use std::borrow::Cow;
 use std::fmt::Write;
 
-use reqwest::Method as ReqwestMethod;
+use hyper::Method as HttpMethod;
 
 use crate::model::{
     channel::OverwriteId,
@@ -1190,14 +1190,14 @@ pub enum Method {
     Put,
 }
 
-impl From<Method> for ReqwestMethod {
+impl From<Method> for HttpMethod {
     fn from(method: Method) -> Self {
         match method {
-            Method::Delete => ReqwestMethod::DELETE,
-            Method::Get => ReqwestMethod::GET,
-            Method::Patch => ReqwestMethod::PATCH,
-            Method::Post => ReqwestMethod::POST,
-            Method::Put => ReqwestMethod::PUT,
+            Method::Delete => HttpMethod::DELETE,
+            Method::Get => HttpMethod::GET,
+            Method::Patch => HttpMethod::PATCH,
+            Method::Post => HttpMethod::POST,
+            Method::Put => HttpMethod::PUT,
         }
     }
 }
