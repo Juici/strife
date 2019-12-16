@@ -33,7 +33,7 @@ impl Http {
     }
 
     /// Performs a request with rate limiting if necessary.
-    pub async fn request<T: DeserializeOwned>(&self, req: Request<'_>) -> Result<T> {
+    async fn request<T: DeserializeOwned>(&self, req: Request<'_>) -> Result<T> {
         let response = self.inner_request(req).await?;
         let result = response.json().await;
         result.map_err(|err| Error::HttpError(HttpError::Request(err)))
