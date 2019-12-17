@@ -75,15 +75,84 @@ macro_rules! api {
     };
 }
 
-macro_rules! serde_int_enum {
-    ($name:ident) => {
+#[doc(hidden)]
+macro_rules! __serialize_as {
+    ($s:expr, $v:ident as u8) => {
+        $s.serialize_u8($v)
+    };
+    ($s:expr, $v:ident as u16) => {
+        $s.serialize_u16($v)
+    };
+    ($s:expr, $v:ident as u32) => {
+        $s.serialize_u32($v)
+    };
+    ($s:expr, $v:ident as u64) => {
+        $s.serialize_u64($v)
+    };
+}
+
+#[doc(hidden)]
+macro_rules! __deserialize_as {
+    ($d:expr, $v:ident as u8) => {
+        $d.deserialize_u8($v)
+    };
+    ($d:expr, $v:ident as u16) => {
+        $d.deserialize_u16($v)
+    };
+    ($d:expr, $v:ident as u32) => {
+        $d.deserialize_u32($v)
+    };
+    ($d:expr, $v:ident as u64) => {
+        $d.deserialize_u64($v)
+    };
+}
+
+#[doc(hidden)]
+macro_rules! __visit_as {
+    ($v:ident: u8 => $($f:tt)*) => {
+        fn visit_u8<E: ::serde::de::Error>(self, $v: u8) -> Result<Self::Value, E> {
+            $($f)*
+        }
+    };
+    ($v:ident: u16 => $($f:tt)*) => {
+        fn visit_u16<E: ::serde::de::Error>(self, $v: u16) -> Result<Self::Value, E> {
+            $($f)*
+        }
+    };
+    ($v:ident: u32 => $($f:tt)*) => {
+        fn visit_u32<E: ::serde::de::Error>(self, $v: u32) -> Result<Self::Value, E> {
+            $($f)*
+        }
+    };
+    ($v:ident: u64 => $($f:tt)*) => {
+        fn visit_u64<E: ::serde::de::Error>(self, $v: u64) -> Result<Self::Value, E> {
+            $($f)*
+        }
+    };
+}
+
+macro_rules! int_enum {
+    (
+        $(#[$attrs:meta])*
+        $vis:vis enum $name:ident: $T:tt {
+            $($inner:tt)*
+        }
+    ) => {
+        use int_enum::*;
+
+        #[int_enum($T)]
+        $(#[$attrs])*
+        $vis enum $name {
+            $($inner)*
+        }
+
         impl ::serde::Serialize for $name {
             fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
             where
                 S: ::serde::Serializer,
             {
                 match ::int_enum::IntEnum::as_int(self) {
-                    Some(v) => serializer.serialize_u64(v),
+                    Some(v) => __serialize_as!(serializer, v as $T),
                     None => unreachable!(),
                 }
             }
@@ -99,30 +168,26 @@ macro_rules! serde_int_enum {
                 impl<'de> ::serde::de::Visitor<'de> for Visitor {
                     type Value = $name;
 
-                    fn expecting(
-                        &self,
-                        formatter: &mut std::fmt::Formatter<'_>,
-                    ) -> std::fmt::Result {
-                        formatter.write_str("positive integer")
-                    }
-
-                    fn visit_u64<E>(self, v: u64) -> Result<Self::Value, E>
-                    where
-                        E: serde::de::Error,
-                    {
+                    __visit_as! { v: $T => {
                         let from_int: Option<$name> = ::int_enum::IntEnum::from_int(v);
                         match from_int {
                             Some(v) => Ok(v),
                             None => Err(E::custom(format!(
-                                "unknown {} value: {}",
-                                stringify!($name),
+                                concat!("unknown value for ", stringify!($name), ": {}"),
                                 v
                             ))),
                         }
+                    }}
+
+                    fn expecting(
+                        &self,
+                        formatter: &mut ::std::fmt::Formatter<'_>,
+                    ) -> ::std::fmt::Result {
+                        formatter.write_str(concat!(stringify!($T), " integer"))
                     }
                 }
 
-                deserializer.deserialize_u64(Visitor)
+                __deserialize_as!(deserializer, Visitor as $T)
             }
         }
     };
@@ -130,7 +195,6 @@ macro_rules! serde_int_enum {
 
 #[cfg(test)]
 mod tests {
-
     const ID: u64 = 80351110224678912;
 
     #[test]
