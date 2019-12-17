@@ -1,4 +1,8 @@
-//! Permissions for a role or user.
+//! Models the [bitwise permissions flags] used by Discord to store
+//! [permissions].
+//!
+//! [bitwise permissions flags]: https://discordapp.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags
+//! [permissions]: https://discordapp.com/developers/docs/topics/permissions#permissions
 
 #![allow(clippy::unreadable_literal)]
 
