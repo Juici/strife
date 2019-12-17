@@ -1,7 +1,5 @@
 //! A collection of constants used by the library.
 
-use int_enum::*;
-
 /// The gateway version used by the library, URI is retrieved via the REST API.
 pub const GATEWAY_VERSION: usize = 6;
 
