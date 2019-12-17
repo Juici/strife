@@ -9,10 +9,9 @@
 use std::fmt::{self, Display};
 
 use chrono::{DateTime, TimeZone, Utc};
-use serde::{
-    de::{self, Deserialize, Deserializer},
-    ser::{Serialize, Serializer},
-};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+use crate::model::utils::U64Visitor;
 
 /// Discord epoch is the first second of 2015.
 const DISCORD_EPOCH: u64 = 1_420_070_400_000;
@@ -33,16 +32,6 @@ impl Snowflake {
         let millis = (timestamp % 1000) * 1_000_000;
 
         Utc.timestamp(secs as i64, millis as u32)
-    }
-
-    /// Immutably borrow the inner ID.
-    pub fn as_u64(&self) -> &u64 {
-        &self.0
-    }
-
-    /// Mutably borrow the inner ID.
-    pub fn as_u64_mut(&mut self) -> &mut u64 {
-        &mut self.0
     }
 }
 
@@ -76,6 +65,18 @@ impl From<Snowflake> for u64 {
     }
 }
 
+impl AsRef<u64> for Snowflake {
+    fn as_ref(&self) -> &u64 {
+        &self.0
+    }
+}
+
+impl AsMut<u64> for Snowflake {
+    fn as_mut(&mut self) -> &mut u64 {
+        &mut self.0
+    }
+}
+
 impl Serialize for Snowflake {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -90,38 +91,7 @@ impl<'de> Deserialize<'de> for Snowflake {
     where
         D: Deserializer<'de>,
     {
-        struct Visitor;
-
-        impl<'de> de::Visitor<'de> for Visitor {
-            type Value = u64;
-
-            fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-                formatter.write_str("a 64 bit snowflake id")
-            }
-
-            fn visit_i64<E>(self, v: i64) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                Ok(v as u64)
-            }
-
-            fn visit_u64<E>(self, v: u64) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                Ok(v)
-            }
-
-            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                v.parse::<u64>().map_err(de::Error::custom)
-            }
-        }
-
-        deserializer.deserialize_any(Visitor).map(Snowflake)
+        deserializer.deserialize_any(U64Visitor).map(Snowflake)
     }
 }
 
