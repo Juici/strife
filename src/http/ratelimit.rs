@@ -12,8 +12,6 @@ use hyper::{HeaderMap, StatusCode};
 use crate::internal::prelude::*;
 
 use super::prelude::*;
-use super::request::Request;
-use super::routing::Bucket;
 
 const RATELIMIT_GLOBAL: &str = "x-ratelimit-global";
 const RATELIMIT_LIMIT: &str = "x-ratelimit-limit";

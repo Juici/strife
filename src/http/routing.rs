@@ -250,16 +250,6 @@ pub enum Bucket {
     UsersMeChannels,
     /// Route:
     /// ```text
-    /// /users/@me/connections
-    /// ```
-    UsersMeConnections,
-    /// Route:
-    /// ```text
-    /// /users/@me/guilds
-    /// ```
-    UsersMeGuilds,
-    /// Route:
-    /// ```text
     /// /users/@me/guilds/{guild.id}
     /// ```
     UsersMeGuildsId(GuildId),
@@ -724,9 +714,8 @@ impl<'a> Route<'a> {
 
             DeleteReactions { channel_id, .. } => Bucket::ChannelsIdMessagesIdReactions(channel_id),
 
-            EditMessage { channel_id, .. } | DeleteMessage { channel_id, .. } => {
-                Bucket::ChannelsIdMessagesId(channel_id)
-            }
+            EditMessage { channel_id, .. } => Bucket::ChannelsIdMessagesId(channel_id),
+            DeleteMessage { channel_id, .. } => Bucket::ChannelsIdMessagesIdDelete(channel_id),
 
             DeleteMessagesBulk { channel_id, .. } => {
                 Bucket::ChannelsIdMessagesBulkDelete(channel_id)
@@ -794,7 +783,7 @@ impl<'a> Route<'a> {
             }
 
             EditRole { guild_id, .. } | DeleteRole { guild_id, .. } => {
-                Bucket::GuildsIdMembersIdRolesId(guild_id)
+                Bucket::GuildsIdRolesId(guild_id)
             }
 
             GetGuildPruneCount { guild_id, .. } | PruneGuildMembers { guild_id, .. } => {

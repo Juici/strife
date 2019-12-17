@@ -7,7 +7,6 @@ use crate::internal::prelude::*;
 use super::error::ErrorResponse;
 use super::prelude::*;
 use super::ratelimit::RateLimiter;
-use super::request::Request;
 
 /// An HTTP client for performing requests to the REST API.
 pub struct Http {
