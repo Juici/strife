@@ -1,4 +1,7 @@
 //! Models related to guilds.
 
-pub mod audit_log;
-pub mod emoji;
+mod audit_log;
+mod emoji;
+
+pub use self::audit_log::*;
+pub use self::emoji::*;

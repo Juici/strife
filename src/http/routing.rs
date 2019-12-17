@@ -9,7 +9,7 @@ use hyper::Method as HttpMethod;
 
 use crate::model::{
     channel::OverwriteId,
-    guild::{audit_log::AuditLogEvent, emoji::Emoji},
+    guild::{AuditLogEvent, Emoji},
     id::*,
 };
 
