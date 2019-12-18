@@ -1,7 +1,5 @@
 //! Models related to audit logs.
 
-use std::fmt::{self, Display};
-
 // TODO: Docs for AuditLogEvent.
 
 int_enum! {
@@ -24,6 +22,9 @@ int_enum! {
         MemberBanRemove = 23,
         MemberUpdate = 24,
         MemberRoleUpdate = 25,
+        MemberMove = 26,
+        MemberDisconnect = 27,
+        BotAdd = 28,
         RoleCreate = 30,
         RoleUpdate = 31,
         RoleDelete = 32,
@@ -37,16 +38,13 @@ int_enum! {
         EmojiUpdate = 61,
         EmojiDelete = 62,
         MessageDelete = 72,
+        MessageBulkDelete = 73,
+        MessagePin = 74,
+        MessageUnpin = 75,
+        IntegrationCreate = 80,
+        IntegrationUpdate = 81,
+        IntegrationDelete = 82,
         #[doc(hidden)]
         __Nonexhaustive,
-    }
-}
-
-impl Display for AuditLogEvent {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match IntEnum::as_int(self) {
-            Some(ref n) => Display::fmt(n, f),
-            None => unreachable!(),
-        }
     }
 }
