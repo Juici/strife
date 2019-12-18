@@ -852,12 +852,15 @@ impl<'a> Route<'a> {
                 action_type,
                 before,
                 limit,
-            } => Cow::from(api!("/guilds/{}/audit-logs?", guild_id; [
-                ("user_id", user_id?),
-                ("action_type", action_type?),
-                ("before", before?),
-                ("limit", limit?),
-            ])),
+            } => {
+                let action_type = action_type.map(u8::from);
+                Cow::from(api!("/guilds/{}/audit-logs?", guild_id; [
+                    ("user_id", user_id?),
+                    ("action_type", action_type?),
+                    ("before", before?),
+                    ("limit", limit?),
+                ]))
+            }
 
             GetChannel { channel_id }
             | EditChannel { channel_id }
