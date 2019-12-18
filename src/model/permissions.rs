@@ -101,7 +101,7 @@ impl<'de> Deserialize<'de> for Permissions {
             None => {
                 let unknown: u64 = bits & !Permissions::all().bits();
                 Err(de::Error::custom(format!(
-                    "unknown permissions bits {} in {}",
+                    "unknown permissions bits {:b} in {:b}",
                     unknown, bits
                 )))
             }
