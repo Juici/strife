@@ -144,12 +144,11 @@ macro_rules! int_enum {
             $($inner)*
         }
 
-        impl ::std::convert::From<$T> for $name {
-            fn from(n: $T) -> Self {
-                match ::int_enum::IntEnum::from_int(n) {
-                    Some(n) => n,
-                    None => unreachable!(),
-                }
+        impl ::std::convert::TryFrom<$T> for $name {
+            type Error = ();
+
+            fn try_from(n: $T) -> ::std::result::Result<Self, Self::Error> {
+                ::int_enum::IntEnum::from_int(n).ok_or(())
             }
         }
 
@@ -176,10 +175,8 @@ macro_rules! int_enum {
             where
                 S: ::serde::Serializer,
             {
-                match ::int_enum::IntEnum::as_int(self) {
-                    Some(v) => __serialize_as!(serializer, v as $T),
-                    None => unreachable!(),
-                }
+                let v = self.into();
+                __serialize_as!(serializer, v as $T)
             }
         }
 
