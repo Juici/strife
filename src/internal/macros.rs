@@ -110,22 +110,22 @@ macro_rules! __deserialize_as {
 #[doc(hidden)]
 macro_rules! __visit_as {
     ($v:ident: u8 => $($f:tt)*) => {
-        fn visit_u8<E: ::serde::de::Error>(self, $v: u8) -> Result<Self::Value, E> {
+        fn visit_u8<E: ::serde::de::Error>(self, $v: u8) -> ::std::result::Result<Self::Value, E> {
             $($f)*
         }
     };
     ($v:ident: u16 => $($f:tt)*) => {
-        fn visit_u16<E: ::serde::de::Error>(self, $v: u16) -> Result<Self::Value, E> {
+        fn visit_u16<E: ::serde::de::Error>(self, $v: u16) -> ::std::result::Result<Self::Value, E> {
             $($f)*
         }
     };
     ($v:ident: u32 => $($f:tt)*) => {
-        fn visit_u32<E: ::serde::de::Error>(self, $v: u32) -> Result<Self::Value, E> {
+        fn visit_u32<E: ::serde::de::Error>(self, $v: u32) -> ::std::result::Result<Self::Value, E> {
             $($f)*
         }
     };
     ($v:ident: u64 => $($f:tt)*) => {
-        fn visit_u64<E: ::serde::de::Error>(self, $v: u64) -> Result<Self::Value, E> {
+        fn visit_u64<E: ::serde::de::Error>(self, $v: u64) -> ::std::result::Result<Self::Value, E> {
             $($f)*
         }
     };
@@ -138,16 +138,41 @@ macro_rules! int_enum {
             $($inner:tt)*
         }
     ) => {
-        use int_enum::*;
-
-        #[int_enum($T)]
+        #[int_enum::int_enum($T)]
         $(#[$attrs])*
         $vis enum $name {
             $($inner)*
         }
 
+        impl ::std::convert::From<$T> for $name {
+            fn from(n: $T) -> Self {
+                match ::int_enum::IntEnum::from_int(n) {
+                    Some(n) => n,
+                    None => unreachable!(),
+                }
+            }
+        }
+
+        impl ::std::convert::From<$name> for $T {
+            fn from(n: $name) -> Self {
+                match ::int_enum::IntEnum::as_int(&n) {
+                    Some(n) => n,
+                    None => unreachable!(),
+                }
+            }
+        }
+
+        impl<'a> ::std::convert::From<&'a $name> for $T {
+            fn from(n: &'a $name) -> Self {
+                match ::int_enum::IntEnum::as_int(n) {
+                    Some(n) => n,
+                    None => unreachable!(),
+                }
+            }
+        }
+
         impl ::serde::Serialize for $name {
-            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+            fn serialize<S>(&self, serializer: S) -> ::std::result::Result<S::Ok, S::Error>
             where
                 S: ::serde::Serializer,
             {
@@ -159,7 +184,7 @@ macro_rules! int_enum {
         }
 
         impl<'de> ::serde::Deserialize<'de> for $name {
-            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+            fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
             where
                 D: ::serde::Deserializer<'de>,
             {
