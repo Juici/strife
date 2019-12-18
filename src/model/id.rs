@@ -10,67 +10,67 @@ use crate::model::snowflake::Snowflake;
 ///
 /// [`Application`]: TODO
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
-pub struct ApplicationId(pub Snowflake);
+pub struct ApplicationId(Snowflake);
 
 /// The ID of an [`Attachment`].
 ///
 /// [`Attachment`]: TODO
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
-pub struct AttachmentId(pub Snowflake);
+pub struct AttachmentId(Snowflake);
 
 /// The ID of an [`AuditLogEntry`].
 ///
 /// [`AuditLogEntry`]: TODO
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
-pub struct AuditLogEntryId(pub Snowflake);
+pub struct AuditLogEntryId(Snowflake);
 
 /// The ID of a [`Channel`].
 ///
 /// [`Channel`]: TODO
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
-pub struct ChannelId(pub Snowflake);
+pub struct ChannelId(Snowflake);
 
 /// The ID of an [`Emoji`].
 ///
 /// [`Emoji`]: TODO
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
-pub struct EmojiId(pub Snowflake);
+pub struct EmojiId(Snowflake);
 
 /// The ID of a [`Guild`].
 ///
 /// [`Guild`]: TODO
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
-pub struct GuildId(pub Snowflake);
+pub struct GuildId(Snowflake);
 
 /// The ID of an [`Integration`].
 ///
 /// [`Integration`]: TODO
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
-pub struct IntegrationId(pub Snowflake);
+pub struct IntegrationId(Snowflake);
 
 /// The ID of a [`Message`].
 ///
 /// [`Message`]: TODO
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
-pub struct MessageId(pub Snowflake);
+pub struct MessageId(Snowflake);
 
 /// The ID of a [`Role`].
 ///
 /// [`Role`]: TODO
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
-pub struct RoleId(pub Snowflake);
+pub struct RoleId(Snowflake);
 
 /// The ID of a [`User`].
 ///
 /// [`User`]: TODO
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
-pub struct UserId(pub Snowflake);
+pub struct UserId(Snowflake);
 
 /// The ID of a [`Webhook`].
 ///
 /// [`Webhook`]: TODO
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
-pub struct WebhookId(pub Snowflake);
+pub struct WebhookId(Snowflake);
 
 macro_rules! impl_id {
     ($($name:ident,)*) => {$(
