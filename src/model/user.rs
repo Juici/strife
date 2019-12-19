@@ -296,8 +296,15 @@ mod tests {
 
     use super::*;
 
+    macro_rules! assert_eq_fields {
+        ($left:expr, $right:expr, [$($field:ident),* $(,)*]) => {$(
+            assert_eq!($left.$field, $right.$field);
+        )*};
+    }
+
     fn sanitize_user(mut user: Value) -> Value {
-        // Discord doesn't care about string vs u64 for IDs.
+        // Discord doesn't care about string vs u64 for IDs,
+        // but for direct Value to Value equivalence we do.
         if let Value::Number(ref id) = user["id"] {
             user["id"] = Value::String(id.to_string());
         }
@@ -324,12 +331,7 @@ mod tests {
 
         let user2: User = serde_json::from_value(value.clone()).unwrap();
 
-        assert_eq!(user.id, user2.id);
-        assert_eq!(user.name, user2.name);
-        assert_eq!(user.discriminator, user2.discriminator);
-        assert_eq!(user.avatar, user2.avatar);
-        assert_eq!(user.bot, user2.bot);
-        assert_eq!(user.system, user2.system);
+        assert_eq_fields!(user, user2, [id, name, discriminator, avatar, bot, system]);
     }
 
     #[test]
@@ -349,6 +351,157 @@ mod tests {
             avatar: Some("a_e8b3a198dab6af59aacd1072bbedb255".to_owned()),
             bot: false,
             system: false,
+            non_exhaustive: (),
+        };
+
+        let value2 = sanitize_user(serde_json::to_value(user).unwrap());
+
+        assert_eq!(value, value2);
+    }
+
+    #[test]
+    fn test_deserialize_client_user1() {
+        let value = json!({
+            "id": "82198898841029460",
+            "username": "test",
+            "discriminator": "9999",
+            "avatar": "33ecab261d4681afa4d85a04691c4a01",
+            "bot": false,
+            "mfa_enabled": true,
+            "locale": "en-US",
+            "verified": true,
+            "email": "test@example.com",
+            "flags": 64,
+            "premium_type": 1,
+        });
+        let user = ClientUser {
+            user: User {
+                id: UserId::from(82198898841029460),
+                name: "test".to_owned(),
+                discriminator: "9999".parse().unwrap(),
+                avatar: Some("33ecab261d4681afa4d85a04691c4a01".to_owned()),
+                bot: false,
+                system: Default::default(),
+                non_exhaustive: (),
+            },
+            mfa_enabled: true,
+            locale: "en-US".to_string(),
+            verified: true,
+            email: Some("test@example.com".to_owned()),
+            flags: UserFlags::from_bits(64).unwrap(),
+            premium_type: Some(PremiumType::NitroClassic),
+            non_exhaustive: (),
+        };
+
+        let user2: ClientUser = serde_json::from_value(value.clone()).unwrap();
+
+        assert_eq_fields!(
+            user,
+            user2,
+            [
+                id,
+                name,
+                discriminator,
+                avatar,
+                bot,
+                system,
+                mfa_enabled,
+                locale,
+                verified,
+                email,
+                flags,
+                premium_type,
+            ]
+        );
+    }
+
+    #[test]
+    fn test_deserialize_client_user2() {
+        let value = json!({
+            "id": "82198898841029460",
+            "username": "some bot",
+            "discriminator": "0369",
+            "avatar": null,
+            "bot": true,
+            "mfa_enabled": true,
+            "locale": "en-US",
+            "verified": true,
+            "email": null,
+            "flags": 0,
+        });
+        let user = ClientUser {
+            user: User {
+                id: UserId::from(82198898841029460),
+                name: "some bot".to_owned(),
+                discriminator: "0369".parse().unwrap(),
+                avatar: None,
+                bot: true,
+                system: Default::default(),
+                non_exhaustive: (),
+            },
+            mfa_enabled: true,
+            locale: "en-US".to_string(),
+            verified: true,
+            email: None,
+            flags: UserFlags::NONE,
+            premium_type: None,
+            non_exhaustive: (),
+        };
+
+        let user2: ClientUser = serde_json::from_value(value.clone()).unwrap();
+
+        assert_eq_fields!(
+            user,
+            user2,
+            [
+                id,
+                name,
+                discriminator,
+                avatar,
+                bot,
+                system,
+                mfa_enabled,
+                locale,
+                verified,
+                email,
+                flags,
+                premium_type,
+            ]
+        );
+    }
+
+    #[test]
+    fn test_serialize_client_user() {
+        let value = json!({
+            "id": "82198898841029460",
+            "username": "some bot",
+            "discriminator": "0369",
+            "avatar": null,
+            "bot": true,
+            "system": false,
+            "mfa_enabled": true,
+            "locale": "en-US",
+            "verified": true,
+            "email": null,
+            "premium_type": null,
+            "flags": 0,
+        });
+        let user = ClientUser {
+            user: User {
+                id: UserId::from(82198898841029460),
+                name: "some bot".to_owned(),
+                discriminator: "0369".parse().unwrap(),
+                avatar: None,
+                bot: true,
+                system: false,
+                non_exhaustive: (),
+            },
+            mfa_enabled: true,
+            locale: "en-US".to_string(),
+            verified: true,
+            email: None,
+            flags: UserFlags::NONE,
+            premium_type: None,
             non_exhaustive: (),
         };
 
