@@ -7,11 +7,9 @@ use std::fmt::Write;
 
 use hyper::Method as HttpMethod;
 
-use crate::model::{
-    channel::OverwriteId,
-    guild::{AuditLogEvent, Emoji},
-    id::*,
-};
+use crate::model::channel::OverwriteId;
+use crate::model::guild::{AuditLogEvent, Emoji};
+use crate::model::id::*;
 
 /// Buckets grouping [rate limited] routes.
 ///

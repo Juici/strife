@@ -4,7 +4,6 @@ use std::time::Duration;
 use std::{i64, str};
 
 use async_std::sync::{Arc, Mutex, RwLock};
-
 use bytes::Bytes;
 use futures_timer::Delay;
 use hyper::{HeaderMap, StatusCode};

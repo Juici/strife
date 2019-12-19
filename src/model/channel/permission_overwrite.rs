@@ -2,10 +2,8 @@ use std::fmt::{self, Display};
 
 use serde::{Serialize, Serializer};
 
-use crate::model::{
-    id::{RoleId, UserId},
-    permissions::Permissions,
-};
+use crate::model::id::{RoleId, UserId};
+use crate::model::permissions::Permissions;
 
 /// The ID of a [`PermissionOverwrite`].
 ///

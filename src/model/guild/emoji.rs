@@ -1,9 +1,6 @@
 //! Models emojis.
 
-use std::{
-    cmp::{Eq, PartialEq},
-    fmt::{self, Display},
-};
+use std::fmt::{self, Display};
 
 use serde::{Deserialize, Serialize};
 

@@ -5,7 +5,6 @@ use crate::constants;
 use crate::internal::prelude::*;
 
 use super::prelude::*;
-use super::routing::Route;
 
 const RATELIMIT_PRECISION: &str = "x-ratelimit-precision";
 

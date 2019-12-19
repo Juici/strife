@@ -1,9 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use crate::model::{
-    id::{ChannelId, GuildId, MessageId},
-    user::User,
-};
+use crate::model::id::{ChannelId, GuildId, MessageId};
+use crate::model::user::User;
 
 /// A message sent in a text channel.
 #[derive(Clone, Debug, Deserialize, Serialize)]
