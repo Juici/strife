@@ -76,6 +76,20 @@ macro_rules! api {
 }
 
 #[doc(hidden)]
+macro_rules! __assert_uint {
+    (u8) => {};
+    (u16) => {};
+    (u32) => {};
+    (u64) => {};
+    ($T:tt) => {
+        compile_error!(concat(
+            stringify!($T),
+            " is not a primitive unsigned integer type"
+        ));
+    };
+}
+
+#[doc(hidden)]
 macro_rules! __serialize_as {
     ($s:expr, $v:ident as u8) => {
         $s.serialize_u8($v)
@@ -91,46 +105,6 @@ macro_rules! __serialize_as {
     };
 }
 
-#[doc(hidden)]
-macro_rules! __deserialize_as {
-    ($d:expr, $v:ident as u8) => {
-        $d.deserialize_u8($v)
-    };
-    ($d:expr, $v:ident as u16) => {
-        $d.deserialize_u16($v)
-    };
-    ($d:expr, $v:ident as u32) => {
-        $d.deserialize_u32($v)
-    };
-    ($d:expr, $v:ident as u64) => {
-        $d.deserialize_u64($v)
-    };
-}
-
-#[doc(hidden)]
-macro_rules! __visit_as {
-    ($v:ident: u8 => $($f:tt)*) => {
-        fn visit_u8<E: ::serde::de::Error>(self, $v: u8) -> ::std::result::Result<Self::Value, E> {
-            $($f)*
-        }
-    };
-    ($v:ident: u16 => $($f:tt)*) => {
-        fn visit_u16<E: ::serde::de::Error>(self, $v: u16) -> ::std::result::Result<Self::Value, E> {
-            $($f)*
-        }
-    };
-    ($v:ident: u32 => $($f:tt)*) => {
-        fn visit_u32<E: ::serde::de::Error>(self, $v: u32) -> ::std::result::Result<Self::Value, E> {
-            $($f)*
-        }
-    };
-    ($v:ident: u64 => $($f:tt)*) => {
-        fn visit_u64<E: ::serde::de::Error>(self, $v: u64) -> ::std::result::Result<Self::Value, E> {
-            $($f)*
-        }
-    };
-}
-
 macro_rules! int_enum {
     (
         $(#[$attrs:meta])*
@@ -138,6 +112,8 @@ macro_rules! int_enum {
             $($inner:tt)*
         }
     ) => {
+        __assert_uint!($T);
+
         #[int_enum::int_enum($T)]
         $(#[$attrs])*
         $vis enum $name {
@@ -154,10 +130,7 @@ macro_rules! int_enum {
 
         impl ::std::convert::From<$name> for $T {
             fn from(n: $name) -> Self {
-                match ::int_enum::IntEnum::as_int(&n) {
-                    Some(n) => n,
-                    None => unreachable!(),
-                }
+                $T::from(&n)
             }
         }
 
@@ -175,7 +148,7 @@ macro_rules! int_enum {
             where
                 S: ::serde::Serializer,
             {
-                let v = self.into();
+                let v = $T::from(self);
                 __serialize_as!(serializer, v as $T)
             }
         }
@@ -190,26 +163,32 @@ macro_rules! int_enum {
                 impl<'de> ::serde::de::Visitor<'de> for Visitor {
                     type Value = $name;
 
-                    __visit_as! { v: $T => {
-                        let from_int: Option<$name> = ::int_enum::IntEnum::from_int(v);
-                        match from_int {
-                            Some(v) => Ok(v),
-                            None => Err(E::custom(format!(
-                                concat!("unknown value for ", stringify!($name), ": {}"),
-                                v
-                            ))),
-                        }
-                    }}
-
                     fn expecting(
                         &self,
                         formatter: &mut ::std::fmt::Formatter<'_>,
                     ) -> ::std::fmt::Result {
                         formatter.write_str(concat!(stringify!($T), " integer"))
                     }
+
+                    fn visit_u64<E>(self, v: u64) -> ::std::result::Result<Self::Value, E>
+                    where
+                        E: ::serde::de::Error,
+                    {
+                        const ZERO: $T = 0;
+                        const MAX: u64 = (!ZERO) as u64;
+
+                        if v < MAX {
+                            let v: Option<$name> = ::int_enum::IntEnum::from_int(v as $T);
+                            if let Some(v) = v {
+                                return Ok(v);
+                            }
+                        }
+
+                        Err(E::custom(format!(concat!("unknown value for ", stringify!($name), ": {}"), v)))
+                    }
                 }
 
-                __deserialize_as!(deserializer, Visitor as $T)
+                deserializer.deserialize_any(Visitor)
             }
         }
     };
