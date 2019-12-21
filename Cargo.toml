@@ -23,7 +23,7 @@ chrono = "0.4"
 futures-timer = "2.0"
 hyper = "0.13"
 hyper-tls = "0.4"
-int-enum = "0.2"
+int-enum = { version = "0.3", features = ["serialize", "convert"] }
 log = "0.4"
 remain = "0.2"
 serde = { version = "1.0", features = ["derive"] }

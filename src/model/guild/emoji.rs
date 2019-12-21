@@ -1,5 +1,3 @@
-//! Models emojis.
-
 use std::fmt::{self, Display};
 
 use serde::{Deserialize, Serialize};

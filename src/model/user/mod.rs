@@ -142,17 +142,17 @@ impl<'de> Deserialize<'de> for UserFlags {
     }
 }
 
-int_enum! {
-    /// The level of premium a [`User`] has.
-    ///
-    /// [`User`]: struct.User.html
-    #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-    pub enum PremiumType: u8 {
-        /// Nitro Classic.
-        NitroClassic = 1,
-        /// Nitro.
-        Nitro = 2,
-    }
+/// The level of premium a [`User`] has.
+///
+/// [`User`]: struct.User.html
+#[int_enum::int_enum(u8)]
+#[non_exhaustive]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum PremiumType {
+    /// Nitro Classic.
+    NitroClassic = 1,
+    /// Nitro.
+    Nitro = 2,
 }
 
 #[cfg(test)]
@@ -237,7 +237,7 @@ mod tests {
             "verified": true,
             "email": "test@example.com",
             "flags": 64,
-            "premium_type": 1,
+            "preu8mium_type": 1,
         });
         let user = ClientUser {
             user: User {
