@@ -237,7 +237,7 @@ mod tests {
             "verified": true,
             "email": "test@example.com",
             "flags": 64,
-            "preu8mium_type": 1,
+            "premium_type": 1,
         });
         let user = ClientUser {
             user: User {
