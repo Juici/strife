@@ -852,7 +852,7 @@ impl<'a> Route<'a> {
                 limit,
             } => {
                 let action_type = action_type.map(u8::from);
-                Cow::from(api!("/guilds/{}/audit-logs?", guild_id; [
+                Cow::from(api!("/guilds/{}/audit-logs", guild_id; [
                     ("user_id", user_id?),
                     ("action_type", action_type?),
                     ("before", before?),
