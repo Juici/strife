@@ -8,7 +8,7 @@
 
 use std::fmt::{self, Display};
 
-use chrono::{DateTime, TimeZone, Utc};
+use chrono::{DateTime, FixedOffset, TimeZone};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::model::utils::U64Visitor;
@@ -24,14 +24,14 @@ pub struct Snowflake(u64);
 
 impl Snowflake {
     /// Gets the timestamp that the snowflake was created at.
-    pub fn created_at(&self) -> DateTime<Utc> {
+    pub fn created_at(&self) -> DateTime<FixedOffset> {
         // Snowflake timestamp is offset.
         let timestamp = (self.0 >> 22) + DISCORD_EPOCH;
 
         let secs = timestamp / 1000;
         let millis = (timestamp % 1000) * 1_000_000;
 
-        Utc.timestamp(secs as i64, millis as u32)
+        FixedOffset::east(0).timestamp(secs as i64, millis as u32)
     }
 }
 
