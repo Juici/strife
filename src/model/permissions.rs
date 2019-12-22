@@ -7,10 +7,8 @@
 #![allow(clippy::unreadable_literal)]
 
 use bitflags::bitflags;
-use serde::{
-    de::{self, Deserialize, Deserializer},
-    ser::{Serialize, Serializer},
-};
+use serde::de;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::model::utils::U64Visitor;
 
