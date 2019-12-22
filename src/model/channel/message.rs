@@ -4,6 +4,7 @@ use crate::model::id::{ChannelId, GuildId, MessageId};
 use crate::model::user::User;
 
 /// A message sent in a text channel.
+#[non_exhaustive]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Message {
     /// The ID of the message.

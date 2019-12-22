@@ -8,14 +8,13 @@ use crate::model::permissions::Permissions;
 /// The ID of a [`PermissionOverwrite`].
 ///
 /// [`PermissionOverwrite`]: struct.PermissionOverwrite.html
+#[non_exhaustive]
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum OverwriteId {
     /// A role with permission overwrites being edited.
     Role(RoleId),
     /// A user with permission overwrites being edited.
     User(UserId),
-    #[doc(hidden)]
-    __Nonexhaustive,
 }
 
 impl Display for OverwriteId {
@@ -23,7 +22,7 @@ impl Display for OverwriteId {
         match self {
             OverwriteId::Role(id) => id.fmt(f),
             OverwriteId::User(id) => id.fmt(f),
-            OverwriteId::__Nonexhaustive => unreachable!(),
+            _ => unreachable!(),
         }
     }
 }
@@ -41,6 +40,7 @@ impl From<UserId> for OverwriteId {
 }
 
 /// Channel-specific permission overwrites for a role or user.
+#[non_exhaustive]
 #[derive(Clone, Debug, Serialize)]
 pub struct PermissionOverwrite {
     /// The ID of the role or user.
@@ -83,7 +83,7 @@ where
     let r#type = match id {
         OverwriteId::Role(_) => "role",
         OverwriteId::User(_) => "member",
-        OverwriteId::__Nonexhaustive => unreachable!(),
+        _ => unreachable!(),
     };
     serializer.serialize_str(r#type)
 }

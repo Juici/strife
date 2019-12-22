@@ -14,6 +14,7 @@ use crate::model::id::*;
 /// Buckets grouping [rate limited] routes.
 ///
 /// [rate limited]: https://discordapp.com/developers/docs/topics/rate-limits#rate-limits
+#[non_exhaustive]
 #[remain::sorted]
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Bucket {
@@ -272,12 +273,10 @@ pub enum Bucket {
     /// Routes where no rate limits are in place.
     #[remain::unsorted]
     None,
-
-    #[doc(hidden)]
-    __Nonexhaustive,
 }
 
 // TODO: Add support for status api (https://status.discordapp.com/api/).
+#[non_exhaustive]
 #[remain::sorted]
 #[derive(Clone, Debug)]
 pub enum Route<'a> {
@@ -583,9 +582,6 @@ pub enum Route<'a> {
         channel_id: ChannelId,
         message_id: MessageId,
     },
-
-    #[doc(hidden)]
-    __Nonexhaustive,
 }
 
 impl<'a> Route<'a> {
@@ -594,7 +590,7 @@ impl<'a> Route<'a> {
         use self::Route::*;
 
         #[remain::sorted]
-        match *self {
+        match self {
             AddGroupRecipient { .. } => Method::Put,
             AddMemberRole { .. } => Method::Put,
             BanMember { .. } => Method::Put,
@@ -680,7 +676,7 @@ impl<'a> Route<'a> {
             SyncIntegration { .. } => Method::Post,
             UnbanMember { .. } => Method::Delete,
             UnpinMessage { .. } => Method::Delete,
-            __Nonexhaustive => unreachable!(),
+            _ => unreachable!(),
         }
     }
 
@@ -836,7 +832,7 @@ impl<'a> Route<'a> {
             GetGateway => Bucket::Gateway,
             GetBotGateway => Bucket::GatewayBot,
 
-            __Nonexhaustive => unreachable!(),
+            _ => unreachable!(),
         }
     }
 

@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::model::id::EmojiId;
 
 /// An emoji, either a standard emoji or a custom guild emoji.
+#[non_exhaustive]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Emoji {
     /// The ID of the emoji, standard emojis have no ID.
@@ -22,8 +23,6 @@ pub struct Emoji {
     /// Whether the emoji is animated.
     #[serde(default)]
     pub animated: bool,
-    #[serde(skip)]
-    non_exhaustive: (),
 }
 
 impl Emoji {

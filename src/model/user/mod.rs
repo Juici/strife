@@ -17,6 +17,7 @@ use crate::model::utils::U16Visitor;
 pub use self::discriminator::{Discriminator, DiscriminatorParseError};
 
 /// The client user.
+#[non_exhaustive]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ClientUser {
     #[serde(flatten)]
@@ -38,8 +39,6 @@ pub struct ClientUser {
     ///
     /// [type]: struct.PremiumType.html
     pub premium_type: Option<PremiumType>,
-    #[serde(skip)]
-    non_exhaustive: (),
 }
 
 impl Deref for ClientUser {
@@ -51,6 +50,7 @@ impl Deref for ClientUser {
 }
 
 /// A user.
+#[non_exhaustive]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct User {
     /// The ID of the user.
@@ -69,8 +69,6 @@ pub struct User {
     /// message system).
     #[serde(default)]
     pub system: bool,
-    #[serde(skip)]
-    non_exhaustive: (),
 }
 
 impl Deref for User {
@@ -191,7 +189,6 @@ mod tests {
             avatar: Some("8342729096ea3675442027381ff50dfe".to_owned()),
             bot: Default::default(),
             system: Default::default(),
-            non_exhaustive: (),
         };
 
         let user2: User = serde_json::from_value(value.clone()).unwrap();
@@ -216,7 +213,6 @@ mod tests {
             avatar: Some("a_e8b3a198dab6af59aacd1072bbedb255".to_owned()),
             bot: false,
             system: false,
-            non_exhaustive: (),
         };
 
         let value2 = sanitize_user(serde_json::to_value(user).unwrap());
@@ -247,7 +243,6 @@ mod tests {
                 avatar: Some("33ecab261d4681afa4d85a04691c4a01".to_owned()),
                 bot: false,
                 system: Default::default(),
-                non_exhaustive: (),
             },
             mfa_enabled: true,
             locale: "en-US".to_string(),
@@ -255,7 +250,6 @@ mod tests {
             email: Some("test@example.com".to_owned()),
             flags: UserFlags::from_bits(64).unwrap(),
             premium_type: Some(PremiumType::NitroClassic),
-            non_exhaustive: (),
         };
 
         let user2: ClientUser = serde_json::from_value(value.clone()).unwrap();
@@ -302,7 +296,6 @@ mod tests {
                 avatar: None,
                 bot: true,
                 system: Default::default(),
-                non_exhaustive: (),
             },
             mfa_enabled: true,
             locale: "en-US".to_string(),
@@ -310,7 +303,6 @@ mod tests {
             email: None,
             flags: UserFlags::NONE,
             premium_type: None,
-            non_exhaustive: (),
         };
 
         let user2: ClientUser = serde_json::from_value(value.clone()).unwrap();
@@ -359,7 +351,6 @@ mod tests {
                 avatar: None,
                 bot: true,
                 system: false,
-                non_exhaustive: (),
             },
             mfa_enabled: true,
             locale: "en-US".to_string(),
@@ -367,7 +358,6 @@ mod tests {
             email: None,
             flags: UserFlags::NONE,
             premium_type: None,
-            non_exhaustive: (),
         };
 
         let value2 = sanitize_user(serde_json::to_value(user).unwrap());
