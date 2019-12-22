@@ -75,6 +75,27 @@ macro_rules! api {
     };
 }
 
+macro_rules! wrap_deref {
+    ($parent:ty => mut $field:ident: $child:ty) => {
+        wrap_deref!($parent => $field: $child);
+
+        impl ::std::ops::DerefMut for $parent {
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.$field
+            }
+        }
+    };
+    ($parent:ty => $field:ident: $child:ty) => {
+        impl ::std::ops::Deref for $parent {
+            type Target = $child;
+
+            fn deref(&self) -> &Self::Target {
+                &self.$field
+            }
+        }
+    };
+}
+
 #[cfg(test)]
 mod tests {
     const ID: u64 = 80351110224678912;

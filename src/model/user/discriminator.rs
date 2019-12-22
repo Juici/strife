@@ -142,3 +142,49 @@ impl<'de> Deserialize<'de> for Discriminator {
         deserializer.deserialize_any(U16Visitor).map(Discriminator)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use serde_json::json;
+
+    #[test]
+    fn test_parse() {
+        let d = Discriminator::new(369).unwrap();
+        assert_eq!(d, "0369".parse::<Discriminator>().unwrap());
+        assert_eq!(d, "369".parse::<Discriminator>().unwrap());
+    }
+
+    #[test]
+    fn test_new_unchecked() {
+        let d1 = unsafe { Discriminator::new_unchecked(500) };
+
+        let d2 = Discriminator::new(500).unwrap();
+        let d3 = "0500".parse::<Discriminator>().unwrap();
+
+        assert_eq!(d1, d2);
+        assert_eq!(d1, d3);
+    }
+
+    #[test]
+    fn test_invalid() {
+        assert!(Discriminator::new(10000).is_err());
+    }
+
+    #[test]
+    fn test_serialize() {
+        let v = json!("0001");
+        let d = Discriminator::new(1).unwrap();
+
+        assert_eq!(v, serde_json::to_value(&d).unwrap());
+    }
+
+    #[test]
+    fn test_deserialize() {
+        let v = json!("0001");
+        let d = Discriminator::new(1).unwrap();
+
+        assert_eq!(d, serde_json::from_value(v).unwrap());
+    }
+}
