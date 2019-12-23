@@ -75,12 +75,18 @@ macro_rules! api {
     };
 }
 
-macro_rules! wrap_deref {
+macro_rules! wrap {
     ($parent:ty => mut $field:ident: $child:ty) => {
-        wrap_deref!($parent => $field: $child);
+        wrap!($parent => $field: $child);
 
         impl ::std::ops::DerefMut for $parent {
             fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.$field
+            }
+        }
+
+        impl ::std::convert::AsMut<$child> for $parent {
+            fn as_mut(&mut self) -> &mut $child {
                 &mut self.$field
             }
         }
@@ -91,6 +97,18 @@ macro_rules! wrap_deref {
 
             fn deref(&self) -> &Self::Target {
                 &self.$field
+            }
+        }
+
+        impl ::std::convert::AsRef<$child> for $parent {
+            fn as_ref(&self) -> &$child {
+                &self.$field
+            }
+        }
+
+        impl ::std::convert::From<$parent> for $child {
+            fn from(parent: $parent) -> Self {
+                parent.$field
             }
         }
     };

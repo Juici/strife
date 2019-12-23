@@ -1,3 +1,4 @@
+use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 
 use crate::model::guild::PartialMember;
@@ -32,4 +33,26 @@ pub struct Message {
     ///
     /// [`author`]: #structfield.author
     pub member: Option<PartialMember>,
+    /// The content of the message.
+    pub content: String,
+    /// When the message was sent.
+    pub timestamp: DateTime<FixedOffset>,
+    /// When the message was edited, if the message has been edited.
+    pub edited_timestamp: Option<DateTime<FixedOffset>>,
+    /// Whether the message was sent as a TTS (Text-To-Speech) message.
+    pub tts: bool,
+    /// Whether the message mentions everyone.
+    pub mention_everyone: bool,
+    /// Users specifically mentioned in the message.
+    pub mentions: Vec<MentionedUser>,
 }
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct MentionedUser {
+    #[serde(flatten)]
+    user: User,
+    /// Partial guild member properties for the user, if the mention was in a
+    /// message sent in a guild.
+    pub member: Option<PartialMember>,
+}
+wrap!(MentionedUser => mut user: User);

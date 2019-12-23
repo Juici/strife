@@ -19,7 +19,7 @@ pub struct Member {
     /// When the user used their Nitro boost on the guild.
     pub premium_since: Option<DateTime<FixedOffset>>,
 }
-wrap_deref!(Member => mut member: PartialMember);
+wrap!(Member => mut member: PartialMember);
 
 /// A member of a guild, with partial information.
 #[non_exhaustive]

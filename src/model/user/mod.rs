@@ -36,7 +36,7 @@ pub struct ClientUser {
     /// [type]: struct.PremiumType.html
     pub premium_type: Option<PremiumType>,
 }
-wrap_deref!(ClientUser => mut user: User);
+wrap!(ClientUser => mut user: User);
 
 /// A user.
 #[non_exhaustive]
@@ -59,7 +59,6 @@ pub struct User {
     #[serde(default)]
     pub system: bool,
 }
-wrap_deref!(User => id: UserId);
 
 /// The level of premium a [`User`] has.
 ///

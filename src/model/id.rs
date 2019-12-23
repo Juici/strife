@@ -1,5 +1,6 @@
 //! Strongly-typed snowflake IDs.
 
+use std::fmt::{self, Display};
 use std::ops::Deref;
 
 use serde::{Deserialize, Serialize};
@@ -74,12 +75,15 @@ pub struct WebhookId(Snowflake);
 
 macro_rules! impl_id {
     ($($name:ident,)*) => {$(
-        impl<T> From<T> for $name
-        where
-            T: Into<Snowflake>,
-        {
-            fn from(into: T) -> Self {
-                Self(into.into())
+        impl From<u64> for $name {
+            fn from(n: u64) -> Self {
+                Self(Snowflake::from(n))
+            }
+        }
+
+        impl From<$name> for Snowflake {
+            fn from(id: $name) -> Self {
+                id.0
             }
         }
 
@@ -91,9 +95,15 @@ macro_rules! impl_id {
             }
         }
 
-        impl std::fmt::Display for $name {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                std::fmt::Display::fmt(&self.0, f)
+        impl AsRef<Snowflake> for $name {
+            fn as_ref(&self) -> &Snowflake {
+                &self.0
+            }
+        }
+
+        impl Display for $name {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                Display::fmt(&self.0, f)
             }
         }
     )*}
