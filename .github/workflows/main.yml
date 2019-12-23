@@ -49,7 +49,7 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - name: Install Rust
-        run: rustup update 1.39.0 --no-self-update && rustup default 1.39.0
+        run: rustup update 1.40.0 --no-self-update && rustup default 1.40.0
         shell: bash
       - run: cargo build
 
