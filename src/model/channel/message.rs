@@ -47,6 +47,7 @@ pub struct Message {
     pub mentions: Vec<MentionedUser>,
 }
 
+/// A user specifically mentioned in a message.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MentionedUser {
     #[serde(flatten)]

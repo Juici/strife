@@ -33,7 +33,7 @@ pub struct ChannelId(Snowflake);
 
 /// The ID of an [`Emoji`].
 ///
-/// [`Emoji`]: TODO
+/// [`Emoji`]: ../guild/struct.Emoji.html
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
 pub struct EmojiId(Snowflake);
 
@@ -51,7 +51,7 @@ pub struct IntegrationId(Snowflake);
 
 /// The ID of a [`Message`].
 ///
-/// [`Message`]: TODO
+/// [`Message`]: ../channel/struct.Message.html
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
 pub struct MessageId(Snowflake);
 
@@ -63,7 +63,7 @@ pub struct RoleId(Snowflake);
 
 /// The ID of a [`User`].
 ///
-/// [`User`]: TODO
+/// [`User`]: ../user/struct.User.html
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
 pub struct UserId(Snowflake);
 
