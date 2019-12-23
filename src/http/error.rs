@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 /// An HTTP error.
-#[remain::sorted]
+#[non_exhaustive]
 #[derive(Debug, Error)]
 pub enum Error {
     /// An Hyper error.

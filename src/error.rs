@@ -13,6 +13,7 @@ pub type Result<T> = StdResult<T, Error>;
 ///
 /// [`Result`]: type.Result.html
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum Error {
     /// An error while formatting a message.
     #[error(transparent)]

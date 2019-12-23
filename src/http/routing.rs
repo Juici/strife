@@ -1159,6 +1159,8 @@ impl<'a> Route<'a> {
 
             GetGateway => Cow::from(api!("/gateway")),
             GetBotGateway => Cow::from(api!("/gateway/bot")),
+
+            _ => unreachable!(),
         }
     }
 }
