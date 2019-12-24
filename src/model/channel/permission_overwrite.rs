@@ -22,7 +22,6 @@ impl Display for OverwriteId {
         match self {
             OverwriteId::Role(id) => id.fmt(f),
             OverwriteId::User(id) => id.fmt(f),
-            _ => unreachable!(),
         }
     }
 }
@@ -83,7 +82,6 @@ where
     let r#type = match id {
         OverwriteId::Role(_) => "role",
         OverwriteId::User(_) => "member",
-        _ => unreachable!(),
     };
     serializer.serialize_str(r#type)
 }

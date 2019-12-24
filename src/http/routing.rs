@@ -676,7 +676,6 @@ impl<'a> Route<'a> {
             SyncIntegration { .. } => Method::Post,
             UnbanMember { .. } => Method::Delete,
             UnpinMessage { .. } => Method::Delete,
-            _ => unreachable!(),
         }
     }
 
@@ -831,8 +830,6 @@ impl<'a> Route<'a> {
 
             GetGateway => Bucket::Gateway,
             GetBotGateway => Bucket::GatewayBot,
-
-            _ => unreachable!(),
         }
     }
 
@@ -1159,8 +1156,6 @@ impl<'a> Route<'a> {
 
             GetGateway => Cow::from(api!("/gateway")),
             GetBotGateway => Cow::from(api!("/gateway/bot")),
-
-            _ => unreachable!(),
         }
     }
 }
