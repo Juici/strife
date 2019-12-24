@@ -1,7 +1,7 @@
 use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 
-use crate::model::channel::ChannelType;
+use crate::model::channel::{Attachment, ChannelType};
 use crate::model::guild::PartialMember;
 use crate::model::id::{ChannelId, GuildId, MessageId, RoleId};
 use crate::model::user::User;
@@ -54,9 +54,13 @@ pub struct Message {
     /// will ever be included.
     #[serde(default)]
     pub mention_channels: Vec<MentionedChannel>,
+    /// Files attached to the message.
+    pub attachments: Vec<Attachment>,
 }
 
-/// A user specifically mentioned in a message.
+/// A user specifically mentioned in a [`Message`].
+///
+/// [`Message`]: struct.Message.html
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MentionedUser {
     #[serde(flatten)]
@@ -67,7 +71,9 @@ pub struct MentionedUser {
 }
 wrap!(MentionedUser => mut user: User);
 
-/// A textual channel specifically mentioned in a message.
+/// A textual channel specifically mentioned in a [`Message`].
+///
+/// [`Message`]: struct.Message.html
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MentionedChannel {
     /// The ID of the channel.
