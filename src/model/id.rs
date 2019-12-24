@@ -81,6 +81,12 @@ macro_rules! impl_id {
             }
         }
 
+        impl From<Snowflake> for $name {
+            fn from(snowflake: Snowflake) -> Self {
+                Self(snowflake)
+            }
+        }
+
         impl From<$name> for Snowflake {
             fn from(id: $name) -> Self {
                 id.0
