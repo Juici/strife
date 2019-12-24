@@ -1,8 +1,9 @@
 use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 
+use crate::model::channel::ChannelType;
 use crate::model::guild::PartialMember;
-use crate::model::id::{ChannelId, GuildId, MessageId};
+use crate::model::id::{ChannelId, GuildId, MessageId, RoleId};
 use crate::model::user::User;
 
 /// A message sent in a text channel.
@@ -45,6 +46,14 @@ pub struct Message {
     pub mention_everyone: bool,
     /// Users specifically mentioned in the message.
     pub mentions: Vec<MentionedUser>,
+    /// Roles specifically mentioned in the message.
+    pub mention_roles: Vec<RoleId>,
+    /// Channels specifically mentioned in the message.
+    ///
+    /// Only textual channels that are visible to everyone in a lurkable guild
+    /// will ever be included.
+    #[serde(default)]
+    pub mention_channels: Vec<MentionedChannel>,
 }
 
 /// A user specifically mentioned in a message.
@@ -57,3 +66,17 @@ pub struct MentionedUser {
     pub member: Option<PartialMember>,
 }
 wrap!(MentionedUser => mut user: User);
+
+/// A textual channel specifically mentioned in a message.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct MentionedChannel {
+    /// The ID of the channel.
+    pub id: ChannelId,
+    /// The ID of the guild containing the channel.
+    pub guild_id: GuildId,
+    /// The type of the channel.
+    #[serde(rename = "type")]
+    pub kind: ChannelType,
+    /// The name of the channel.
+    pub name: String,
+}
