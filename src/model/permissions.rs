@@ -45,8 +45,8 @@ bitflags! {
         const ATTACH_FILES = 0x00008000;
         /// Allows for reading of message history.
         const READ_MESSAGE_HISTORY = 0x00010000;
-        /// Allows for using the @everyone tag to notify all users in a channel,
-        /// and the @here tag to notify all online users in a channel.
+        /// Allows for using the `@everyone` tag to notify all users in a channel,
+        /// and the `@here` tag to notify all online users in a channel.
         const MENTION_EVERYONE = 0x00020000;
         /// Allows the usage of custom emojis from other servers.
         const USE_EXTERNAL_EMOJIS = 0x00040000;
