@@ -61,6 +61,7 @@ pub struct Message {
 /// A user specifically mentioned in a [`Message`].
 ///
 /// [`Message`]: struct.Message.html
+#[non_exhaustive]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MentionedUser {
     #[serde(flatten)]
@@ -74,6 +75,7 @@ wrap!(MentionedUser => mut user: User);
 /// A textual channel specifically mentioned in a [`Message`].
 ///
 /// [`Message`]: struct.Message.html
+#[non_exhaustive]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MentionedChannel {
     /// The ID of the channel.
