@@ -40,7 +40,7 @@ impl From<UserId> for OverwriteId {
 
 /// Channel-specific permission overwrites for a role or user.
 #[non_exhaustive]
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct PermissionOverwrite {
     /// The ID of the role or user.
     #[serde(rename = "type", serialize_with = "serialize_type")]
