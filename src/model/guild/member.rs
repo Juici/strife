@@ -25,7 +25,7 @@ wrap!(Member => mut member: PartialMember);
 #[non_exhaustive]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PartialMember {
-    /// Roles of the user.
+    /// The roles of the user.
     pub roles: Vec<RoleId>,
     /// When the user joined the guild.
     pub joined_at: DateTime<FixedOffset>,
