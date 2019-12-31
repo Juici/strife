@@ -1,10 +1,15 @@
 //! Models related to channels.
 
 mod attachment;
+mod embed;
 mod message;
 mod permission_overwrite;
 
 pub use self::attachment::Attachment;
+pub use self::embed::{
+    Embed, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage, EmbedProvider, EmbedThumbnail,
+    EmbedType, EmbedVideo,
+};
 pub use self::message::{MentionedChannel, MentionedUser, Message};
 pub use self::permission_overwrite::{OverwriteId, PermissionOverwrite};
 

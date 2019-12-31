@@ -1,7 +1,7 @@
 use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 
-use crate::model::channel::{Attachment, ChannelType};
+use crate::model::channel::{Attachment, ChannelType, Embed};
 use crate::model::guild::PartialMember;
 use crate::model::id::{ChannelId, GuildId, MessageId, RoleId};
 use crate::model::user::User;
@@ -44,18 +44,22 @@ pub struct Message {
     pub tts: bool,
     /// Whether the message mentions everyone.
     pub mention_everyone: bool,
-    /// Users specifically mentioned in the message.
+    /// The users specifically mentioned in the message.
     pub mentions: Vec<MentionedUser>,
-    /// Roles specifically mentioned in the message.
+    /// The roles specifically mentioned in the message.
     pub mention_roles: Vec<RoleId>,
-    /// Channels specifically mentioned in the message.
+    /// The channels specifically mentioned in the message.
     ///
     /// Only textual channels that are visible to everyone in a lurkable guild
     /// will ever be included.
     #[serde(default)]
     pub mention_channels: Vec<MentionedChannel>,
-    /// Files attached to the message.
+    /// The files attached to the message.
+    #[serde(default)]
     pub attachments: Vec<Attachment>,
+    /// The embedded content of the message.
+    #[serde(default)]
+    pub embeds: Vec<Embed>,
 }
 
 /// A user specifically mentioned in a [`Message`].
