@@ -5,5 +5,5 @@ mod emoji;
 mod member;
 
 pub use self::audit_log::AuditLogEvent;
-pub use self::emoji::Emoji;
+pub use self::emoji::{Emoji, PartialEmoji};
 pub use self::member::{Member, PartialMember};

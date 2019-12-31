@@ -1,7 +1,7 @@
 use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 
-use crate::model::channel::{Attachment, ChannelType, Embed};
+use crate::model::channel::{Attachment, ChannelType, Embed, Reaction};
 use crate::model::guild::PartialMember;
 use crate::model::id::{ChannelId, GuildId, MessageId, RoleId};
 use crate::model::user::User;
@@ -60,6 +60,9 @@ pub struct Message {
     /// The embedded content of the message.
     #[serde(default)]
     pub embeds: Vec<Embed>,
+    /// The reactions to the message.
+    #[serde(default)]
+    pub reactions: Vec<Reaction>,
 }
 
 /// A user specifically mentioned in a [`Message`].
