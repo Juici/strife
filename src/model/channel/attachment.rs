@@ -18,8 +18,8 @@ pub struct Attachment {
     pub url: String,
     /// The proxied URL of the file.
     pub proxy_url: String,
-    /// Height of image, if the file is an image.
+    /// The height of the image, if the file is an image.
     pub height: Option<u64>,
-    /// Width of image, if the file is an image.
+    /// The width of the image, if the file is an image.
     pub width: Option<u64>,
 }
