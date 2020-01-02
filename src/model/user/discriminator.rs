@@ -106,25 +106,38 @@ impl Serialize for Discriminator {
     where
         S: Serializer,
     {
+        // Adapted from core::fmt::num impl_Display macro.
+        // https://doc.rust-lang.org/src/core/fmt/num.rs.html#192-238
+
+        use crate::internal::DEC_DIGITS_LUT;
+
+        // Will experience undefined behaviour if the Discriminator value is > 9999.
         let mut buf = [b'0'; 4];
-        let mut n = self.0;
+        let mut curr = buf.len() as isize;
+        let buf_ptr = buf.as_mut_ptr();
+        let lut_ptr = DEC_DIGITS_LUT.as_ptr();
 
-        let mut i = 3;
-        loop {
-            let digit = (n % 10) as u8;
+        unsafe {
+            // Numbers are <= 9999, so at most 4 chars long.
+            let mut n = self.0 as isize; // Possibly reduce 64bit math.
 
-            buf[i] = b'0' + digit;
-
-            n /= 10;
-            if n == 0 {
-                break;
+            // Decode 2 chars, if > 2 chars.
+            if n >= 100 {
+                let d1 = (n % 100) << 1;
+                n /= 100;
+                curr -= 2;
+                std::ptr::copy_nonoverlapping(lut_ptr.offset(d1), buf_ptr.offset(curr), 2);
             }
 
-            // Sanity checks that `i` doesn't underflow.
-            i = match i {
-                0 => unreachable!(),
-                i => i - 1,
-            };
+            // Decode last 1 or 2 chars.
+            if n < 10 {
+                curr -= 1;
+                *buf_ptr.offset(curr) = (n as u8) + b'0';
+            } else {
+                let d1 = n << 1;
+                curr -= 2;
+                std::ptr::copy_nonoverlapping(lut_ptr.offset(d1), buf_ptr.offset(curr), 2);
+            }
         }
 
         // SAFETY: `buf` only contains ascii digits, thus it is valid utf8.

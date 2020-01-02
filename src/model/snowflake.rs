@@ -7,6 +7,7 @@
 //! [snowflake]: https://discordapp.com/developers/docs/reference#snowflakes
 
 use std::fmt::{self, Display};
+use std::mem::MaybeUninit;
 
 use chrono::{DateTime, FixedOffset, TimeZone};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -82,7 +83,67 @@ impl Serialize for Snowflake {
     where
         S: Serializer,
     {
-        serializer.serialize_u64(self.0)
+        // Adapted from core::fmt::num impl_Display macro.
+        // https://doc.rust-lang.org/src/core/fmt/num.rs.html#192-238
+
+        use crate::internal::DEC_DIGITS_LUT;
+
+        let mut n = self.0;
+
+        // Buffer of 20 is large enough to hold the max u64 value.
+        let mut buf = [MaybeUninit::<u8>::uninit(); 20];
+        let mut curr = buf.len() as isize;
+        let buf_ptr = &mut buf as *mut [MaybeUninit<u8>] as *mut u8;
+        let lut_ptr = DEC_DIGITS_LUT.as_ptr();
+
+        unsafe {
+            // Need at least 16 bits for the 4-characters-at-a-time to work.
+            assert!(std::mem::size_of::<u64>() >= 2);
+
+            // Eagerly decode 4 characters at a time.
+            while n >= 10000 {
+                let rem = (n % 10000) as isize;
+                n /= 10000;
+
+                let d1 = (rem / 100) << 1;
+                let d2 = (rem % 100) << 1;
+                curr -= 4;
+                std::ptr::copy_nonoverlapping(lut_ptr.offset(d1), buf_ptr.offset(curr), 2);
+                std::ptr::copy_nonoverlapping(lut_ptr.offset(d2), buf_ptr.offset(curr + 2), 2);
+            }
+
+            // If we reach here numbers are <= 9999, so at most 4 chars long.
+            let mut n = n as isize; // Possibly reduce 64bit math.
+
+            // Decode 2 more chars, if > 2 chars.
+            if n >= 100 {
+                let d1 = (n % 100) << 1;
+                n /= 100;
+                curr -= 2;
+                std::ptr::copy_nonoverlapping(lut_ptr.offset(d1), buf_ptr.offset(curr), 2);
+            }
+
+            // Decode last 1 or 2 chars.
+            if n < 10 {
+                curr -= 1;
+                *buf_ptr.offset(curr) = (n as u8) + b'0';
+            } else {
+                let d1 = n << 1;
+                curr -= 2;
+                std::ptr::copy_nonoverlapping(lut_ptr.offset(d1), buf_ptr.offset(curr), 2);
+            }
+        }
+
+        // SAFETY: `buf` has been initialized from the `curr` offset and only contains
+        //          ascii digits, thus it is valid utf8.
+        let s = unsafe {
+            std::str::from_utf8_unchecked(std::slice::from_raw_parts(
+                buf_ptr.offset(curr),
+                buf.len() - curr as usize,
+            ))
+        };
+
+        serializer.serialize_str(s)
     }
 }
 
@@ -97,37 +158,31 @@ impl<'de> Deserialize<'de> for Snowflake {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::json;
+
     use super::*;
-
-    const ID: u64 = 80351110224678912;
-    const ID_STR: &str = "80351110224678912";
-
-    const ID_2: u64 = 41771983423143937;
 
     #[test]
     fn test_serialize() {
-        let snowflake = Snowflake(ID);
-        let serialized = serde_json::to_string(&snowflake).unwrap();
-        assert_eq!(ID_STR, serialized);
+        let value = json!("80351110224678912");
+        let snowflake = Snowflake::from(80351110224678912);
+        assert_eq!(value, serde_json::to_value(snowflake).unwrap());
     }
 
     #[test]
     fn test_deserialize() {
-        let deserialized: Snowflake = serde_json::from_str(ID_STR).unwrap();
-        assert_eq!(Snowflake(ID), deserialized);
-    }
+        let snowflake = Snowflake::from(80351110224678912);
 
-    #[test]
-    fn test_equal() {
-        let snowflake = Snowflake(ID);
-        assert_eq!(ID, snowflake);
-        assert_eq!(snowflake, ID);
-    }
+        let value = json!(80351110224678912u64);
+        assert_eq!(
+            snowflake,
+            serde_json::from_value::<Snowflake>(value).unwrap()
+        );
 
-    #[test]
-    fn test_not_equal() {
-        let snowflake = Snowflake(ID);
-        assert_ne!(ID_2, snowflake);
-        assert_ne!(snowflake, ID_2);
+        let value = json!("80351110224678912");
+        assert_eq!(
+            snowflake,
+            serde_json::from_value::<Snowflake>(value).unwrap()
+        );
     }
 }

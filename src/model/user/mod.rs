@@ -75,7 +75,7 @@ pub enum PremiumType {
 
 #[cfg(test)]
 mod tests {
-    use serde_json::{json, Value};
+    use serde_json::json;
 
     use super::*;
 
@@ -83,15 +83,6 @@ mod tests {
         ($left:expr, $right:expr, [$($field:ident),* $(,)*]) => {$(
             assert_eq!($left.$field, $right.$field);
         )*};
-    }
-
-    fn sanitize_user(mut user: Value) -> Value {
-        // Discord doesn't care about string vs u64 for IDs,
-        // but for direct Value to Value equivalence we do.
-        if let Value::Number(ref id) = user["id"] {
-            user["id"] = Value::String(id.to_string());
-        }
-        user
     }
 
     #[test]
@@ -135,7 +126,7 @@ mod tests {
             system: false,
         };
 
-        let value2 = sanitize_user(serde_json::to_value(user).unwrap());
+        let value2 = serde_json::to_value(user).unwrap();
 
         assert_eq!(value, value2);
     }
@@ -280,7 +271,7 @@ mod tests {
             premium_type: None,
         };
 
-        let value2 = sanitize_user(serde_json::to_value(user).unwrap());
+        let value2 = serde_json::to_value(user).unwrap();
 
         assert_eq!(value, value2);
     }

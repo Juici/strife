@@ -119,13 +119,16 @@ impl Serialize for PartialEmoji {
         use serde::ser::SerializeMap;
 
         let len = match self {
-            PartialEmoji::Standard(_) => 1,
+            PartialEmoji::Standard(_) => 2,
             PartialEmoji::Custom { .. } => 3,
         };
 
         let mut map = serializer.serialize_map(Some(len))?;
         match self {
-            PartialEmoji::Standard(name) => map.serialize_entry("name", name)?,
+            PartialEmoji::Standard(name) => {
+                map.serialize_entry("id", &None::<EmojiId>)?;
+                map.serialize_entry("name", name)?;
+            }
             PartialEmoji::Custom { id, name, animated } => {
                 map.serialize_entry("id", id)?;
                 map.serialize_entry("name", name)?;
@@ -237,8 +240,61 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_deserialize_standard() {
+        let value = json!({
+            "id": null,
+            "name": "🔥",
+        });
+        let emoji = PartialEmoji::Standard("🔥".to_owned());
+
+        assert_eq!(emoji, serde_json::from_value(value).unwrap());
+    }
+
+    #[test]
+    fn test_serialize_standard() {
+        let value = json!({
+            "id": null,
+            "name": "🔥",
+        });
+        let emoji = PartialEmoji::Standard("🔥".to_owned());
+
+        assert_eq!(value, serde_json::to_value(emoji).unwrap());
+    }
+
+    #[test]
+    fn test_deserialize_custom() {
+        let value = json!({
+            "id": "41771983429993937",
+            "name": "LUL",
+        });
+        let emoji = PartialEmoji::Custom {
+            id: EmojiId::from(41771983429993937),
+            name: Some("LUL".to_owned()),
+            animated: false,
+        };
+
+        assert_eq!(emoji, serde_json::from_value(value).unwrap());
+    }
+
+    #[test]
+    fn test_serialize_custom() {
+        let value = json!({
+            "id": "41771983429993937",
+            "name": "LUL",
+            "animated": true,
+        });
+        let emoji = PartialEmoji::Custom {
+            id: EmojiId::from(41771983429993937),
+            name: Some("LUL".to_owned()),
+            animated: true,
+        };
+
+        assert_eq!(value, serde_json::to_value(emoji).unwrap());
+    }
+
+    #[test]
     fn test_deserialize() {
-        let val = json!({
+        let value = json!({
           "id": "41771983429993937",
           "name": "LUL",
           "roles": ["41771983429993000", "41771983429993111"],
@@ -253,7 +309,7 @@ mod tests {
           "animated": false
         });
 
-        let _deserialized: Emoji = serde_json::from_value(val).unwrap();
+        let _deserialized: Emoji = serde_json::from_value(value).unwrap();
 
         // TODO: compare
     }
