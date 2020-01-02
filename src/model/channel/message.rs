@@ -1,7 +1,9 @@
 use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 
-use crate::model::channel::{Attachment, ChannelType, Embed, Reaction};
+use crate::model::channel::{
+    Attachment, ChannelType, Embed, MessageActivity, MessageApplication, Reaction,
+};
 use crate::model::guild::PartialMember;
 use crate::model::id::{ChannelId, GuildId, MessageId, RoleId, WebhookId};
 use crate::model::user::User;
@@ -72,6 +74,12 @@ pub struct Message {
     /// The type of message.
     #[serde(rename = "type")]
     pub kind: MessageType,
+    /// The Rich Presence activity information sent with related embeds.
+    pub activity: Option<MessageActivity>,
+    /// The Rich Presence application information sent with related embeds.
+    pub application: Option<MessageApplication>,
+    /// The reference data sent with a crossposted message.
+    pub message_reference: Option<MessageReference>,
 }
 
 /// Type of a [`Message`].
@@ -95,6 +103,20 @@ pub enum MessageType {
     UserPremiumGuildSubscriptionTier2 = 10,
     UserPremiumGuildSubscriptionTier3 = 11,
     ChannelFollowAdd = 12,
+}
+
+/// Reference data send with a crossposted [`Message`]
+///
+/// [`Message`]: struct.Message.html
+#[non_exhaustive]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
+pub struct MessageReference {
+    /// The ID of the originating message.
+    pub message_id: Option<MessageId>,
+    /// The ID of the originating channel.
+    pub channel_id: ChannelId,
+    /// The ID of the originating guild.
+    pub guild_id: Option<GuildId>,
 }
 
 /// A user specifically mentioned in a [`Message`].

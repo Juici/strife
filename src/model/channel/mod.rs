@@ -4,6 +4,7 @@ mod attachment;
 mod embed;
 mod message;
 mod permission_overwrite;
+mod rich_presence;
 
 use serde::{Deserialize, Serialize};
 
@@ -14,8 +15,9 @@ pub use self::embed::{
     Embed, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage, EmbedProvider, EmbedThumbnail,
     EmbedType, EmbedVideo,
 };
-pub use self::message::{MentionedChannel, MentionedUser, Message, MessageType};
+pub use self::message::{MentionedChannel, MentionedUser, Message, MessageReference, MessageType};
 pub use self::permission_overwrite::{OverwriteId, PermissionOverwrite};
+pub use self::rich_presence::{MessageActivity, MessageActivityType, MessageApplication};
 
 /// The type of a channel.
 #[non_exhaustive]
