@@ -14,7 +14,7 @@ pub use self::embed::{
     Embed, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage, EmbedProvider, EmbedThumbnail,
     EmbedType, EmbedVideo,
 };
-pub use self::message::{MentionedChannel, MentionedUser, Message};
+pub use self::message::{MentionedChannel, MentionedUser, Message, MessageType};
 pub use self::permission_overwrite::{OverwriteId, PermissionOverwrite};
 
 /// The type of a channel.

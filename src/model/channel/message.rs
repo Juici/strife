@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::model::channel::{Attachment, ChannelType, Embed, Reaction};
 use crate::model::guild::PartialMember;
-use crate::model::id::{ChannelId, GuildId, MessageId, RoleId};
+use crate::model::id::{ChannelId, GuildId, MessageId, RoleId, WebhookId};
 use crate::model::user::User;
 
 /// A message sent in a text channel.
@@ -63,6 +63,38 @@ pub struct Message {
     /// The reactions to the message.
     #[serde(default)]
     pub reactions: Vec<Reaction>,
+    // TODO: Add `nonce`.
+    /// Whether the message is pinned.
+    pub pinned: bool,
+    /// The webhook ID that generated the message, if the message was generated
+    /// by a webhook.
+    pub webhook_id: Option<WebhookId>,
+    /// The type of message.
+    #[serde(rename = "type")]
+    pub kind: MessageType,
+}
+
+/// Type of a [`Message`].
+///
+/// [`Message`]: struct.Message.html
+#[allow(missing_docs)]
+#[int_enum::int_enum(u8)]
+#[non_exhaustive]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum MessageType {
+    Default = 0,
+    RecipientAdd = 1,
+    RecipientRemove = 2,
+    Call = 3,
+    ChannelNameChange = 4,
+    ChannelIconChange = 5,
+    ChannelPinnedMessage = 6,
+    GuildMemberJoin = 7,
+    UserPremiumGuildSubscription = 8,
+    UserPremiumGuildSubscriptionTier1 = 9,
+    UserPremiumGuildSubscriptionTier2 = 10,
+    UserPremiumGuildSubscriptionTier3 = 11,
+    ChannelFollowAdd = 12,
 }
 
 /// A user specifically mentioned in a [`Message`].
@@ -94,4 +126,101 @@ pub struct MentionedChannel {
     pub kind: ChannelType,
     /// The name of the channel.
     pub name: String,
+}
+
+#[cfg(test)]
+mod tests {
+    use serde_json::json;
+
+    use super::*;
+
+    // TODO: Improve `Message` serde tests.
+
+    #[test]
+    fn test_deserialize_message() {
+        let value = json!({
+          "reactions": [
+            {
+              "count": 1,
+              "me": false,
+              "emoji": {
+                "id": null,
+                "name": "🔥"
+              }
+            }
+          ],
+          "attachments": [],
+          "tts": false,
+          "embeds": [],
+          "timestamp": "2017-07-11T17:27:07.299000+00:00",
+          "mention_everyone": false,
+          "id": "334385199974967042",
+          "pinned": false,
+          "edited_timestamp": null,
+          "author": {
+            "username": "Mason",
+            "discriminator": "9999",
+            "id": "53908099506183680",
+            "avatar": "a_bab14f271d565501444b2ca3be944b25"
+          },
+          "mention_roles": [],
+          "content": "Supa Hot",
+          "channel_id": "290926798999357250",
+          "mentions": [],
+          "type": 0
+        });
+
+        let _: Message = serde_json::from_value(value).unwrap();
+    }
+
+    #[test]
+    fn test_deserialize_crossposted_message() {
+        let value = json!({
+          "reactions": [
+            {
+              "count": 1,
+              "me": false,
+              "emoji": {
+                "id": null,
+                "name": "🔥"
+              }
+            }
+          ],
+          "attachments": [],
+          "tts": false,
+          "embeds": [],
+          "timestamp": "2017-07-11T17:27:07.299000+00:00",
+          "mention_everyone": false,
+          "id": "334385199974967042",
+          "pinned": false,
+          "edited_timestamp": null,
+          "author": {
+            "username": "Mason",
+            "discriminator": "9999",
+            "id": "53908099506183680",
+            "avatar": "a_bab14f271d565501444b2ca3be944b25"
+          },
+          "mention_roles": [],
+          "mention_channels": [
+            {
+              "id": "278325129692446722",
+              "guild_id": "278325129692446720",
+              "name": "big-news",
+              "type": 5
+            }
+          ],
+          "content": "Big news! In this <#278325129692446722> channel!",
+          "channel_id": "290926798999357250",
+          "mentions": [],
+          "type": 0,
+          "flags": 2,
+          "message_reference": {
+            "channel_id": "278325129692446722",
+            "guild_id": "278325129692446720",
+            "message_id": "306588351130107906"
+          }
+        });
+
+        let _: Message = serde_json::from_value(value).unwrap();
+    }
 }
