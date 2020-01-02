@@ -31,6 +31,24 @@ pub enum PartialEmoji {
 }
 
 impl PartialEmoji {
+    /// Creates a standard unicode emoji.
+    pub fn standard<S: Into<String>>(emoji: S) -> PartialEmoji {
+        PartialEmoji::Standard(emoji.into())
+    }
+
+    /// Creates a custom guild emoji.
+    pub fn custom<I, S>(id: I, name: S, animated: bool) -> PartialEmoji
+    where
+        I: Into<EmojiId>,
+        S: Into<String>,
+    {
+        PartialEmoji::Custom {
+            id: id.into(),
+            name: Some(name.into()),
+            animated,
+        }
+    }
+
     /// Returns the ID of the emoji.
     pub fn id(&self) -> Option<EmojiId> {
         match *self {
@@ -237,7 +255,16 @@ impl Display for Emoji {
 mod tests {
     use serde_json::json;
 
+    use crate::model::id::UserId;
+    use crate::model::user::Discriminator;
+
     use super::*;
+
+    macro_rules! assert_eq_fields {
+        ($left:expr, $right:expr, [$($field:ident),* $(,)*]) => {$(
+            assert_eq!($left.$field, $right.$field);
+        )*};
+    }
 
     #[test]
     fn test_deserialize_standard() {
@@ -245,7 +272,7 @@ mod tests {
             "id": null,
             "name": "🔥",
         });
-        let emoji = PartialEmoji::Standard("🔥".to_owned());
+        let emoji = PartialEmoji::standard("🔥");
 
         assert_eq!(emoji, serde_json::from_value(value).unwrap());
     }
@@ -256,7 +283,7 @@ mod tests {
             "id": null,
             "name": "🔥",
         });
-        let emoji = PartialEmoji::Standard("🔥".to_owned());
+        let emoji = PartialEmoji::standard("🔥");
 
         assert_eq!(value, serde_json::to_value(emoji).unwrap());
     }
@@ -267,11 +294,7 @@ mod tests {
             "id": "41771983429993937",
             "name": "LUL",
         });
-        let emoji = PartialEmoji::Custom {
-            id: EmojiId::from(41771983429993937),
-            name: Some("LUL".to_owned()),
-            animated: false,
-        };
+        let emoji = PartialEmoji::custom(41771983429993937, "LUL", false);
 
         assert_eq!(emoji, serde_json::from_value(value).unwrap());
     }
@@ -283,17 +306,13 @@ mod tests {
             "name": "LUL",
             "animated": true,
         });
-        let emoji = PartialEmoji::Custom {
-            id: EmojiId::from(41771983429993937),
-            name: Some("LUL".to_owned()),
-            animated: true,
-        };
+        let emoji = PartialEmoji::custom(41771983429993937, "LUL", true);
 
         assert_eq!(value, serde_json::to_value(emoji).unwrap());
     }
 
     #[test]
-    fn test_deserialize() {
+    fn test_deserialize_emoji() {
         let value = json!({
           "id": "41771983429993937",
           "name": "LUL",
@@ -302,15 +321,70 @@ mod tests {
             "username": "Luigi",
             "discriminator": "0002",
             "id": "96008815106887111",
-            "avatar": "5500909a3274e1812beb4e8de6631111"
+            "avatar": "5500909a3274e1812beb4e8de6631111",
           },
           "require_colons": true,
           "managed": false,
-          "animated": false
+          "animated": false,
         });
+        let emoji = Emoji {
+            emoji: PartialEmoji::custom(41771983429993937, "LUL", false),
+            user: Some(User {
+                id: UserId::from(96008815106887111),
+                name: "Luigi".to_owned(),
+                discriminator: Discriminator::new(2).unwrap(),
+                avatar: Some("5500909a3274e1812beb4e8de6631111".to_owned()),
+                bot: false,
+                system: false,
+            }),
+            require_colons: true,
+            managed: false,
+        };
 
-        let _deserialized: Emoji = serde_json::from_value(value).unwrap();
+        let deserialized: Emoji = serde_json::from_value(value).unwrap();
 
-        // TODO: compare
+        assert_eq_fields!(emoji, deserialized, [emoji, require_colons, managed]);
+        assert_eq_fields!(
+            emoji.user.as_ref().unwrap(),
+            deserialized.user.as_ref().unwrap(),
+            [id, name, discriminator, avatar, bot, system]
+        );
+    }
+
+    // TODO: Enable test when `roles` is added to `Emoji`.
+    #[test]
+    #[ignore]
+    fn test_serialize_emoji() {
+        let value = json!({
+          "id": "41771983429993937",
+          "name": "LUL",
+          "roles": ["41771983429993000", "41771983429993111"],
+          "user": {
+            "username": "Luigi",
+            "discriminator": "0002",
+            "id": "96008815106887111",
+            "avatar": null,
+            "bot": false,
+            "system": false,
+          },
+          "require_colons": true,
+          "managed": false,
+          "animated": true,
+        });
+        let emoji = Emoji {
+            emoji: PartialEmoji::custom(41771983429993937, "LUL", true),
+            user: Some(User {
+                id: UserId::from(96008815106887111),
+                name: "Luigi".to_owned(),
+                discriminator: Discriminator::new(2).unwrap(),
+                avatar: None,
+                bot: false,
+                system: false,
+            }),
+            require_colons: true,
+            managed: false,
+        };
+
+        assert_eq!(value, serde_json::to_value(emoji).unwrap());
     }
 }
