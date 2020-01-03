@@ -109,39 +109,42 @@ impl<'de> Deserialize<'de> for Permissions {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::json;
+
     use super::*;
 
     #[test]
     fn test_all() {
-        const ALL: u64 = 2146959359;
-
         assert_eq!(
             Permissions::all(),
-            Permissions::from_bits(ALL).expect("all permissions")
+            Permissions::from_bits(2146959359).unwrap()
         );
     }
 
     #[test]
     fn test_serialize() {
-        const BITS: u64 = 103877696;
-        const BITS_STR: &str = "103877696";
+        let value = json!(103877696);
+        let perms = Permissions::from_bits(103877696).unwrap();
 
-        let perms = Permissions::from_bits(BITS).expect("valid permissions");
-        assert_eq!(serde_json::to_string(&perms).unwrap(), BITS_STR);
+        assert_eq!(value, serde_json::to_value(&perms).unwrap());
     }
 
     #[test]
     fn test_deserialize() {
-        const BITS_STR: &str = "68608";
+        let value = json!(68608);
+        let perms = Permissions::VIEW_CHANNEL
+            | Permissions::READ_MESSAGE_HISTORY
+            | Permissions::SEND_MESSAGES;
 
-        let perms: Permissions = serde_json::from_str(BITS_STR).unwrap();
-        assert_eq!(serde_json::to_string(&perms).unwrap(), BITS_STR);
+        assert_eq!(perms, serde_json::from_value(value).unwrap());
+    }
 
-        assert_eq!(
-            perms,
-            Permissions::VIEW_CHANNEL
-                | Permissions::READ_MESSAGE_HISTORY
-                | Permissions::SEND_MESSAGES
-        )
+    #[test]
+    fn test_deserialize_invalid() {
+        let value = serde_json::json!(0x00080000);
+        let err = serde_json::from_value::<Permissions>(value);
+
+        assert!(err.is_err());
+        assert!(err.unwrap_err().is_data());
     }
 }
