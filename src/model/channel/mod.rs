@@ -15,7 +15,9 @@ pub use self::embed::{
     Embed, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage, EmbedProvider, EmbedThumbnail,
     EmbedType, EmbedVideo,
 };
-pub use self::message::{MentionedChannel, MentionedUser, Message, MessageReference, MessageType};
+pub use self::message::{
+    MentionedChannel, MentionedUser, Message, MessageFlags, MessageReference, MessageType,
+};
 pub use self::permission_overwrite::{OverwriteId, PermissionOverwrite};
 pub use self::rich_presence::{MessageActivity, MessageActivityType, MessageApplication};
 

@@ -14,6 +14,7 @@ use crate::model::utils::U64Visitor;
 
 bitflags! {
     /// A set of permissions for a [`Role`] or [`User`].
+    #[derive(Default)]
     pub struct Permissions: u64 {
         /// Allows creation of instant invites.
         const CREATE_INSTANT_INVITE = 0x00000001;
@@ -119,6 +120,11 @@ mod tests {
             Permissions::all(),
             Permissions::from_bits(2146959359).unwrap()
         );
+    }
+
+    #[test]
+    fn test_default() {
+        assert_eq!(Permissions::default(), Permissions::empty());
     }
 
     #[test]

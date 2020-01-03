@@ -8,6 +8,7 @@ bitflags! {
     /// Flags on a [`User`] account.
     ///
     /// [`User`]: struct.User.html
+    #[derive(Default)]
     pub struct UserFlags: u16 {
         /// None.
         const NONE = 0;
@@ -62,5 +63,15 @@ impl<'de> Deserialize<'de> for UserFlags {
                 )))
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default() {
+        assert_eq!(UserFlags::default(), UserFlags::empty());
     }
 }

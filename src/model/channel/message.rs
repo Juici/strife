@@ -1,5 +1,7 @@
+use bitflags::bitflags;
 use chrono::{DateTime, FixedOffset};
-use serde::{Deserialize, Serialize};
+use serde::de;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::model::channel::{
     Attachment, ChannelType, Embed, MessageActivity, MessageApplication, Reaction,
@@ -7,6 +9,7 @@ use crate::model::channel::{
 use crate::model::guild::PartialMember;
 use crate::model::id::{ChannelId, GuildId, MessageId, RoleId, WebhookId};
 use crate::model::user::User;
+use crate::model::utils::U8Visitor;
 
 /// A message sent in a text channel.
 #[non_exhaustive]
@@ -80,6 +83,9 @@ pub struct Message {
     pub application: Option<MessageApplication>,
     /// The reference data sent with a crossposted message.
     pub message_reference: Option<MessageReference>,
+    /// Flags describing extra features of the message.
+    #[serde(default)]
+    pub flags: MessageFlags,
 }
 
 /// Type of a [`Message`].
@@ -148,6 +154,53 @@ pub struct MentionedChannel {
     pub kind: ChannelType,
     /// The name of the channel.
     pub name: String,
+}
+
+bitflags! {
+    /// Flags the describe extra features on a [`Message`].
+    ///
+    /// [`Message`]: struct.Message.html
+    #[derive(Default)]
+    pub struct MessageFlags: u8 {
+        /// The message has been published to subscribed channels (via Channel Following).
+        const CROSSPOSTED = 1 << 0;
+        /// The message originated from a message in another channel (via Channel Following).
+        const IS_CROSSPOST = 1 << 1;
+        /// Do not include any embeds when serializing the message.
+        const SUPRESS_EMBEDS = 1 << 2;
+        /// The source message for this crossposted message has been deleted.
+        const SOURCE_MESSAGE_DELETED = 1 << 3;
+        /// The message came from the urgent message system.
+        const URGENT = 1 << 4;
+    }
+}
+
+impl Serialize for MessageFlags {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_u8(self.bits())
+    }
+}
+
+impl<'de> Deserialize<'de> for MessageFlags {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let bits = deserializer.deserialize_any(U8Visitor)?;
+        match MessageFlags::from_bits(bits) {
+            Some(perms) => Ok(perms),
+            None => {
+                let unknown: u8 = bits & !MessageFlags::all().bits();
+                Err(de::Error::custom(format!(
+                    "unknown user flags bits {:b} in {:b}",
+                    unknown, bits
+                )))
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -244,5 +297,14 @@ mod tests {
         });
 
         let _: Message = serde_json::from_value(value).unwrap();
+    }
+
+    #[test]
+    fn test_message_flags() {
+        let value = json!(2);
+        let flags = MessageFlags::IS_CROSSPOST;
+
+        assert_eq!(value, serde_json::to_value(&flags).unwrap());
+        assert_eq!(flags, serde_json::from_value(value).unwrap());
     }
 }
