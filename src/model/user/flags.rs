@@ -22,7 +22,7 @@ bitflags! {
         const BUG_HUNTER = 1 << 3;
 
         /// House Bravery.
-        const HOUSE_BRAVERY = 1  << 6;
+        const HOUSE_BRAVERY = 1 << 6;
         /// House Brilliance.
         const HOUSE_BRILLIANCE = 1 << 7;
         /// House Balance.
