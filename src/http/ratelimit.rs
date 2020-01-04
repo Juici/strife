@@ -15,12 +15,13 @@ use super::prelude::*;
 const RATELIMIT_GLOBAL: &str = "x-ratelimit-global";
 const RATELIMIT_LIMIT: &str = "x-ratelimit-limit";
 const RATELIMIT_REMAINING: &str = "x-ratelimit-remaining";
+
 #[cfg(any(test, feature = "systime_ratelimits"))]
 const RATELIMIT_RESET: &str = "x-ratelimit-reset";
 #[cfg(any(test, not(feature = "systime_ratelimits")))]
 const RATELIMIT_RESET_AFTER: &str = "x-ratelimit-reset-after";
 
-const RETRY_AFTER: &str = "Retry-After";
+const RETRY_AFTER: &str = "retry-after";
 
 /// Ratelimiter for requests the the Discord REST API.
 pub struct RateLimiter {
