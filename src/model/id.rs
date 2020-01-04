@@ -15,7 +15,7 @@ pub struct ApplicationId(Snowflake);
 
 /// The ID of an [`Attachment`].
 ///
-/// [`Attachment`]: TODO
+/// [`Attachment`]: ../channel/struct.Attachment.html
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Deserialize, Serialize)]
 pub struct AttachmentId(Snowflake);
 
