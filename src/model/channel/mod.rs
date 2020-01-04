@@ -1,6 +1,7 @@
 //! Models related to channels.
 
 mod attachment;
+mod converse;
 mod embed;
 mod message;
 mod permission_overwrite;
@@ -11,6 +12,7 @@ use serde::{Deserialize, Serialize};
 use crate::model::guild::PartialEmoji;
 
 pub use self::attachment::Attachment;
+pub use self::converse::Converse;
 pub use self::embed::{
     Embed, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage, EmbedProvider, EmbedThumbnail,
     EmbedType, EmbedVideo,
