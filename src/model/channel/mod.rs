@@ -1,6 +1,7 @@
 //! Models related to channels.
 
 mod attachment;
+mod dm_channel;
 mod embed;
 mod message;
 mod permission_overwrite;
@@ -11,6 +12,7 @@ use serde::{Deserialize, Serialize};
 use crate::model::guild::PartialEmoji;
 
 pub use self::attachment::Attachment;
+pub use self::dm_channel::DMChannel;
 pub use self::embed::{
     Embed, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage, EmbedProvider, EmbedThumbnail,
     EmbedType, EmbedVideo,
@@ -21,6 +23,29 @@ pub use self::message::{
 pub use self::permission_overwrite::{OverwriteId, PermissionOverwrite};
 pub use self::rich_presence::{MessageActivity, MessageActivityType, MessageApplication};
 
+/// A channel in Discord.
+#[non_exhaustive]
+#[remain::sorted]
+#[derive(Clone, Debug)]
+pub enum Channel {
+    /// A direct message channel between the [`ClientUser`] and another
+    /// [`User`].
+    ///
+    /// [`ClientUser`]: ../user/struct.ClientUser.html
+    /// [`User`]: ../user/struct.User.html
+    DM(DMChannel),
+    /// A group message channel between multiple [`User`]s.
+    ///
+    /// [`User`]: ../user/struct.User.html
+    Group, // TODO: Add GroupChannel.
+    /// A channel within a [`Guild`].
+    ///
+    /// [`Guild`]: TODO
+    Guild, // TODO: Add GuildChannel.
+}
+
+// TODO: Implement Deserialize and Serialize for Channel based in ChannelType.
+
 /// The type of a channel.
 #[non_exhaustive]
 #[int_enum::int_enum(u8)]
@@ -28,11 +53,11 @@ pub use self::rich_presence::{MessageActivity, MessageActivityType, MessageAppli
 pub enum ChannelType {
     /// A text channel in a guild.
     Text = 0,
-    /// A private message channel between 2 users.
+    /// A direct message channel between the client user and another user.
     Private = 1,
     /// A voice channel in a guild.
     Voice = 2,
-    /// A group private message channel between multiple users.
+    /// A group message channel between multiple users.
     Group = 3,
     /// An organizational category that contains non-category channels.
     Category = 4,
