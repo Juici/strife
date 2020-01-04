@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 /// An HTTP error.
-#[remain::sorted]
+#[non_exhaustive]
 #[derive(Debug, Error)]
 pub enum Error {
     /// An Hyper error.
@@ -43,12 +43,11 @@ pub struct ErrorResponse {
 /// A [Discord JSON error].
 ///
 /// [Discord JSON error]: https://discordapp.com/developers/docs/topics/opcodes-and-status-codes#json
+#[non_exhaustive]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DiscordJsonError {
     /// The error code.
     pub code: u32,
     /// A user friendly error message.
     pub message: String,
-    #[serde(skip)]
-    non_exhaustive: (),
 }

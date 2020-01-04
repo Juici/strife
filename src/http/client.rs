@@ -23,12 +23,16 @@ impl Http {
         let client = Arc::new(client);
 
         Http {
-            ratelimiter: RateLimiter::new(client, token.to_string()),
+            ratelimiter: RateLimiter::new(client, token),
         }
     }
 
     /// Performs a request with rate limiting if necessary.
-    async fn request<T: DeserializeOwned>(&self, req: Request<'_>) -> Result<T> {
+    ///
+    /// # Stability
+    ///
+    /// This is not part of the stable API and may change at any time.
+    pub async fn request<T: DeserializeOwned>(&self, req: Request<'_>) -> Result<T> {
         json_body(&mut self.inner_request(req).await?).await
     }
 

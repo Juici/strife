@@ -38,6 +38,7 @@ macro_rules! int_visitor {
 }
 
 int_visitor! {
+    pub U8Visitor: u8;
     pub U16Visitor: u16;
     pub U64Visitor: u64;
 }

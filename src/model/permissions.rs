@@ -1,21 +1,20 @@
-//! Models the [bitwise permissions flags] used by Discord to store
+//! Models the bitwise permissions [flags] used by Discord to store
 //! [permissions].
 //!
-//! [bitwise permissions flags]: https://discordapp.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags
+//! [flags]: https://discordapp.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags
 //! [permissions]: https://discordapp.com/developers/docs/topics/permissions#permissions
 
 #![allow(clippy::unreadable_literal)]
 
 use bitflags::bitflags;
-use serde::{
-    de::{self, Deserialize, Deserializer},
-    ser::{Serialize, Serializer},
-};
+use serde::de;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::model::utils::U64Visitor;
 
 bitflags! {
     /// A set of permissions for a [`Role`] or [`User`].
+    #[derive(Default)]
     pub struct Permissions: u64 {
         /// Allows creation of instant invites.
         const CREATE_INSTANT_INVITE = 0x00000001;
@@ -47,8 +46,8 @@ bitflags! {
         const ATTACH_FILES = 0x00008000;
         /// Allows for reading of message history.
         const READ_MESSAGE_HISTORY = 0x00010000;
-        /// Allows for using the @everyone tag to notify all users in a channel,
-        /// and the @here tag to notify all online users in a channel.
+        /// Allows for using the `@everyone` tag to notify all users in a channel,
+        /// and the `@here` tag to notify all online users in a channel.
         const MENTION_EVERYONE = 0x00020000;
         /// Allows the usage of custom emojis from other servers.
         const USE_EXTERNAL_EMOJIS = 0x00040000;
@@ -101,7 +100,7 @@ impl<'de> Deserialize<'de> for Permissions {
             None => {
                 let unknown: u64 = bits & !Permissions::all().bits();
                 Err(de::Error::custom(format!(
-                    "unknown permissions bits {} in {}",
+                    "unknown permissions bits {:b} in {:b}",
                     unknown, bits
                 )))
             }
@@ -111,39 +110,47 @@ impl<'de> Deserialize<'de> for Permissions {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::json;
+
     use super::*;
 
     #[test]
     fn test_all() {
-        const ALL: u64 = 2146959359;
-
         assert_eq!(
             Permissions::all(),
-            Permissions::from_bits(ALL).expect("all permissions")
+            Permissions::from_bits(2146959359).unwrap()
         );
     }
 
     #[test]
-    fn test_serialize() {
-        const BITS: u64 = 103877696;
-        const BITS_STR: &str = "103877696";
+    fn test_default() {
+        assert_eq!(Permissions::default(), Permissions::empty());
+    }
 
-        let perms = Permissions::from_bits(BITS).expect("valid permissions");
-        assert_eq!(serde_json::to_string(&perms).unwrap(), BITS_STR);
+    #[test]
+    fn test_serialize() {
+        let value = json!(103877696);
+        let perms = Permissions::from_bits(103877696).unwrap();
+
+        assert_eq!(value, serde_json::to_value(&perms).unwrap());
     }
 
     #[test]
     fn test_deserialize() {
-        const BITS_STR: &str = "68608";
+        let value = json!(68608);
+        let perms = Permissions::VIEW_CHANNEL
+            | Permissions::READ_MESSAGE_HISTORY
+            | Permissions::SEND_MESSAGES;
 
-        let perms: Permissions = serde_json::from_str(BITS_STR).unwrap();
-        assert_eq!(serde_json::to_string(&perms).unwrap(), BITS_STR);
+        assert_eq!(perms, serde_json::from_value(value).unwrap());
+    }
 
-        assert_eq!(
-            perms,
-            Permissions::VIEW_CHANNEL
-                | Permissions::READ_MESSAGE_HISTORY
-                | Permissions::SEND_MESSAGES
-        )
+    #[test]
+    fn test_deserialize_invalid() {
+        let value = serde_json::json!(0x00080000);
+        let err = serde_json::from_value::<Permissions>(value);
+
+        assert!(err.is_err());
+        assert!(err.unwrap_err().is_data());
     }
 }

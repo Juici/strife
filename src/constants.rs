@@ -1,7 +1,5 @@
 //! A collection of constants used by the library.
 
-use int_enum::*;
-
 /// The gateway version used by the library, URI is retrieved via the REST API.
 pub const GATEWAY_VERSION: usize = 6;
 
@@ -13,37 +11,35 @@ pub const MESSAGE_MAX_LENGTH: usize = 2000;
 /// The UserAgent header sent with every request.
 pub const USER_AGENT: &str = concat!("DiscordBot (", pkg_repo!(), ", ", pkg_version!(), ")");
 
-int_enum! {
-    /// Gateway opcodes.
-    #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-    pub enum OpCode: u8 {
-        /// Dispatches an event.
-        Event = 0,
-        /// Used for ping checking.
-        Heartbeat = 1,
-        /// Used for client handshake.
-        Identify = 2,
-        /// Used to update the client status.
-        StatusUpdate = 3,
-        /// Used to join/move/leave voice channels.
-        VoiceStateUpdate = 4,
-        /// Used for voice ping checking.
-        VoiceServerPing = 5,
-        /// Used to resume a closed connection.
-        Resume = 6,
-        /// Used to tell clients to reconnect to the gateway.
-        Reconnect = 7,
-        /// Used to request guild members.
-        GetGuildMembers = 8,
-        /// Used to notify clients that they have an invalid session Id.
-        InvalidSession = 9,
-        /// Sent immediately after connection, contains heartbeat + server info.
-        Hello = 10,
-        /// Sent immediately following a client heartbeat that was received.
-        HeartbeatAck = 11,
-        #[doc(hidden)]
-        __Nonexhaustive,
-    }
+/// Gateway opcodes.
+#[int_enum::int_enum(u8)]
+#[non_exhaustive]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum OpCode {
+    /// Dispatches an event.
+    Event = 0,
+    /// Used for ping checking.
+    Heartbeat = 1,
+    /// Used for client handshake.
+    Identify = 2,
+    /// Used to update the client status.
+    StatusUpdate = 3,
+    /// Used to join/move/leave voice channels.
+    VoiceStateUpdate = 4,
+    /// Used for voice ping checking.
+    VoiceServerPing = 5,
+    /// Used to resume a closed connection.
+    Resume = 6,
+    /// Used to tell clients to reconnect to the gateway.
+    Reconnect = 7,
+    /// Used to request guild members.
+    GetGuildMembers = 8,
+    /// Used to notify clients that they have an invalid session Id.
+    InvalidSession = 9,
+    /// Sent immediately after connection, contains heartbeat + server info.
+    Hello = 10,
+    /// Sent immediately following a client heartbeat that was received.
+    HeartbeatAck = 11,
 }
 
 /// Gateway close event codes.

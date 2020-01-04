@@ -3,7 +3,9 @@
 mod utils;
 
 pub mod channel;
+pub mod color;
 pub mod guild;
 pub mod id;
 pub mod permissions;
 pub mod snowflake;
+pub mod user;

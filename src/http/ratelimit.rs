@@ -4,7 +4,6 @@ use std::time::Duration;
 use std::{i64, str};
 
 use async_std::sync::{Arc, Mutex, RwLock};
-
 use bytes::Bytes;
 use futures_timer::Delay;
 use hyper::{HeaderMap, StatusCode};
@@ -16,16 +15,17 @@ use super::prelude::*;
 const RATELIMIT_GLOBAL: &str = "x-ratelimit-global";
 const RATELIMIT_LIMIT: &str = "x-ratelimit-limit";
 const RATELIMIT_REMAINING: &str = "x-ratelimit-remaining";
+
 #[cfg(any(test, feature = "systime_ratelimits"))]
 const RATELIMIT_RESET: &str = "x-ratelimit-reset";
 #[cfg(any(test, not(feature = "systime_ratelimits")))]
 const RATELIMIT_RESET_AFTER: &str = "x-ratelimit-reset-after";
 
-const RETRY_AFTER: &str = "Retry-After";
+const RETRY_AFTER: &str = "retry-after";
 
 /// Ratelimiter for requests the the Discord REST API.
 pub struct RateLimiter {
-    token: String,
+    token: Bytes,
     client: Arc<HyperClient>,
     global: Arc<Mutex<()>>,
     routes: Arc<RwLock<HashMap<Bucket, Arc<Mutex<RateLimit>>>>>,
@@ -35,13 +35,14 @@ impl RateLimiter {
     /// Creates a new rate limit manager.
     pub fn new<S: AsRef<str>>(client: Arc<HyperClient>, token: S) -> RateLimiter {
         RateLimiter {
-            token: token.as_ref().to_string(),
+            token: Bytes::copy_from_slice(token.as_ref().as_bytes()),
             client,
             global: Default::default(),
             routes: Default::default(),
         }
     }
 
+    /// Performs a ratelimited request.
     pub async fn perform(&self, request: &Request<'_>) -> Result<HttpResponse> {
         let bucket = request.route.bucket();
 
@@ -50,7 +51,7 @@ impl RateLimiter {
             // Drop instantly to prevent blocking other threads.
             drop(self.global.lock().await);
 
-            let req = request.build(&self.token)?;
+            let req = request.build(self.token.clone())?;
 
             // No rate limits apply.
             if bucket == Bucket::None {}
@@ -108,7 +109,7 @@ impl RateLimiter {
     }
 }
 
-pub struct RateLimit {
+struct RateLimit {
     limit: i64,
     remaining: i64,
     #[cfg(feature = "systime_ratelimits")]

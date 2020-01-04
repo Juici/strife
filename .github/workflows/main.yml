@@ -42,14 +42,11 @@ jobs:
 
   msrv:
     name: MSRV
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
       - name: Install Rust
-        run: rustup update 1.39.0 --no-self-update && rustup default 1.39.0
+        run: rustup update 1.40.0 --no-self-update && rustup default 1.40.0
         shell: bash
       - run: cargo build
 
@@ -74,7 +71,7 @@ jobs:
       - name: Publish documentation
         run: |
           cd target/doc
-          echo '<meta http-equiv=refresh content=0;url=strife/index.html>' > index.html
+          echo '<meta http-equiv="refresh" content="0;url=strife/index.html">' > index.html
           git init
           git add .
           git -c user.name='ci' -c user.email='ci' commit -m init

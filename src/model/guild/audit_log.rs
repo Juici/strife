@@ -1,52 +1,78 @@
-//! Models related to audit logs.
-
-use std::fmt::{self, Display};
-
-// TODO: Docs for AuditLogEvent.
-
-int_enum! {
-    /// The [type of action] that occurred in an [`AuditLogEntry`].
-    ///
-    /// [type of action]: https://discordapp.com/developers/docs/resources/audit-log#audit-log-entry-object-audit-log-events
-    #[allow(missing_docs)]
-    #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-    pub enum AuditLogEvent: u8 {
-        GuildUpdate = 1,
-        ChannelCreate = 10,
-        ChannelUpdate = 11,
-        ChannelDelete = 12,
-        ChannelOverwriteCreate = 13,
-        ChannelOverwriteUpdate = 14,
-        ChannelOverwriteDelete = 15,
-        MemberKick = 20,
-        MemberPrune = 21,
-        MemberBanAdd = 22,
-        MemberBanRemove = 23,
-        MemberUpdate = 24,
-        MemberRoleUpdate = 25,
-        RoleCreate = 30,
-        RoleUpdate = 31,
-        RoleDelete = 32,
-        InviteCreate = 40,
-        InviteUpdate = 41,
-        InviteDelete = 42,
-        WebhookCreate = 50,
-        WebhookUpdate = 51,
-        WebhookDelete = 52,
-        EmojiCreate = 60,
-        EmojiUpdate = 61,
-        EmojiDelete = 62,
-        MessageDelete = 72,
-        #[doc(hidden)]
-        __Nonexhaustive,
-    }
-}
-
-impl Display for AuditLogEvent {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match IntEnum::as_int(self) {
-            Some(ref n) => Display::fmt(n, f),
-            None => unreachable!(),
-        }
-    }
+/// The [type of action] that occurred in an [`AuditLogEntry`].
+///
+/// [type of action]: https://discordapp.com/developers/docs/resources/audit-log#audit-log-entry-object-audit-log-events
+#[int_enum::int_enum(u8)]
+#[non_exhaustive]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum AuditLogEvent {
+    /// The guild settings were updated.
+    GuildUpdate = 1,
+    /// A channel was created.
+    ChannelCreate = 10,
+    /// A channel was updated.
+    ChannelUpdate = 11,
+    /// A channel was deleted.
+    ChannelDelete = 12,
+    /// A channel permission overwrite was created.
+    ChannelOverwriteCreate = 13,
+    /// A channel permission overwrite was updated.
+    ChannelOverwriteUpdate = 14,
+    /// A channel permission overwrite was deleted.
+    ChannelOverwriteDelete = 15,
+    /// A member was kicked.
+    MemberKick = 20,
+    /// A member prune was executed.
+    MemberPrune = 21,
+    /// A member was banned.
+    MemberBanAdd = 22,
+    /// A member was unbanned.
+    MemberBanRemove = 23,
+    /// A member was updated.
+    MemberUpdate = 24,
+    /// A member's roles were updated.
+    MemberRoleUpdate = 25,
+    /// A member was moved to a voice channel.
+    MemberMove = 26,
+    /// A member was disconnected from a voice channel.
+    MemberDisconnect = 27,
+    /// A bot was added to the guild.
+    BotAdd = 28,
+    /// A role was created.
+    RoleCreate = 30,
+    /// A role was updated.
+    RoleUpdate = 31,
+    /// A role was deleted.
+    RoleDelete = 32,
+    /// An invite was created.
+    InviteCreate = 40,
+    /// An invite was updated.
+    InviteUpdate = 41,
+    /// An invite was deleted.
+    InviteDelete = 42,
+    /// A webhook was created.
+    WebhookCreate = 50,
+    /// A webhook was updated.
+    WebhookUpdate = 51,
+    /// A webhook was deleted.
+    WebhookDelete = 52,
+    /// An emoji was created.
+    EmojiCreate = 60,
+    /// An emoji was updated.
+    EmojiUpdate = 61,
+    /// An emoji was deleted.
+    EmojiDelete = 62,
+    /// A message was deleted.
+    MessageDelete = 72,
+    /// Messages were bulk deleted.
+    MessageBulkDelete = 73,
+    /// A message was pinned.
+    MessagePin = 74,
+    /// A message was unpinned.
+    MessageUnpin = 75,
+    /// An integration was created.
+    IntegrationCreate = 80,
+    /// An integration was updated.
+    IntegrationUpdate = 81,
+    /// An integration was deleted.
+    IntegrationDelete = 82,
 }

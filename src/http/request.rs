@@ -1,25 +1,37 @@
 use bytes::Bytes;
-use hyper::header::{HeaderMap, HeaderValue, AUTHORIZATION, CONTENT_TYPE, USER_AGENT};
+use hyper::body::Body;
+use hyper::header::{
+    HeaderMap, HeaderValue, IntoHeaderName, AUTHORIZATION, CONTENT_TYPE, USER_AGENT,
+};
+use serde::Serialize;
 
 use crate::constants;
 use crate::internal::prelude::*;
 
 use super::prelude::*;
-use super::routing::Route;
 
 const RATELIMIT_PRECISION: &str = "x-ratelimit-precision";
 
 const APPLICATION_JSON: Bytes = Bytes::from_static(b"application/json");
 const MILLISECOND: Bytes = Bytes::from_static(b"millisecond");
 
+/// A request to be sent by the [`Http`] client.
+///
+/// # Stability
+///
+/// This is not part of the stable API and may change at any time. For a stable
+/// API use the functions on the [`Http`] client.
+///
+/// [`Http`]: ../struct.Http.html
 #[derive(Clone)]
 pub struct Request<'a> {
-    pub headers: Option<HeaderMap>,
-    pub body: Option<&'a [u8]>,
-    pub route: Route<'a>,
+    pub(crate) headers: Option<HeaderMap>,
+    pub(crate) body: Option<Bytes>,
+    pub(crate) route: Route<'a>,
 }
 
 impl<'a> Request<'a> {
+    /// Creates an empty request for the given route.
     pub fn new(route: Route<'a>) -> Request {
         Request {
             headers: None,
@@ -28,32 +40,110 @@ impl<'a> Request<'a> {
         }
     }
 
+    /// Sets the request headers.
     pub fn headers(&mut self, headers: HeaderMap) -> &mut Self {
         self.headers = Some(headers);
         self
     }
 
-    pub fn body(&mut self, body: &'a [u8]) -> &mut Self {
-        self.body = Some(body);
+    /// Adds a header to the request headers.
+    ///
+    /// Header names should be lowercase.
+    pub fn header<K, V>(&mut self, key: K, value: V) -> Result<&mut Self>
+    where
+        K: IntoHeaderName,
+        V: Into<Bytes>,
+    {
+        let value = value.into();
+        let headers = self
+            .headers
+            .get_or_insert_with(|| HeaderMap::with_capacity(1));
+
+        headers.insert(
+            key,
+            HeaderValue::from_maybe_shared(value.clone())
+                .map_err(|_| HttpError::InvalidHeader(value))?,
+        );
+        Ok(self)
+    }
+
+    /// Adds a header to the request headers without validating the `value`
+    /// contains no illegal bytes.
+    ///
+    /// See the safe function, [`header`], for more
+    /// information.
+    ///
+    /// [`header`]: struct.Request.html#method.header
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it does not check that `value` contains
+    /// no illegal bytes.
+    pub unsafe fn header_unchecked<K, V>(&mut self, key: K, value: V) -> &mut Self
+    where
+        K: IntoHeaderName,
+        V: Into<Bytes>,
+    {
+        let value = value.into();
+        let headers = self
+            .headers
+            .get_or_insert_with(|| HeaderMap::with_capacity(1));
+
+        headers.insert(key, HeaderValue::from_maybe_shared_unchecked(value));
         self
     }
 
-    pub fn build(&self, token: &str) -> Result<HttpRequest> {
-        // Create header map.
-        let mut headers = match &self.headers {
-            Some(request_headers) => {
-                let mut headers = HeaderMap::with_capacity(4 + request_headers.len());
-                headers.extend(request_headers.clone());
-                headers
-            }
-            None => HeaderMap::with_capacity(4),
-        };
+    /// Sets the body of the request.
+    pub fn body<B>(&mut self, body: B) -> &mut Self
+    where
+        B: Into<Bytes>,
+    {
+        self.body = Some(body.into());
+        self
+    }
 
-        use std::convert::TryInto;
-        let mut auth: HeaderValue = token
-            .try_into()
-            .map_err(|_| HttpError::InvalidHeader(Bytes::copy_from_slice(token.as_bytes())))?;
-        auth.set_sensitive(true);
+    /// Serializes a value as JSON and sets it as the body of request.
+    pub fn json<T>(&mut self, value: &T) -> Result<&mut Self>
+    where
+        T: ?Sized + Serialize,
+    {
+        let body = serde_json::to_vec(value)?;
+        self.body = Some(Bytes::from(body));
+        Ok(self)
+    }
+
+    pub(crate) fn build<T>(&self, token: T) -> Result<HttpRequest>
+    where
+        T: Into<Bytes>,
+    {
+        // Create header map.
+        let headers = self.build_headers(token.into())?;
+
+        // Build request.
+        let route = &self.route;
+        let body = self.body.clone().unwrap_or_default();
+
+        let mut req = HttpRequest::new(Body::from(body));
+
+        *req.method_mut() = route.method().into();
+        *req.uri_mut() = route.url().parse().map_err(HttpError::InvalidUri)?;
+        *req.headers_mut() = headers;
+
+        Ok(req)
+    }
+
+    fn build_headers(&self, token: Bytes) -> Result<HeaderMap> {
+        let mut headers = self.headers.clone().unwrap_or_default();
+
+        // Reserve space for headers.
+        headers.reserve(4);
+
+        let auth = {
+            let mut auth = HeaderValue::from_maybe_shared(token.clone())
+                .map_err(|_| HttpError::InvalidHeader(token))?;
+            auth.set_sensitive(true);
+            auth
+        };
 
         // Use unsafe `from_maybe_shared_unchecked` function to remove checks for
         // invalid bytes, since we can validate this before compile time.
@@ -66,28 +156,12 @@ impl<'a> Request<'a> {
         headers.insert(AUTHORIZATION, auth);
         headers.insert(RATELIMIT_PRECISION, millisecond);
 
-        // Allow content type to be overridden by custom headers.
-        if !headers.contains_key(CONTENT_TYPE) {
+        // Allow content-type to be overridden by custom headers.
+        let _ = headers.entry(CONTENT_TYPE).or_insert_with(|| unsafe {
             // SAFETY: "application/json" contains no invalid bytes.
-            let application_json =
-                unsafe { HeaderValue::from_maybe_shared_unchecked(APPLICATION_JSON) };
+            HeaderValue::from_maybe_shared_unchecked(APPLICATION_JSON)
+        });
 
-            headers.insert(CONTENT_TYPE, application_json);
-        }
-
-        // Build request.
-        let body = match self.body {
-            Some(body) => Bytes::copy_from_slice(body),
-            None => Bytes::new(),
-        };
-        let mut req = HttpRequest::new(body.into());
-
-        let route = &self.route;
-
-        *req.method_mut() = route.method().into();
-        *req.uri_mut() = route.url().parse().map_err(HttpError::InvalidUri)?;
-        *req.headers_mut() = headers;
-
-        Ok(req)
+        Ok(headers)
     }
 }

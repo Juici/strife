@@ -7,15 +7,14 @@ use std::fmt::Write;
 
 use hyper::Method as HttpMethod;
 
-use crate::model::{
-    channel::OverwriteId,
-    guild::{AuditLogEvent, Emoji},
-    id::*,
-};
+use crate::model::channel::OverwriteId;
+use crate::model::guild::{AuditLogEvent, Emoji};
+use crate::model::id::*;
 
 /// Buckets grouping [rate limited] routes.
 ///
 /// [rate limited]: https://discordapp.com/developers/docs/topics/rate-limits#rate-limits
+#[non_exhaustive]
 #[remain::sorted]
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Bucket {
@@ -274,12 +273,19 @@ pub enum Bucket {
     /// Routes where no rate limits are in place.
     #[remain::unsorted]
     None,
-
-    #[doc(hidden)]
-    __Nonexhaustive,
 }
 
 // TODO: Add support for status api (https://status.discordapp.com/api/).
+/// An API endpoint.
+///
+/// # Stability
+///
+/// This is not part of the stable API and may change at any time. For a stable
+/// API use the functions on the [`Http`] client.
+///
+/// [`Http`]: ../struct.Http.html
+#[allow(missing_docs)]
+#[non_exhaustive]
 #[remain::sorted]
 #[derive(Clone, Debug)]
 pub enum Route<'a> {
@@ -585,18 +591,15 @@ pub enum Route<'a> {
         channel_id: ChannelId,
         message_id: MessageId,
     },
-
-    #[doc(hidden)]
-    __Nonexhaustive,
 }
 
 impl<'a> Route<'a> {
     #[remain::check]
-    pub fn method(&self) -> Method {
+    pub(crate) fn method(&self) -> Method {
         use self::Route::*;
 
         #[remain::sorted]
-        match *self {
+        match self {
             AddGroupRecipient { .. } => Method::Put,
             AddMemberRole { .. } => Method::Put,
             BanMember { .. } => Method::Put,
@@ -682,11 +685,10 @@ impl<'a> Route<'a> {
             SyncIntegration { .. } => Method::Post,
             UnbanMember { .. } => Method::Delete,
             UnpinMessage { .. } => Method::Delete,
-            __Nonexhaustive => unreachable!(),
         }
     }
 
-    pub fn bucket(&self) -> Bucket {
+    pub(crate) fn bucket(&self) -> Bucket {
         use self::Route::*;
 
         match *self {
@@ -837,12 +839,10 @@ impl<'a> Route<'a> {
 
             GetGateway => Bucket::Gateway,
             GetBotGateway => Bucket::GatewayBot,
-
-            __Nonexhaustive => unreachable!(),
         }
     }
 
-    pub fn url(&self) -> Cow<'a, str> {
+    pub(crate) fn url(&self) -> Cow<'a, str> {
         use self::Route::*;
 
         match self {
@@ -852,12 +852,15 @@ impl<'a> Route<'a> {
                 action_type,
                 before,
                 limit,
-            } => Cow::from(api!("/guilds/{}/audit-logs?", guild_id; [
-                ("user_id", user_id?),
-                ("action_type", action_type?),
-                ("before", before?),
-                ("limit", limit?),
-            ])),
+            } => {
+                let action_type = action_type.map(u8::from);
+                Cow::from(api!("/guilds/{}/audit-logs", guild_id; [
+                    ("user_id", user_id?),
+                    ("action_type", action_type?),
+                    ("before", before?),
+                    ("limit", limit?),
+                ]))
+            }
 
             GetChannel { channel_id }
             | EditChannel { channel_id }
@@ -1162,8 +1165,6 @@ impl<'a> Route<'a> {
 
             GetGateway => Cow::from(api!("/gateway")),
             GetBotGateway => Cow::from(api!("/gateway/bot")),
-
-            __Nonexhaustive => unreachable!(),
         }
     }
 }

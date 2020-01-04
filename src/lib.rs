@@ -12,6 +12,9 @@ pub mod constants;
 pub mod http;
 pub mod model;
 
+#[doc(inline)]
 pub use crate::client::Client;
+#[doc(inline)]
 pub use crate::error::{Error, Result};
+#[doc(inline)]
 pub use crate::http::Http;
