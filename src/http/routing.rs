@@ -276,6 +276,15 @@ pub enum Bucket {
 }
 
 // TODO: Add support for status api (https://status.discordapp.com/api/).
+/// An API endpoint.
+///
+/// # Stability
+///
+/// This is not part of the stable API and may change at any time. For a stable
+/// API use the functions on the [`Http`] client.
+///
+/// [`Http`]: ../struct.Http.html
+#[allow(missing_docs)]
 #[non_exhaustive]
 #[remain::sorted]
 #[derive(Clone, Debug)]
@@ -586,7 +595,7 @@ pub enum Route<'a> {
 
 impl<'a> Route<'a> {
     #[remain::check]
-    pub fn method(&self) -> Method {
+    pub(crate) fn method(&self) -> Method {
         use self::Route::*;
 
         #[remain::sorted]
@@ -679,7 +688,7 @@ impl<'a> Route<'a> {
         }
     }
 
-    pub fn bucket(&self) -> Bucket {
+    pub(crate) fn bucket(&self) -> Bucket {
         use self::Route::*;
 
         match *self {
@@ -833,7 +842,7 @@ impl<'a> Route<'a> {
         }
     }
 
-    pub fn url(&self) -> Cow<'a, str> {
+    pub(crate) fn url(&self) -> Cow<'a, str> {
         use self::Route::*;
 
         match self {
