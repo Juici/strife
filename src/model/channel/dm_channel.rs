@@ -15,6 +15,10 @@ pub struct DMChannel {
     /// The ID of the channel.
     pub id: ChannelId,
     /// The type of the channel.
+    ///
+    /// This should always be [`ChannelType::Private`].
+    ///
+    /// [`ChannelType::Private`]: ../enum.ChannelType.html#variant.Private
     #[serde(rename = "type")]
     pub kind: ChannelType,
     /// The recipient to the direct message channel.
