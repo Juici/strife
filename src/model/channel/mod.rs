@@ -3,6 +3,7 @@
 mod attachment;
 mod dm_channel;
 mod embed;
+mod group_channel;
 mod message;
 mod permission_overwrite;
 mod rich_presence;
@@ -17,6 +18,7 @@ pub use self::embed::{
     Embed, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage, EmbedProvider, EmbedThumbnail,
     EmbedType, EmbedVideo,
 };
+pub use self::group_channel::GroupChannel;
 pub use self::message::{
     MentionedChannel, MentionedUser, Message, MessageFlags, MessageReference, MessageType,
 };
@@ -37,7 +39,7 @@ pub enum Channel {
     /// A group message channel between multiple [`User`]s.
     ///
     /// [`User`]: ../user/struct.User.html
-    Group, // TODO: Add GroupChannel.
+    Group(GroupChannel),
     /// A channel within a [`Guild`].
     ///
     /// [`Guild`]: TODO
