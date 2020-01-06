@@ -115,6 +115,13 @@ macro_rules! wrap {
 }
 
 #[cfg(test)]
+macro_rules! assert_eq_fields {
+    ($left:expr, $right:expr, [$($field:ident),* $(,)*]) => {$(
+        assert_eq!($left.$field, $right.$field);
+    )*};
+}
+
+#[cfg(test)]
 mod tests {
     const ID: u64 = 80351110224678912;
 

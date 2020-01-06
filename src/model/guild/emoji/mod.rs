@@ -41,12 +41,6 @@ mod tests {
 
     use super::*;
 
-    macro_rules! assert_eq_fields {
-        ($left:expr, $right:expr, [$($field:ident),* $(,)*]) => {$(
-            assert_eq!($left.$field, $right.$field);
-        )*};
-    }
-
     #[test]
     fn test_deserialize_emoji() {
         let value = json!({
