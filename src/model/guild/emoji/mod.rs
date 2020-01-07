@@ -32,6 +32,8 @@ impl Display for Emoji {
     }
 }
 
+impl_eq_fields!(Emoji: [emoji, user, require_colons, managed]);
+
 #[cfg(test)]
 mod tests {
     use serde_json::json;
@@ -73,12 +75,7 @@ mod tests {
 
         let deserialized: Emoji = serde_json::from_value(value).unwrap();
 
-        assert_eq_fields!(emoji, deserialized, [emoji, require_colons, managed]);
-        assert_eq_fields!(
-            emoji.user.as_ref().unwrap(),
-            deserialized.user.as_ref().unwrap(),
-            [id, name, discriminator, avatar, bot, system]
-        );
+        assert_eq_fields!(emoji, deserialized);
     }
 
     // TODO: Enable test when `roles` is added to `Emoji`.

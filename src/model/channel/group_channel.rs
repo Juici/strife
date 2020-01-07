@@ -105,6 +105,16 @@ mod serde_recipients {
     }
 }
 
+impl_eq_fields!(GroupChannel: (a, b) => {
+    assert_eq_fields!(a, b, [id, kind, name, icon, owner_id, last_message_id, last_pin_timestamp]);
+
+    assert_eq!(a.recipients.len(), b.recipients.len());
+    for (id, a_user) in a.recipients.iter() {
+        let b_user = b.recipients.get(id).expect(&format!("missing user with id: {}", id));
+        assert_eq_fields!(a_user, b_user);
+    }
+});
+
 #[cfg(test)]
 mod tests {
     use std::iter::FromIterator;
@@ -175,29 +185,7 @@ mod tests {
 
         let deserialized: GroupChannel = serde_json::from_value(value).unwrap();
 
-        assert_eq_fields!(
-            channel,
-            deserialized,
-            [
-                id,
-                kind,
-                name,
-                icon,
-                owner_id,
-                last_message_id,
-                last_pin_timestamp
-            ]
-        );
-
-        assert_eq!(channel.recipients.len(), deserialized.recipients.len());
-        for (id, user) in channel.recipients.iter() {
-            let de_user = deserialized.recipients.get(id).unwrap();
-            assert_eq_fields!(
-                user,
-                de_user,
-                [id, name, discriminator, avatar, bot, system]
-            );
-        }
+        assert_eq_fields!(channel, deserialized);
     }
 
     #[test]

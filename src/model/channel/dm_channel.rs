@@ -54,6 +54,8 @@ mod serde_recipient {
     }
 }
 
+impl_eq_fields!(DMChannel: [id, kind, recipient, last_message_id, last_pin_timestamp]);
+
 #[cfg(test)]
 mod tests {
     use chrono::TimeZone;
@@ -96,16 +98,7 @@ mod tests {
 
         let deserialized: DMChannel = serde_json::from_value(value).unwrap();
 
-        assert_eq_fields!(
-            channel,
-            deserialized,
-            [id, kind, last_message_id, last_pin_timestamp]
-        );
-        assert_eq_fields!(
-            channel.recipient,
-            deserialized.recipient,
-            [id, name, discriminator, avatar, bot, system]
-        );
+        assert_eq_fields!(channel, deserialized);
     }
 
     #[test]

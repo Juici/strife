@@ -73,6 +73,9 @@ pub enum PremiumType {
     Nitro = 2,
 }
 
+impl_eq_fields!(ClientUser: [user, mfa_enabled, locale, verified, email, flags, premium_type]);
+impl_eq_fields!(User: [id, name, discriminator, avatar, bot, system]);
+
 #[cfg(test)]
 mod tests {
     use serde_json::json;
@@ -98,7 +101,7 @@ mod tests {
 
         let user2: User = serde_json::from_value(value.clone()).unwrap();
 
-        assert_eq_fields!(user, user2, [id, name, discriminator, avatar, bot, system]);
+        assert_eq_fields!(user, user2);
     }
 
     #[test]
@@ -159,24 +162,7 @@ mod tests {
 
         let user2: ClientUser = serde_json::from_value(value.clone()).unwrap();
 
-        assert_eq_fields!(
-            user,
-            user2,
-            [
-                id,
-                name,
-                discriminator,
-                avatar,
-                bot,
-                system,
-                mfa_enabled,
-                locale,
-                verified,
-                email,
-                flags,
-                premium_type,
-            ]
-        );
+        assert_eq_fields!(user, user2);
     }
 
     #[test]
@@ -212,24 +198,7 @@ mod tests {
 
         let user2: ClientUser = serde_json::from_value(value.clone()).unwrap();
 
-        assert_eq_fields!(
-            user,
-            user2,
-            [
-                id,
-                name,
-                discriminator,
-                avatar,
-                bot,
-                system,
-                mfa_enabled,
-                locale,
-                verified,
-                email,
-                flags,
-                premium_type,
-            ]
-        );
+        assert_eq_fields!(user, user2);
     }
 
     #[test]
