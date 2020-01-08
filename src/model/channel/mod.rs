@@ -1,5 +1,8 @@
 //! Models related to channels.
 
+// Internal utility module.
+mod utils;
+
 mod attachment;
 mod dm_channel;
 mod embed;
