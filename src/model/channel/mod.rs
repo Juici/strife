@@ -23,7 +23,7 @@ pub use self::embed::{
     Embed, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage, EmbedProvider, EmbedThumbnail,
     EmbedType, EmbedVideo,
 };
-pub use self::group_channel::GroupChannel;
+pub use self::group_channel::Group;
 pub use self::guild_channel::GuildChannel;
 pub use self::message::{
     MentionedChannel, MentionedUser, Message, MessageFlags, MessageReference, MessageType,
@@ -97,7 +97,7 @@ pub enum Channel {
     /// A group message channel between multiple [`User`]s.
     ///
     /// [`User`]: ../user/struct.User.html
-    Group(GroupChannel),
+    Group(Group),
     /// A channel within a [`Guild`].
     ///
     /// [`Guild`]: TODO
@@ -137,7 +137,7 @@ impl<'de> Deserialize<'de> for Channel {
             ChannelType::Private => DMChannel::deserialize(value)
                 .map(Channel::DM)
                 .map_err(de::Error::custom),
-            ChannelType::Group => GroupChannel::deserialize(value)
+            ChannelType::Group => Group::deserialize(value)
                 .map(Channel::Group)
                 .map_err(de::Error::custom),
         }
@@ -224,7 +224,7 @@ mod tests {
           "id": "319674150115710528",
           "owner_id": "82198810841029460"
         });
-        let channel = Channel::Group(GroupChannel {
+        let channel = Channel::Group(Group {
             id: ChannelId::from(319674150115710528),
             kind: ChannelType::Group,
             name: Some("Some test channel".to_owned()),

@@ -13,7 +13,7 @@ use crate::model::user::User;
 /// [`User`]: ../../user/struct.User.html
 #[non_exhaustive]
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct GroupChannel {
+pub struct Group {
     /// The ID of the group channel.
     pub id: ChannelId,
     /// The type of the channel.
@@ -32,13 +32,13 @@ pub struct GroupChannel {
     pub recipients: HashMap<UserId, User>,
     /// The ID of the group owner.
     pub owner_id: UserId,
-    /// The ID of the last message sent to the channel.
+    /// The ID of the last message sent to the group.
     pub last_message_id: Option<MessageId>,
     /// When the last message with pinned.
     pub last_pin_timestamp: Option<DateTime<FixedOffset>>,
 }
 
-impl GroupChannel {
+impl Group {
     /// Returns a reference to the owner of the group.
     ///
     /// # Notes
@@ -50,7 +50,7 @@ impl GroupChannel {
     }
 }
 
-impl_eq_fields!(GroupChannel: (a, b) => {
+impl_eq_fields!(Group: (a, b) => {
     assert_eq_fields!(a, b, [id, kind, name, icon, owner_id, last_message_id, last_pin_timestamp]);
 
     assert_eq!(a.recipients.len(), b.recipients.len());
@@ -94,7 +94,7 @@ mod tests {
           "id": "319674150115710528",
           "owner_id": "82198810841029460"
         });
-        let channel = GroupChannel {
+        let channel = Group {
             id: ChannelId::from(319674150115710528),
             kind: ChannelType::Group,
             name: Some("Some test channel".to_owned()),
@@ -128,7 +128,7 @@ mod tests {
             last_pin_timestamp: None,
         };
 
-        let deserialized: GroupChannel = serde_json::from_value(value).unwrap();
+        let deserialized: Group = serde_json::from_value(value).unwrap();
 
         assert_eq_fields!(channel, deserialized);
     }
@@ -162,7 +162,7 @@ mod tests {
           "id": "319674150115710528",
           "owner_id": "53908099506183680"
         });
-        let channel = GroupChannel {
+        let channel = Group {
             id: ChannelId::from(319674150115710528),
             kind: ChannelType::Group,
             name: Some("Some test channel".to_owned()),
