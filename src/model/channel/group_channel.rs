@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::model::channel::utils::serde_recipients;
 use crate::model::channel::ChannelType;
-use crate::model::id::{ChannelId, MessageId, UserId};
+use crate::model::id::{ApplicationId, ChannelId, MessageId, UserId};
 use crate::model::user::User;
 
 /// A group message channel between multiple [`User`]s.
@@ -30,8 +30,10 @@ pub struct Group {
     /// The users in the group.
     #[serde(default, with = "serde_recipients")]
     pub recipients: HashMap<UserId, User>,
-    /// The ID of the group owner.
+    /// The ID of the group creator.
     pub owner_id: UserId,
+    /// The application ID of the group creator, if it is bot-created.
+    pub application_id: Option<ApplicationId>,
     /// The ID of the last message sent to the group.
     pub last_message_id: Option<MessageId>,
     /// When the last message with pinned.
