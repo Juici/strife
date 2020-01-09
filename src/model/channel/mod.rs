@@ -104,6 +104,17 @@ pub enum Channel {
     Guild(GuildChannel),
 }
 
+impl Channel {
+    /// The type of the channel.
+    pub fn kind(&self) -> ChannelType {
+        match self {
+            Channel::DM(_) => ChannelType::Private,
+            Channel::Group(_) => ChannelType::Group,
+            Channel::Guild(channel) => channel.kind(),
+        }
+    }
+}
+
 impl Serialize for Channel {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where

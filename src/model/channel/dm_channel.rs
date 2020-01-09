@@ -21,7 +21,7 @@ pub struct DMChannel {
     ///
     /// [`ChannelType::Private`]: ../enum.ChannelType.html#variant.Private
     #[serde(rename = "type")]
-    pub kind: ChannelType,
+    pub(crate) kind: ChannelType,
     /// The recipient to the direct message channel.
     #[serde(rename = "recipients", with = "serde_recipient")]
     pub recipient: User,

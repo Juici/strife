@@ -22,7 +22,7 @@ pub struct Group {
     ///
     /// [`ChannelType::Group`]: ../enum.ChannelType.html#variant.Group
     #[serde(rename = "type")]
-    pub kind: ChannelType,
+    pub(crate) kind: ChannelType,
     /// The name of the group.
     pub name: Option<String>,
     /// The group icon hash.

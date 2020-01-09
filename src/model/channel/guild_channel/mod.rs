@@ -28,6 +28,19 @@ pub enum GuildChannel {
 }
 
 impl GuildChannel {
+    /// The type of the channel.
+    pub fn kind(&self) -> ChannelType {
+        match self {
+            GuildChannel::Text => ChannelType::Text,
+            GuildChannel::Voice => ChannelType::Voice,
+            GuildChannel::Category => ChannelType::Category,
+            GuildChannel::News => ChannelType::News,
+            GuildChannel::Store => ChannelType::Store,
+        }
+    }
+}
+
+impl GuildChannel {
     pub(crate) fn from_value<E>(
         kind: ChannelType,
         _value: serde_json::Value,
