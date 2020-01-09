@@ -1,17 +1,36 @@
 #[cfg(test)]
 #[macro_use]
 mod inner {
-    pub trait DelegateEqFields {
-        fn eq_fields(&self, other: &Self);
+    macro_rules! assert_eq_fields {
+        ($left:expr, $right:expr) => {
+            match (&$left, &$right) {
+                (left_val, right_val) => {
+                    // Use a hack with trait method resolution to allow pseudo-specialization.
+                    #[allow(unused_imports)]
+                    use $crate::internal::test::{EqFields, DelegateEqFields};
+
+                    left_val.eq_fields(right_val);
+                }
+            }
+        };
+        ($left:expr, $right:expr, [$($field:ident),* $(,)*]) => {
+            $(
+                assert_eq_fields!($left.$field, $right.$field);
+            )*
+        };
     }
 
-    impl<T: ?Sized> DelegateEqFields for T
-    where
-        T: std::fmt::Debug + PartialEq,
-    {
-        fn eq_fields(&self, other: &Self) {
-            assert_eq!(self, other);
-        }
+    macro_rules! panic_ne_fields {
+        ($left:expr, $right:expr) => {
+            match (&$left, &$right) {
+                (left_val, right_val) => panic!(
+                    r#"assertion failed: `(left == right) by fields`
+  left: `{:?}`,
+ right: `{:?}`"#,
+                    &*left_val, &*right_val
+                ),
+            }
+        };
     }
 
     pub trait EqFields<Rhs: ?Sized = Self>: std::fmt::Debug
@@ -69,12 +88,7 @@ mod inner {
         fn eq_fields(&self, other: &Option<B>) {
             match (self, other) {
                 (Some(left_val), Some(right_val)) => EqFields::eq_fields(left_val, right_val),
-                (left_val, right_val) => panic!(
-                    r#"assertion failed: `(left == right) by fields`
-  left: `{:?}`,
- right: `{:?}`"#,
-                    &*left_val, &*right_val
-                ),
+                (left_val, right_val) => panic_ne_fields!(left_val, right_val),
             }
         }
     }
@@ -88,33 +102,22 @@ mod inner {
         fn eq_fields(&self, other: &Result<B, Err>) {
             match (self, other) {
                 (Ok(left_val), Ok(right_val)) => EqFields::eq_fields(left_val, right_val),
-                (left_val, right_val) => panic!(
-                    r#"assertion failed: `(left == right) by fields`
-  left: `{:?}`,
- right: `{:?}`"#,
-                    &*left_val, &*right_val
-                ),
+                (left_val, right_val) => panic_ne_fields!(left_val, right_val),
             }
         }
     }
 
-    macro_rules! assert_eq_fields {
-        ($left:expr, $right:expr) => {
-            match (&$left, &$right) {
-                (left_val, right_val) => {
-                    // Use a hack with trait method resolution to allow pseudo-specialization.
-                    #[allow(unused_imports)]
-                    use $crate::internal::test::{EqFields, DelegateEqFields};
+    pub trait DelegateEqFields {
+        fn eq_fields(&self, other: &Self);
+    }
 
-                    left_val.eq_fields(right_val);
-                }
-            }
-        };
-        ($left:expr, $right:expr, [$($field:ident),* $(,)*]) => {
-            $(
-                assert_eq_fields!($left.$field, $right.$field);
-            )*
-        };
+    impl<T: ?Sized> DelegateEqFields for T
+    where
+        T: std::fmt::Debug + PartialEq,
+    {
+        fn eq_fields(&self, other: &Self) {
+            assert_eq!(self, other);
+        }
     }
 }
 
