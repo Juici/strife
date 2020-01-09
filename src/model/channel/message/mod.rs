@@ -1,15 +1,25 @@
+//! Message related models.
+
+pub mod embed;
+
+mod attachment;
+mod rich_presence;
+
 use bitflags::bitflags;
 use chrono::{DateTime, FixedOffset};
 use serde::de;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::model::channel::{
-    Attachment, ChannelType, Embed, MessageActivity, MessageApplication, Reaction,
-};
+use crate::model::channel::{ChannelType, Reaction};
 use crate::model::guild::PartialMember;
 use crate::model::id::{ChannelId, GuildId, MessageId, RoleId, WebhookId};
 use crate::model::user::User;
 use crate::model::utils::U8Visitor;
+
+use self::embed::Embed;
+
+pub use self::attachment::Attachment;
+pub use self::rich_presence::{MessageActivity, MessageActivityType, MessageApplication};
 
 /// A message sent in a text channel.
 #[non_exhaustive]
@@ -18,8 +28,12 @@ pub struct Message {
     /// The ID of the message.
     pub id: MessageId,
     /// The ID of the [`Channel`] the message was sent in.
+    ///
+    /// [`Channel`]: ../enum.Channel.html
     pub channel_id: ChannelId,
     /// The ID of the [`Guild`] the message was sent in.
+    ///
+    /// [`Guild`]: TODO
     pub guild_id: Option<GuildId>,
     /// The author of the message.
     ///
@@ -68,7 +82,6 @@ pub struct Message {
     /// The reactions to the message.
     #[serde(default)]
     pub reactions: Vec<Reaction>,
-    // TODO: Add `nonce`.
     /// Whether the message is pinned.
     pub pinned: bool,
     /// The webhook ID that generated the message, if the message was generated

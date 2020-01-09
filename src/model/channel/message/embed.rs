@@ -1,3 +1,5 @@
+//! Message embed models.
+
 use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 
@@ -72,6 +74,7 @@ pub enum EmbedType {
 }
 
 impl Default for EmbedType {
+    /// Embed type defaults to rich embed.
     fn default() -> Self {
         EmbedType::Rich
     }

@@ -1,7 +1,13 @@
+//! Guild channel models.
+
+mod text_channel;
+
 use serde::de;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::model::channel::ChannelType;
+
+pub use self::text_channel::TextChannel;
 
 /// A channel in a [`Guild`].
 ///
@@ -12,7 +18,7 @@ pub enum GuildChannel {
     /// A text channel in a [`Guild`].
     ///
     /// [`Guild`]: TODO
-    Text, // TODO: Add TextChannel.
+    Text(TextChannel),
     /// A voice channel in a [`Guild`].
     ///
     /// [`Guild`]: TODO
@@ -31,7 +37,7 @@ impl GuildChannel {
     /// The type of the channel.
     pub fn kind(&self) -> ChannelType {
         match self {
-            GuildChannel::Text => ChannelType::Text,
+            GuildChannel::Text(_) => ChannelType::Text,
             GuildChannel::Voice => ChannelType::Voice,
             GuildChannel::Category => ChannelType::Category,
             GuildChannel::News => ChannelType::News,
@@ -43,36 +49,39 @@ impl GuildChannel {
 impl GuildChannel {
     pub(crate) fn from_value<E>(
         kind: ChannelType,
-        _value: serde_json::Value,
+        value: serde_json::Value,
     ) -> Result<GuildChannel, E>
     where
         E: de::Error,
     {
-        match kind {
+        let result = match kind {
+            ChannelType::Text => TextChannel::deserialize(value).map(GuildChannel::Text),
+            ChannelType::Voice => todo!(),
             ChannelType::Category => todo!(),
             ChannelType::News => todo!(),
             ChannelType::Store => todo!(),
-            ChannelType::Text => todo!(),
-            ChannelType::Voice => todo!(),
-            kind => Err(E::custom(format_args!(
-                "invalid channel type for guild channel: {:?}",
-                kind
-            ))),
-        }
+            kind => {
+                return Err(E::custom(format_args!(
+                    "invalid channel type for guild channel: {:?}",
+                    kind
+                )))
+            }
+        };
+        result.map_err(E::custom)
     }
 }
 
 impl Serialize for GuildChannel {
-    fn serialize<S>(&self, _serializer: S) -> Result<S::Ok, S::Error>
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
         match self {
+            GuildChannel::Text(channel) => channel.serialize(serializer),
+            GuildChannel::Voice => todo!(),
             GuildChannel::Category => todo!(),
             GuildChannel::News => todo!(),
             GuildChannel::Store => todo!(),
-            GuildChannel::Text => todo!(),
-            GuildChannel::Voice => todo!(),
         }
     }
 }

@@ -27,7 +27,7 @@ pub struct DMChannel {
     pub recipient: User,
     /// The ID of the last message sent to the channel.
     pub last_message_id: Option<MessageId>,
-    /// When the last message with pinned.
+    /// When the last message was pinned.
     pub last_pin_timestamp: Option<DateTime<FixedOffset>>,
 }
 

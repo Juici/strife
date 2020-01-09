@@ -3,33 +3,22 @@
 // Internal utility module.
 mod utils;
 
-mod attachment;
-mod dm_channel;
-mod embed;
-mod group_channel;
-mod guild_channel;
-mod message;
-mod permission_overwrite;
-mod rich_presence;
+mod dm;
+mod group;
+
+pub mod guild;
+pub mod message;
+pub mod permissions;
 
 use serde::de;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::model::guild::PartialEmoji;
 
-pub use self::attachment::Attachment;
-pub use self::dm_channel::DMChannel;
-pub use self::embed::{
-    Embed, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage, EmbedProvider, EmbedThumbnail,
-    EmbedType, EmbedVideo,
-};
-pub use self::group_channel::Group;
-pub use self::guild_channel::GuildChannel;
-pub use self::message::{
-    MentionedChannel, MentionedUser, Message, MessageFlags, MessageReference, MessageType,
-};
-pub use self::permission_overwrite::{OverwriteId, PermissionOverwrite};
-pub use self::rich_presence::{MessageActivity, MessageActivityType, MessageApplication};
+pub use self::dm::DMChannel;
+pub use self::group::Group;
+pub use self::guild::GuildChannel;
+pub use self::message::Message;
 
 /// The type of a channel.
 #[non_exhaustive]
@@ -233,7 +222,7 @@ mod tests {
           "last_message_id": "3343820033257021450",
           "type": 3,
           "id": "319674150115710528",
-          "owner_id": "82198810841029460"
+          "owner_id": "82198810841029460",
         });
         let channel = Channel::Group(Group {
             id: ChannelId::from(319674150115710528),
@@ -265,6 +254,7 @@ mod tests {
                 ),
             ]),
             owner_id: UserId::from(82198810841029460),
+            application_id: None,
             last_message_id: Some(MessageId::from(3343820033257021450)),
             last_pin_timestamp: None,
         });

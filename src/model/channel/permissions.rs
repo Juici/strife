@@ -1,3 +1,5 @@
+//! Channel permission overwrite models.
+
 use std::fmt::{self, Display};
 
 use serde::{Deserialize, Serialize};

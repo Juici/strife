@@ -36,7 +36,7 @@ pub struct Group {
     pub application_id: Option<ApplicationId>,
     /// The ID of the last message sent to the group.
     pub last_message_id: Option<MessageId>,
-    /// When the last message with pinned.
+    /// When the last message was pinned.
     pub last_pin_timestamp: Option<DateTime<FixedOffset>>,
 }
 
@@ -126,6 +126,7 @@ mod tests {
                 ),
             ]),
             owner_id: UserId::from(82198810841029460),
+            application_id: None,
             last_message_id: Some(MessageId::from(3343820033257021450)),
             last_pin_timestamp: None,
         };
@@ -162,7 +163,8 @@ mod tests {
           "last_pin_timestamp": null,
           "type": 3,
           "id": "319674150115710528",
-          "owner_id": "53908099506183680"
+          "owner_id": "53908099506183680",
+          "application_id": null
         });
         let channel = Group {
             id: ChannelId::from(319674150115710528),
@@ -194,6 +196,7 @@ mod tests {
                 ),
             ]),
             owner_id: UserId::from(53908099506183680),
+            application_id: None,
             last_message_id: Some(MessageId::from(3343820033257021450)),
             last_pin_timestamp: None,
         };
