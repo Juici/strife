@@ -85,14 +85,10 @@ impl Display for PartialEmoji {
         /// Work around this issue by substituting unknown names with `_`.
         const UNKNOWN_NAME: &str = "_";
 
-        match *self {
-            PartialEmoji::Standard(ref name) => f.write_str(name),
-            PartialEmoji::Custom {
-                id,
-                ref name,
-                animated,
-            } => {
-                if animated {
+        match self {
+            PartialEmoji::Standard(name) => f.write_str(name),
+            PartialEmoji::Custom { id, name, animated } => {
+                if *animated {
                     f.write_str("<a:")?;
                 } else {
                     f.write_str("<:")?;
