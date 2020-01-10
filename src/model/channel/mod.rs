@@ -11,9 +11,13 @@ pub mod guild;
 pub mod message;
 pub mod permissions;
 
+use async_trait::async_trait;
 use serde::de;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
+use crate::model::id::ChannelId;
+
+pub use self::converse::Converse;
 pub use self::dm_channel::DMChannel;
 pub use self::group::Group;
 pub use self::guild::GuildChannel;
@@ -79,13 +83,23 @@ pub enum Channel {
 }
 
 impl Channel {
-    /// The type of the channel.
-    pub fn kind(&self) -> ChannelType {
+    fn inner(&self) -> &dyn Converse {
         match self {
-            Channel::DM(_) => ChannelType::Private,
-            Channel::Group(_) => ChannelType::Group,
-            Channel::Guild(channel) => channel.kind(),
+            Channel::DM(channel) => channel,
+            Channel::Group(channel) => channel,
+            Channel::Guild(channel) => channel,
         }
+    }
+}
+
+#[async_trait]
+impl Converse for Channel {
+    async fn channel_id(&self) -> ChannelId {
+        self.inner().channel_id().await
+    }
+
+    fn channel_type(&self) -> ChannelType {
+        self.inner().channel_type()
     }
 }
 

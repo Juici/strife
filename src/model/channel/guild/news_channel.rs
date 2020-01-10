@@ -1,8 +1,9 @@
+use async_trait::async_trait;
 use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 
 use crate::model::channel::permissions::PermissionOverwrite;
-use crate::model::channel::ChannelType;
+use crate::model::channel::{ChannelType, Converse};
 use crate::model::id::{ChannelId, GuildId, MessageId};
 
 /// A text channel in a [`Guild`].
@@ -40,6 +41,17 @@ pub struct NewsChannel {
     pub parent_id: Option<ChannelId>,
     /// When the last message was pinned.
     pub last_pin_timestamp: Option<DateTime<FixedOffset>>,
+}
+
+#[async_trait]
+impl Converse for NewsChannel {
+    async fn channel_id(&self) -> ChannelId {
+        self.id
+    }
+
+    fn channel_type(&self) -> ChannelType {
+        ChannelType::News
+    }
 }
 
 impl_eq_fields!(NewsChannel: [

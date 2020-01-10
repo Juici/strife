@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 
+use async_trait::async_trait;
 use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 
 use crate::model::channel::utils::serde_recipients;
-use crate::model::channel::ChannelType;
+use crate::model::channel::{ChannelType, Converse};
 use crate::model::id::{ApplicationId, ChannelId, MessageId, UserId};
 use crate::model::user::User;
 
@@ -49,6 +50,17 @@ impl Group {
     /// group is malformed and this function will return `None`.
     pub fn owner(&self) -> Option<&User> {
         self.recipients.get(&self.owner_id)
+    }
+}
+
+#[async_trait]
+impl Converse for Group {
+    async fn channel_id(&self) -> ChannelId {
+        self.id
+    }
+
+    fn channel_type(&self) -> ChannelType {
+        ChannelType::Group
     }
 }
 

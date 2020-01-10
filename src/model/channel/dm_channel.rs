@@ -1,8 +1,9 @@
+use async_trait::async_trait;
 use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 
 use crate::model::channel::utils::serde_recipient;
-use crate::model::channel::ChannelType;
+use crate::model::channel::{ChannelType, Converse};
 use crate::model::id::{ChannelId, MessageId};
 use crate::model::user::User;
 
@@ -29,6 +30,17 @@ pub struct DMChannel {
     pub last_message_id: Option<MessageId>,
     /// When the last message was pinned.
     pub last_pin_timestamp: Option<DateTime<FixedOffset>>,
+}
+
+#[async_trait]
+impl Converse for DMChannel {
+    async fn channel_id(&self) -> ChannelId {
+        self.id
+    }
+
+    fn channel_type(&self) -> ChannelType {
+        ChannelType::Private
+    }
 }
 
 impl_eq_fields!(DMChannel: [id, kind, recipient, last_message_id, last_pin_timestamp]);

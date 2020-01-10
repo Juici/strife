@@ -1,7 +1,8 @@
+use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
 use crate::model::channel::permissions::PermissionOverwrite;
-use crate::model::channel::ChannelType;
+use crate::model::channel::{ChannelType, Converse};
 use crate::model::id::{ChannelId, GuildId};
 
 /// An organizational category that contains non-category channels.
@@ -26,6 +27,17 @@ pub struct Category {
     pub permission_overwrites: Vec<PermissionOverwrite>,
     /// The name of the channel.
     pub name: String,
+}
+
+#[async_trait]
+impl Converse for Category {
+    async fn channel_id(&self) -> ChannelId {
+        self.id
+    }
+
+    fn channel_type(&self) -> ChannelType {
+        ChannelType::Category
+    }
 }
 
 impl_eq_fields!(Category: [

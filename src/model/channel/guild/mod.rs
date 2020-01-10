@@ -6,16 +6,18 @@ mod store_channel;
 mod text_channel;
 mod voice_channel;
 
+use async_trait::async_trait;
 use serde::de;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::model::channel::ChannelType;
+use crate::model::channel::{ChannelType, Converse};
 
 pub use self::category::Category;
 pub use self::news_channel::NewsChannel;
 pub use self::store_channel::StoreChannel;
 pub use self::text_channel::TextChannel;
 pub use self::voice_channel::VoiceChannel;
+use crate::model::id::ChannelId;
 
 /// A channel in a [`Guild`].
 ///
@@ -42,15 +44,25 @@ pub enum GuildChannel {
 }
 
 impl GuildChannel {
-    /// The type of the channel.
-    pub fn kind(&self) -> ChannelType {
+    fn inner(&self) -> &dyn Converse {
         match self {
-            GuildChannel::Text(_) => ChannelType::Text,
-            GuildChannel::Voice(_) => ChannelType::Voice,
-            GuildChannel::Category(_) => ChannelType::Category,
-            GuildChannel::News(_) => ChannelType::News,
-            GuildChannel::Store(_) => ChannelType::Store,
+            GuildChannel::Text(channel) => channel,
+            GuildChannel::Voice(channel) => channel,
+            GuildChannel::Category(channel) => channel,
+            GuildChannel::News(channel) => channel,
+            GuildChannel::Store(channel) => channel,
         }
+    }
+}
+
+#[async_trait]
+impl Converse for GuildChannel {
+    async fn channel_id(&self) -> ChannelId {
+        self.inner().channel_id().await
+    }
+
+    fn channel_type(&self) -> ChannelType {
+        self.inner().channel_type()
     }
 }
 
