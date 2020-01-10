@@ -73,17 +73,14 @@ pub enum PremiumType {
     Nitro = 2,
 }
 
+impl_eq_fields!(ClientUser: [user, mfa_enabled, locale, verified, email, flags, premium_type]);
+impl_eq_fields!(User: [id, name, discriminator, avatar, bot, system]);
+
 #[cfg(test)]
 mod tests {
     use serde_json::json;
 
     use super::*;
-
-    macro_rules! assert_eq_fields {
-        ($left:expr, $right:expr, [$($field:ident),* $(,)*]) => {$(
-            assert_eq!($left.$field, $right.$field);
-        )*};
-    }
 
     #[test]
     fn test_deserialize_user() {
@@ -103,8 +100,7 @@ mod tests {
         };
 
         let user2: User = serde_json::from_value(value.clone()).unwrap();
-
-        assert_eq_fields!(user, user2, [id, name, discriminator, avatar, bot, system]);
+        assert_eq_fields!(user, user2);
     }
 
     #[test]
@@ -126,9 +122,7 @@ mod tests {
             system: false,
         };
 
-        let value2 = serde_json::to_value(user).unwrap();
-
-        assert_eq!(value, value2);
+        assert_eq!(value, serde_json::to_value(user).unwrap());
     }
 
     #[test]
@@ -164,25 +158,7 @@ mod tests {
         };
 
         let user2: ClientUser = serde_json::from_value(value.clone()).unwrap();
-
-        assert_eq_fields!(
-            user,
-            user2,
-            [
-                id,
-                name,
-                discriminator,
-                avatar,
-                bot,
-                system,
-                mfa_enabled,
-                locale,
-                verified,
-                email,
-                flags,
-                premium_type,
-            ]
-        );
+        assert_eq_fields!(user, user2);
     }
 
     #[test]
@@ -217,25 +193,7 @@ mod tests {
         };
 
         let user2: ClientUser = serde_json::from_value(value.clone()).unwrap();
-
-        assert_eq_fields!(
-            user,
-            user2,
-            [
-                id,
-                name,
-                discriminator,
-                avatar,
-                bot,
-                system,
-                mfa_enabled,
-                locale,
-                verified,
-                email,
-                flags,
-                premium_type,
-            ]
-        );
+        assert_eq_fields!(user, user2);
     }
 
     #[test]
@@ -271,8 +229,6 @@ mod tests {
             premium_type: None,
         };
 
-        let value2 = serde_json::to_value(user).unwrap();
-
-        assert_eq!(value, value2);
+        assert_eq!(value, serde_json::to_value(user).unwrap());
     }
 }

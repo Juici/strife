@@ -1,6 +1,8 @@
+//! Channel permission overwrite models.
+
 use std::fmt::{self, Display};
 
-use serde::{Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 
 use crate::model::id::{RoleId, UserId};
 use crate::model::permissions::Permissions;
@@ -9,11 +11,14 @@ use crate::model::permissions::Permissions;
 ///
 /// [`PermissionOverwrite`]: struct.PermissionOverwrite.html
 #[non_exhaustive]
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
+#[serde(tag = "type", content = "id")]
 pub enum OverwriteId {
     /// A role with permission overwrites being edited.
+    #[serde(rename = "role")]
     Role(RoleId),
     /// A user with permission overwrites being edited.
+    #[serde(rename = "member")]
     User(UserId),
 }
 
@@ -40,10 +45,10 @@ impl From<UserId> for OverwriteId {
 
 /// Channel-specific permission overwrites for a role or user.
 #[non_exhaustive]
-#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct PermissionOverwrite {
     /// The ID of the role or user.
-    #[serde(rename = "type", serialize_with = "serialize_type")]
+    #[serde(flatten)]
     pub id: OverwriteId,
     /// The set of permissions being allowed.
     pub allow: Permissions,
@@ -75,17 +80,6 @@ impl PermissionOverwrite {
     }
 }
 
-fn serialize_type<S>(id: &OverwriteId, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    let r#type = match id {
-        OverwriteId::Role(_) => "role",
-        OverwriteId::User(_) => "member",
-    };
-    serializer.serialize_str(r#type)
-}
-
 #[cfg(test)]
 mod tests {
     use serde_json::json;
@@ -99,12 +93,13 @@ mod tests {
 
     #[test]
     fn test_serialize_role() {
-        let id = OverwriteId::from(RoleId::from(ID));
         let allow = Permissions::from_bits(ALLOW_BITS).expect("valid permissions");
         let deny = Permissions::from_bits(DENY_BITS).expect("valid permissions");
-        let overwrites = PermissionOverwrite::new(id, allow, deny);
+
+        let overwrites = PermissionOverwrite::new(RoleId::from(ID), allow, deny);
 
         let expected = json!({
+            "id": "80351110224678912",
             "type": "role",
             "allow": 104188992,
             "deny": 135168,
@@ -116,12 +111,13 @@ mod tests {
 
     #[test]
     fn test_serialize_user() {
-        let id = OverwriteId::from(UserId::from(ID));
         let allow = Permissions::from_bits(ALLOW_BITS).expect("valid permissions");
         let deny = Permissions::from_bits(DENY_BITS).expect("valid permissions");
-        let overwrites = PermissionOverwrite::new(id, allow, deny);
+
+        let overwrites = PermissionOverwrite::new(UserId::from(ID), allow, deny);
 
         let expected = json!({
+            "id": "80351110224678912",
             "type": "member",
             "allow": 104188992,
             "deny": 135168,

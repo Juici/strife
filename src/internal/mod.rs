@@ -3,6 +3,10 @@ mod macros;
 
 pub mod prelude;
 
+#[macro_use]
+#[doc(hidden)]
+pub mod test;
+
 /// From core::fmt::num [impl_Display] macro.
 /// 
 /// [impl_Display]: https://doc.rust-lang.org/src/core/fmt/num.rs.html#192-238
