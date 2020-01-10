@@ -2,6 +2,7 @@
 
 mod category;
 mod news_channel;
+mod store_channel;
 mod text_channel;
 mod voice_channel;
 
@@ -12,6 +13,7 @@ use crate::model::channel::ChannelType;
 
 pub use self::category::Category;
 pub use self::news_channel::NewsChannel;
+pub use self::store_channel::StoreChannel;
 pub use self::text_channel::TextChannel;
 pub use self::voice_channel::VoiceChannel;
 
@@ -36,7 +38,7 @@ pub enum GuildChannel {
     /// [`Guild`]: TODO
     News(NewsChannel),
     /// A channel in which game developers can sell games on Discord.
-    Store, // TODO: Add StoreChannel.
+    Store(StoreChannel),
 }
 
 impl GuildChannel {
@@ -47,7 +49,7 @@ impl GuildChannel {
             GuildChannel::Voice(_) => ChannelType::Voice,
             GuildChannel::Category(_) => ChannelType::Category,
             GuildChannel::News(_) => ChannelType::News,
-            GuildChannel::Store => ChannelType::Store,
+            GuildChannel::Store(_) => ChannelType::Store,
         }
     }
 }
@@ -65,7 +67,7 @@ impl GuildChannel {
             ChannelType::Voice => VoiceChannel::deserialize(value).map(GuildChannel::Voice),
             ChannelType::Category => Category::deserialize(value).map(GuildChannel::Category),
             ChannelType::News => NewsChannel::deserialize(value).map(GuildChannel::News),
-            ChannelType::Store => todo!(),
+            ChannelType::Store => StoreChannel::deserialize(value).map(GuildChannel::Store),
             kind => {
                 return Err(E::custom(format_args!(
                     "invalid channel type for guild channel: {:?}",
@@ -87,7 +89,7 @@ impl Serialize for GuildChannel {
             GuildChannel::Voice(channel) => channel.serialize(serializer),
             GuildChannel::Category(channel) => channel.serialize(serializer),
             GuildChannel::News(channel) => channel.serialize(serializer),
-            GuildChannel::Store => todo!(),
+            GuildChannel::Store(channel) => channel.serialize(serializer),
         }
     }
 }
@@ -113,7 +115,7 @@ impl_eq_fields!(GuildChannel: (a, b) => {
         (GuildChannel::Voice(a), GuildChannel::Voice(b)) => assert_eq_fields!(a, b),
         (GuildChannel::Category(a), GuildChannel::Category(b)) => assert_eq_fields!(a, b),
         (GuildChannel::News(a), GuildChannel::News(b)) => assert_eq_fields!(a, b),
-        (GuildChannel::Store, GuildChannel::Store) => todo!(),
+        (GuildChannel::Store(a), GuildChannel::Store(b)) => assert_eq_fields!(a, b),
         (a, b) => panic_ne_fields!(a, b),
     }
 });

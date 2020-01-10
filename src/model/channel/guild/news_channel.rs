@@ -15,9 +15,9 @@ pub struct NewsChannel {
     pub id: ChannelId,
     /// The type of the channel.
     ///
-    /// This should always be [`ChannelType::Text`].
+    /// This should always be [`ChannelType::News`].
     ///
-    /// [`ChannelType::Text`]: ../enum.ChannelType.html#variant.Text
+    /// [`ChannelType::News`]: ../enum.ChannelType.html#variant.News
     #[serde(rename = "type")]
     pub(crate) kind: ChannelType,
     /// The ID of the guild.
