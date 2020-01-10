@@ -57,7 +57,11 @@ impl_eq_fields!(Group: (a, b) => {
 
     assert_eq!(a.recipients.len(), b.recipients.len());
     for (id, a_user) in a.recipients.iter() {
-        let b_user = b.recipients.get(id).expect(&format!("missing user with id: {}", id));
+        let b_user = match b.recipients.get(id) {
+            Some(user) => user,
+            #[cold]
+            None => panic!("missing user with id: {}", id),
+        };
         assert_eq_fields!(a_user, b_user);
     }
 });
