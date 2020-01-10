@@ -1,6 +1,7 @@
 //! Guild channel models.
 
 mod category;
+mod news_channel;
 mod text_channel;
 mod voice_channel;
 
@@ -10,6 +11,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use crate::model::channel::ChannelType;
 
 pub use self::category::Category;
+pub use self::news_channel::NewsChannel;
 pub use self::text_channel::TextChannel;
 pub use self::voice_channel::VoiceChannel;
 
@@ -32,7 +34,7 @@ pub enum GuildChannel {
     /// A channel that users can follow and crosspost into another [`Guild`].
     ///
     /// [`Guild`]: TODO
-    News, // TODO: Add NewsChannel.
+    News(NewsChannel),
     /// A channel in which game developers can sell games on Discord.
     Store, // TODO: Add StoreChannel.
 }
@@ -44,7 +46,7 @@ impl GuildChannel {
             GuildChannel::Text(_) => ChannelType::Text,
             GuildChannel::Voice(_) => ChannelType::Voice,
             GuildChannel::Category(_) => ChannelType::Category,
-            GuildChannel::News => ChannelType::News,
+            GuildChannel::News(_) => ChannelType::News,
             GuildChannel::Store => ChannelType::Store,
         }
     }
@@ -62,7 +64,7 @@ impl GuildChannel {
             ChannelType::Text => TextChannel::deserialize(value).map(GuildChannel::Text),
             ChannelType::Voice => VoiceChannel::deserialize(value).map(GuildChannel::Voice),
             ChannelType::Category => Category::deserialize(value).map(GuildChannel::Category),
-            ChannelType::News => todo!(),
+            ChannelType::News => NewsChannel::deserialize(value).map(GuildChannel::News),
             ChannelType::Store => todo!(),
             kind => {
                 return Err(E::custom(format_args!(
@@ -84,7 +86,7 @@ impl Serialize for GuildChannel {
             GuildChannel::Text(channel) => channel.serialize(serializer),
             GuildChannel::Voice(channel) => channel.serialize(serializer),
             GuildChannel::Category(channel) => channel.serialize(serializer),
-            GuildChannel::News => todo!(),
+            GuildChannel::News(channel) => channel.serialize(serializer),
             GuildChannel::Store => todo!(),
         }
     }
@@ -110,7 +112,7 @@ impl_eq_fields!(GuildChannel: (a, b) => {
         (GuildChannel::Text(a), GuildChannel::Text(b)) => assert_eq_fields!(a, b),
         (GuildChannel::Voice(a), GuildChannel::Voice(b)) => assert_eq_fields!(a, b),
         (GuildChannel::Category(a), GuildChannel::Category(b)) => assert_eq_fields!(a, b),
-        (GuildChannel::News, GuildChannel::News) => todo!(),
+        (GuildChannel::News(a), GuildChannel::News(b)) => assert_eq_fields!(a, b),
         (GuildChannel::Store, GuildChannel::Store) => todo!(),
         (a, b) => panic_ne_fields!(a, b),
     }
