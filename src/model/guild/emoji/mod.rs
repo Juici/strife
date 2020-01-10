@@ -4,6 +4,7 @@ use std::fmt::{self, Display};
 
 use serde::{Deserialize, Serialize};
 
+use crate::model::id::RoleId;
 use crate::model::user::User;
 
 pub use self::partial::PartialEmoji;
@@ -15,7 +16,9 @@ pub struct Emoji {
     /// The ID of the emoji.
     #[serde(flatten)]
     pub emoji: PartialEmoji,
-    // TODO: roles
+    /// A set of roles the emoji is whitelisted to.
+    #[serde(default)]
+    pub roles: Vec<RoleId>,
     /// The user that created the emoji.
     pub user: Option<User>,
     /// Whether the name requires colons to be used by a client.
@@ -32,7 +35,7 @@ impl Display for Emoji {
     }
 }
 
-impl_eq_fields!(Emoji: [emoji, user, require_colons, managed]);
+impl_eq_fields!(Emoji: [emoji, roles, user, require_colons, managed]);
 
 #[cfg(test)]
 mod tests {
@@ -61,6 +64,10 @@ mod tests {
         });
         let emoji = Emoji {
             emoji: PartialEmoji::custom(41771983429993937, "LUL", false),
+            roles: vec![
+                RoleId::from(41771983429993000),
+                RoleId::from(41771983429993111),
+            ],
             user: Some(User {
                 id: UserId::from(96008815106887111),
                 name: "Luigi".to_owned(),
@@ -73,13 +80,11 @@ mod tests {
             managed: false,
         };
 
-        let deserialized: Emoji = serde_json::from_value(value).unwrap();
+        let deserialized = Emoji::deserialize(&value).unwrap();
         assert_eq_fields!(emoji, deserialized);
     }
 
-    // TODO: Enable test when `roles` is added to `Emoji`.
     #[test]
-    #[ignore]
     fn test_serialize_emoji() {
         let value = json!({
           "id": "41771983429993937",
@@ -99,6 +104,10 @@ mod tests {
         });
         let emoji = Emoji {
             emoji: PartialEmoji::custom(41771983429993937, "LUL", true),
+            roles: vec![
+                RoleId::from(41771983429993000),
+                RoleId::from(41771983429993111),
+            ],
             user: Some(User {
                 id: UserId::from(96008815106887111),
                 name: "Luigi".to_owned(),
@@ -111,6 +120,6 @@ mod tests {
             managed: false,
         };
 
-        assert_eq!(value, serde_json::to_value(emoji).unwrap());
+        assert_eq!(value, serde_json::to_value(&emoji).unwrap());
     }
 }
