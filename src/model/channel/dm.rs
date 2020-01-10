@@ -38,6 +38,7 @@ mod tests {
     use chrono::TimeZone;
     use serde_json::json;
 
+    use crate::model::channel::Channel;
     use crate::model::id::UserId;
     use crate::model::user::Discriminator;
 
@@ -73,8 +74,11 @@ mod tests {
             last_pin_timestamp: None,
         };
 
-        let deserialized: DMChannel = serde_json::from_value(value).unwrap();
+        let deserialized = DMChannel::deserialize(&value).unwrap();
+        assert_eq_fields!(channel, deserialized);
 
+        let channel = Channel::DM(channel);
+        let deserialized = Channel::deserialize(&value).unwrap();
         assert_eq_fields!(channel, deserialized);
     }
 

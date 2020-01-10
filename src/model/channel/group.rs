@@ -68,6 +68,7 @@ mod tests {
 
     use serde_json::json;
 
+    use crate::model::channel::Channel;
     use crate::model::user::Discriminator;
 
     use super::*;
@@ -131,8 +132,11 @@ mod tests {
             last_pin_timestamp: None,
         };
 
-        let deserialized: Group = serde_json::from_value(value).unwrap();
+        let deserialized = Group::deserialize(&value).unwrap();
+        assert_eq_fields!(channel, deserialized);
 
+        let channel = Channel::Group(channel);
+        let deserialized = Channel::deserialize(&value).unwrap();
         assert_eq_fields!(channel, deserialized);
     }
 

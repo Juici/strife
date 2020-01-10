@@ -101,4 +101,13 @@ impl<'de> Deserialize<'de> for GuildChannel {
     }
 }
 
-impl_eq_fields!(GuildChannel: (_a, _b) => { todo!() });
+impl_eq_fields!(GuildChannel: (a, b) => {
+    match (a, b) {
+        (GuildChannel::Text(a), GuildChannel::Text(b)) => assert_eq_fields!(a, b),
+        (GuildChannel::Voice, GuildChannel::Voice) => todo!(),
+        (GuildChannel::Category, GuildChannel::Category) => todo!(),
+        (GuildChannel::News, GuildChannel::News) => todo!(),
+        (GuildChannel::Store, GuildChannel::Store) => todo!(),
+        (a, b) => panic_ne_fields!(a, b),
+    }
+});

@@ -10,7 +10,8 @@ use chrono::{DateTime, FixedOffset};
 use serde::de;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::model::channel::{ChannelType, Reaction};
+use crate::model::channel::ChannelType;
+use crate::model::guild::PartialEmoji;
 use crate::model::guild::PartialMember;
 use crate::model::id::{ChannelId, GuildId, MessageId, RoleId, WebhookId};
 use crate::model::user::User;
@@ -214,6 +215,20 @@ impl<'de> Deserialize<'de> for MessageFlags {
             }
         }
     }
+}
+
+/// A reaction to a [`Message`].
+///
+/// [`Message`]: struct.Message.html
+#[non_exhaustive]
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Reaction {
+    /// The number of reactions with this emoji.
+    pub count: u64,
+    /// Whether the current user reacted with this emoji.
+    pub me: bool,
+    /// The partial emoji information for the reaction.
+    pub emoji: PartialEmoji,
 }
 
 #[cfg(test)]

@@ -74,7 +74,6 @@ mod tests {
         };
 
         let deserialized: Emoji = serde_json::from_value(value).unwrap();
-
         assert_eq_fields!(emoji, deserialized);
     }
 

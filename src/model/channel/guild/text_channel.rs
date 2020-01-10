@@ -70,6 +70,8 @@ impl_eq_fields!(TextChannel: [
 mod tests {
     use serde_json::json;
 
+    use crate::model::channel::{Channel, GuildChannel};
+
     use super::*;
 
     #[test]
@@ -102,8 +104,11 @@ mod tests {
             last_pin_timestamp: None,
         };
 
-        let deserialized: TextChannel = serde_json::from_value(value).unwrap();
+        let deserialized = TextChannel::deserialize(&value).unwrap();
+        assert_eq_fields!(channel, deserialized);
 
+        let channel = Channel::Guild(GuildChannel::Text(channel));
+        let deserialized = Channel::deserialize(&value).unwrap();
         assert_eq_fields!(channel, deserialized);
     }
 

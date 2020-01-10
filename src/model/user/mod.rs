@@ -100,7 +100,6 @@ mod tests {
         };
 
         let user2: User = serde_json::from_value(value.clone()).unwrap();
-
         assert_eq_fields!(user, user2);
     }
 
@@ -123,9 +122,7 @@ mod tests {
             system: false,
         };
 
-        let value2 = serde_json::to_value(user).unwrap();
-
-        assert_eq!(value, value2);
+        assert_eq!(value, serde_json::to_value(user).unwrap());
     }
 
     #[test]
@@ -161,7 +158,6 @@ mod tests {
         };
 
         let user2: ClientUser = serde_json::from_value(value.clone()).unwrap();
-
         assert_eq_fields!(user, user2);
     }
 
@@ -197,7 +193,6 @@ mod tests {
         };
 
         let user2: ClientUser = serde_json::from_value(value.clone()).unwrap();
-
         assert_eq_fields!(user, user2);
     }
 
@@ -234,8 +229,6 @@ mod tests {
             premium_type: None,
         };
 
-        let value2 = serde_json::to_value(user).unwrap();
-
-        assert_eq!(value, value2);
+        assert_eq!(value, serde_json::to_value(user).unwrap());
     }
 }
