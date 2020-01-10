@@ -3,7 +3,7 @@
 // Internal utility module.
 mod utils;
 
-mod dm;
+mod dm_channel;
 mod group;
 
 pub mod guild;
@@ -13,7 +13,7 @@ pub mod permissions;
 use serde::de;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-pub use self::dm::DMChannel;
+pub use self::dm_channel::DMChannel;
 pub use self::group::Group;
 pub use self::guild::GuildChannel;
 pub use self::message::Message;

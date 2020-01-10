@@ -44,6 +44,9 @@ impl_eq_fields!(VoiceChannel: [
     position,
     permission_overwrites,
     name,
+    bitrate,
+    user_limit,
+    parent_id,
 ]);
 
 #[cfg(test)]
