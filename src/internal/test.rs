@@ -150,9 +150,9 @@ macro_rules! impl_eq_fields {
         });
     };
     ($name:ident: [$($field:ident),* $(,)*]) => {
-        __impl_eq_fields!($name: (a, b) => {
+        __impl_eq_fields!($name: (_a, _b) => {
             $(
-                assert_eq_fields!(a.$field, b.$field);
+                assert_eq_fields!(_a.$field, _b.$field);
             )*
         });
     }
