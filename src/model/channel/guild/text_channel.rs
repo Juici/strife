@@ -23,7 +23,7 @@ pub struct TextChannel {
     /// The ID of the guild.
     pub guild_id: GuildId,
     /// The sorting position of the chanel.
-    pub position: u64,
+    pub position: usize,
     /// A collection of explicit permission overwrites for members and roles.
     #[serde(default)]
     pub permission_overwrites: Vec<PermissionOverwrite>,
