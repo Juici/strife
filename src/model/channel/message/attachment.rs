@@ -23,3 +23,5 @@ pub struct Attachment {
     /// The width of the image, if the file is an image.
     pub width: Option<u64>,
 }
+
+impl_eq_fields!(Attachment: [id, filename, size, url, proxy_url, height, width]);

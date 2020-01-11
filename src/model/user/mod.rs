@@ -99,8 +99,8 @@ mod tests {
             system: Default::default(),
         };
 
-        let user2: User = serde_json::from_value(value.clone()).unwrap();
-        assert_eq_fields!(user, user2);
+        let deserialized = User::deserialize(&value).unwrap();
+        assert_eq_fields!(user, deserialized);
     }
 
     #[test]
@@ -122,7 +122,7 @@ mod tests {
             system: false,
         };
 
-        assert_eq!(value, serde_json::to_value(user).unwrap());
+        assert_eq!(value, serde_json::to_value(&user).unwrap());
     }
 
     #[test]
@@ -157,8 +157,8 @@ mod tests {
             premium_type: Some(PremiumType::NitroClassic),
         };
 
-        let user2: ClientUser = serde_json::from_value(value.clone()).unwrap();
-        assert_eq_fields!(user, user2);
+        let deserialized = ClientUser::deserialize(&value).unwrap();
+        assert_eq_fields!(user, deserialized);
     }
 
     #[test]
@@ -192,8 +192,8 @@ mod tests {
             premium_type: None,
         };
 
-        let user2: ClientUser = serde_json::from_value(value.clone()).unwrap();
-        assert_eq_fields!(user, user2);
+        let deserialized = ClientUser::deserialize(&value).unwrap();
+        assert_eq_fields!(user, deserialized);
     }
 
     #[test]
@@ -229,6 +229,6 @@ mod tests {
             premium_type: None,
         };
 
-        assert_eq!(value, serde_json::to_value(user).unwrap());
+        assert_eq!(value, serde_json::to_value(&user).unwrap());
     }
 }

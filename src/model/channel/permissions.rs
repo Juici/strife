@@ -86,44 +86,37 @@ mod tests {
 
     use super::*;
 
-    const ID: u64 = 80351110224678912;
-
-    const ALLOW_BITS: u64 = 104188992;
-    const DENY_BITS: u64 = 135168;
-
     #[test]
     fn test_serialize_role() {
-        let allow = Permissions::from_bits(ALLOW_BITS).expect("valid permissions");
-        let deny = Permissions::from_bits(DENY_BITS).expect("valid permissions");
-
-        let overwrites = PermissionOverwrite::new(RoleId::from(ID), allow, deny);
-
-        let expected = json!({
+        let value = json!({
             "id": "80351110224678912",
             "type": "role",
             "allow": 104188992,
             "deny": 135168,
         });
+        let overwrites = PermissionOverwrite::new(
+            RoleId::from(80351110224678912),
+            Permissions::from_bits(104188992).expect("valid permissions"),
+            Permissions::from_bits(135168).expect("valid permissions"),
+        );
 
-        let v = serde_json::to_value(overwrites).unwrap();
-        assert_eq!(v, expected);
+        assert_eq!(value, serde_json::to_value(&overwrites).unwrap());
     }
 
     #[test]
     fn test_serialize_user() {
-        let allow = Permissions::from_bits(ALLOW_BITS).expect("valid permissions");
-        let deny = Permissions::from_bits(DENY_BITS).expect("valid permissions");
-
-        let overwrites = PermissionOverwrite::new(UserId::from(ID), allow, deny);
-
-        let expected = json!({
+        let value = json!({
             "id": "80351110224678912",
             "type": "member",
             "allow": 104188992,
             "deny": 135168,
         });
+        let overwrites = PermissionOverwrite::new(
+            UserId::from(80351110224678912),
+            Permissions::from_bits(104188992).expect("valid permissions"),
+            Permissions::from_bits(135168).expect("valid permissions"),
+        );
 
-        let v = serde_json::to_value(overwrites).unwrap();
-        assert_eq!(v, expected);
+        assert_eq!(value, serde_json::to_value(&overwrites).unwrap());
     }
 }

@@ -263,7 +263,7 @@ mod tests {
         });
         let emoji = PartialEmoji::standard("🔥");
 
-        assert_eq!(emoji, serde_json::from_value(value).unwrap());
+        assert_eq!(emoji, PartialEmoji::deserialize(&value).unwrap());
     }
 
     #[test]
@@ -274,7 +274,7 @@ mod tests {
         });
         let emoji = PartialEmoji::standard("🔥");
 
-        assert_eq!(value, serde_json::to_value(emoji).unwrap());
+        assert_eq!(value, serde_json::to_value(&emoji).unwrap());
     }
 
     #[test]
@@ -285,7 +285,7 @@ mod tests {
         });
         let emoji = PartialEmoji::custom(41771983429993937, "LUL", false);
 
-        assert_eq!(emoji, serde_json::from_value(value).unwrap());
+        assert_eq!(emoji, PartialEmoji::deserialize(&value).unwrap());
     }
 
     #[test]
@@ -297,6 +297,6 @@ mod tests {
         });
         let emoji = PartialEmoji::custom(41771983429993937, "LUL", true);
 
-        assert_eq!(value, serde_json::to_value(emoji).unwrap());
+        assert_eq!(value, serde_json::to_value(&emoji).unwrap());
     }
 }

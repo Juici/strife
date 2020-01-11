@@ -166,7 +166,7 @@ mod tests {
     fn test_serialize() {
         let value = json!("80351110224678912");
         let snowflake = Snowflake::from(80351110224678912);
-        assert_eq!(value, serde_json::to_value(snowflake).unwrap());
+        assert_eq!(value, serde_json::to_value(&snowflake).unwrap());
     }
 
     #[test]
@@ -174,15 +174,9 @@ mod tests {
         let snowflake = Snowflake::from(80351110224678912);
 
         let value = json!(80351110224678912u64);
-        assert_eq!(
-            snowflake,
-            serde_json::from_value::<Snowflake>(value).unwrap()
-        );
+        assert_eq!(snowflake, Snowflake::deserialize(&value).unwrap());
 
         let value = json!("80351110224678912");
-        assert_eq!(
-            snowflake,
-            serde_json::from_value::<Snowflake>(value).unwrap()
-        );
+        assert_eq!(snowflake, Snowflake::deserialize(&value).unwrap());
     }
 }

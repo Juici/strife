@@ -88,21 +88,35 @@ mod inner {
         fn eq_fields(&self, other: &Option<B>) {
             match (self, other) {
                 (Some(left_val), Some(right_val)) => EqFields::eq_fields(left_val, right_val),
+                (None, None) => {}
                 (left_val, right_val) => panic_ne_fields!(left_val, right_val),
             }
         }
     }
 
-    impl<A, B, Err> EqFields<Result<B, Err>> for Result<A, Err>
+    impl<A, B, E> EqFields<Result<B, E>> for Result<A, E>
     where
         A: EqFields<B>,
         B: std::fmt::Debug,
-        Err: std::fmt::Debug,
+        E: EqFields<E>,
     {
-        fn eq_fields(&self, other: &Result<B, Err>) {
+        fn eq_fields(&self, other: &Result<B, E>) {
             match (self, other) {
                 (Ok(left_val), Ok(right_val)) => EqFields::eq_fields(left_val, right_val),
+                (Err(left_val), Err(right_val)) => EqFields::eq_fields(left_val, right_val),
                 (left_val, right_val) => panic_ne_fields!(left_val, right_val),
+            }
+        }
+    }
+
+    impl<A, B> EqFields<Vec<B>> for Vec<A>
+    where
+        A: EqFields<B>,
+        B: std::fmt::Debug,
+    {
+        fn eq_fields(&self, other: &Vec<B>) {
+            for (a, b) in self.iter().zip(other.iter()) {
+                assert_eq_fields!(a, b);
             }
         }
     }

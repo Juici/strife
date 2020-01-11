@@ -9,7 +9,7 @@ use crate::model::color::Color;
 ///
 /// [`Message`]: ../struct.Message.html
 #[non_exhaustive]
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct Embed {
     /// The title of the embed.
     pub title: Option<String>,
@@ -84,7 +84,7 @@ impl Default for EmbedType {
 ///
 /// [`Embed`]: struct.Embed.html
 #[non_exhaustive]
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct EmbedFooter {
     /// The footer text.
     pub text: String,
@@ -100,7 +100,7 @@ pub struct EmbedFooter {
 ///
 /// [`Embed`]: struct.Embed.html
 #[non_exhaustive]
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct EmbedImage {
     /// The URL of the image.
     ///
@@ -118,7 +118,7 @@ pub struct EmbedImage {
 ///
 /// [`Embed`]: struct.Embed.html
 #[non_exhaustive]
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct EmbedThumbnail {
     /// The URL of the thumbnail.
     ///
@@ -136,7 +136,7 @@ pub struct EmbedThumbnail {
 ///
 /// [`Embed`]: struct.Embed.html
 #[non_exhaustive]
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct EmbedVideo {
     /// The URL of the video.
     pub url: String,
@@ -150,7 +150,7 @@ pub struct EmbedVideo {
 ///
 /// [`Embed`]: struct.Embed.html
 #[non_exhaustive]
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct EmbedProvider {
     /// The name of the provider.
     pub name: String,
@@ -162,7 +162,7 @@ pub struct EmbedProvider {
 ///
 /// [`Embed`]: struct.Embed.html
 #[non_exhaustive]
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct EmbedAuthor {
     /// The author name.
     pub name: String,
@@ -180,7 +180,7 @@ pub struct EmbedAuthor {
 ///
 /// [`Embed`]: struct.Embed.html
 #[non_exhaustive]
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct EmbedField {
     /// The name of the field.
     pub name: String,

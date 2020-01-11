@@ -28,7 +28,7 @@ pub enum MessageActivityType {
 
 /// Rich Presence application information.
 #[non_exhaustive]
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct MessageApplication {
     /// The ID of the application.
     pub id: ApplicationId,

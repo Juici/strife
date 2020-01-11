@@ -101,6 +101,6 @@ mod tests {
             mentionable: false,
         };
 
-        assert_eq!(value, serde_json::to_value(role).unwrap());
+        assert_eq!(value, serde_json::to_value(&role).unwrap());
     }
 }

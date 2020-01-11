@@ -34,3 +34,6 @@ pub struct PartialMember {
     /// Whether the user in muted in voice channels.
     pub mute: bool,
 }
+
+impl_eq_fields!(Member: [member, user, nick, premium_since]);
+impl_eq_fields!(PartialMember: [roles, joined_at, deaf, mute]);

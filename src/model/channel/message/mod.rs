@@ -125,6 +125,12 @@ pub enum MessageType {
     ChannelFollowAdd = 12,
 }
 
+impl Default for MessageType {
+    fn default() -> Self {
+        MessageType::Default
+    }
+}
+
 /// Reference data send with a crossposted [`Message`]
 ///
 /// [`Message`]: struct.Message.html
@@ -231,13 +237,44 @@ pub struct Reaction {
     pub emoji: PartialEmoji,
 }
 
+impl_eq_fields!(Message: [
+    id,
+    channel_id,
+    guild_id,
+    author,
+    member,
+    content,
+    timestamp,
+    edited_timestamp,
+    tts,
+    mention_everyone,
+    mentions,
+    mention_roles,
+    mention_channels,
+    attachments,
+    embeds,
+    reactions,
+    pinned,
+    webhook_id,
+    kind,
+    activity,
+    application,
+    message_reference,
+    flags,
+]);
+impl_eq_fields!(MentionedUser: [user, member]);
+impl_eq_fields!(MentionedChannel: [id, guild_id, kind, name]);
+impl_eq_fields!(Reaction: [count, me, emoji]);
+
 #[cfg(test)]
 mod tests {
     use serde_json::json;
 
+    use crate::model::id::UserId;
+
     use super::*;
 
-    // TODO: Improve `Message` serde tests.
+    // TODO: Add serialize message serde tests.
 
     #[test]
     fn test_deserialize_message() {
@@ -272,8 +309,45 @@ mod tests {
           "mentions": [],
           "type": 0
         });
+        let message = Message {
+            id: MessageId::from(334385199974967042),
+            channel_id: ChannelId::from(290926798999357250),
+            guild_id: None,
+            author: User {
+                id: UserId::from(53908099506183680),
+                name: "Mason".to_owned(),
+                discriminator: "9999".parse().unwrap(),
+                avatar: Some("a_bab14f271d565501444b2ca3be944b25".to_owned()),
+                bot: false,
+                system: false,
+            },
+            member: None,
+            content: "Supa Hot".to_owned(),
+            timestamp: "2017-07-11T17:27:07.299000+00:00".parse().unwrap(),
+            edited_timestamp: None,
+            tts: false,
+            mention_everyone: false,
+            mentions: vec![],
+            mention_roles: vec![],
+            mention_channels: vec![],
+            attachments: vec![],
+            embeds: vec![],
+            reactions: vec![Reaction {
+                count: 1,
+                me: false,
+                emoji: PartialEmoji::standard("🔥"),
+            }],
+            pinned: false,
+            webhook_id: None,
+            kind: MessageType::Default,
+            activity: None,
+            application: None,
+            message_reference: None,
+            flags: MessageFlags::default(),
+        };
 
-        let _: Message = serde_json::from_value(value).unwrap();
+        let deserialized = Message::deserialize(&value).unwrap();
+        assert_eq_fields!(message, deserialized);
     }
 
     #[test]
@@ -323,16 +397,64 @@ mod tests {
             "message_id": "306588351130107906"
           }
         });
+        let message = Message {
+            id: MessageId::from(334385199974967042),
+            channel_id: ChannelId::from(290926798999357250),
+            guild_id: None,
+            author: User {
+                id: UserId::from(53908099506183680),
+                name: "Mason".to_owned(),
+                discriminator: "9999".parse().unwrap(),
+                avatar: Some("a_bab14f271d565501444b2ca3be944b25".to_owned()),
+                bot: false,
+                system: false,
+            },
+            member: None,
+            content: "Big news! In this <#278325129692446722> channel!".to_owned(),
+            timestamp: "2017-07-11T17:27:07.299000+00:00".parse().unwrap(),
+            edited_timestamp: None,
+            tts: false,
+            mention_everyone: false,
+            mentions: vec![],
+            mention_roles: vec![],
+            mention_channels: vec![],
+            attachments: vec![],
+            embeds: vec![],
+            reactions: vec![Reaction {
+                count: 1,
+                me: false,
+                emoji: PartialEmoji::standard("🔥"),
+            }],
+            pinned: false,
+            webhook_id: None,
+            kind: MessageType::Default,
+            activity: None,
+            application: None,
+            message_reference: Some(MessageReference {
+                message_id: Some(MessageId::from(306588351130107906)),
+                channel_id: ChannelId::from(278325129692446722),
+                guild_id: Some(GuildId::from(278325129692446720)),
+            }),
+            flags: MessageFlags::IS_CROSSPOST,
+        };
 
-        let _: Message = serde_json::from_value(value).unwrap();
+        let deserialized = Message::deserialize(&value).unwrap();
+        assert_eq_fields!(message, deserialized);
     }
 
     #[test]
-    fn test_message_flags() {
+    fn test_deserialize_message_flags() {
+        let value = json!(2);
+        let flags = MessageFlags::IS_CROSSPOST;
+
+        assert_eq!(flags, MessageFlags::deserialize(&value).unwrap());
+    }
+
+    #[test]
+    fn test_serialize_message_flags() {
         let value = json!(2);
         let flags = MessageFlags::IS_CROSSPOST;
 
         assert_eq!(value, serde_json::to_value(&flags).unwrap());
-        assert_eq!(flags, serde_json::from_value(value).unwrap());
     }
 }
