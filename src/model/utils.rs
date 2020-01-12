@@ -1,3 +1,8 @@
+/// Used in serde `skip_serializing_if` attribute.
+pub fn is_false(b: &bool) -> bool {
+    !b
+}
+
 macro_rules! int_visitor {
     ($vis:vis $name:ident : $type:ty) => {
         #[derive(Debug)]
