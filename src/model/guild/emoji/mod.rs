@@ -7,15 +7,15 @@ use serde::{Deserialize, Serialize};
 use crate::model::id::RoleId;
 use crate::model::user::User;
 
-pub use self::partial::PartialEmoji;
+pub use self::partial::{CustomEmoji, PartialEmoji};
 
-/// An emoji.
+/// A guild emoji.
 #[non_exhaustive]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Emoji {
     /// The ID of the emoji.
     #[serde(flatten)]
-    pub emoji: PartialEmoji,
+    emoji: CustomEmoji,
     /// A set of roles the emoji is whitelisted to.
     #[serde(default)]
     pub roles: Vec<RoleId>,
@@ -28,6 +28,7 @@ pub struct Emoji {
     #[serde(default)]
     pub managed: bool,
 }
+wrap!(Emoji => mut emoji: CustomEmoji);
 
 impl Display for Emoji {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -63,7 +64,7 @@ mod tests {
           "animated": false,
         });
         let emoji = Emoji {
-            emoji: PartialEmoji::custom(41771983429993937, "LUL", false),
+            emoji: CustomEmoji::new(41771983429993937, "LUL", false),
             roles: vec![
                 RoleId::from(41771983429993000),
                 RoleId::from(41771983429993111),
@@ -103,7 +104,7 @@ mod tests {
           "animated": true,
         });
         let emoji = Emoji {
-            emoji: PartialEmoji::custom(41771983429993937, "LUL", true),
+            emoji: CustomEmoji::new(41771983429993937, "LUL", true),
             roles: vec![
                 RoleId::from(41771983429993000),
                 RoleId::from(41771983429993111),

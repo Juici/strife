@@ -3,10 +3,10 @@ use std::collections::HashMap;
 use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 
-use crate::model::channel::utils::serde_recipients;
 use crate::model::channel::ChannelType;
 use crate::model::id::{ApplicationId, ChannelId, MessageId, UserId};
 use crate::model::user::User;
+use crate::model::utils::serde_id_map;
 
 /// A group message channel between multiple [`User`]s.
 ///
@@ -28,7 +28,7 @@ pub struct Group {
     /// The group icon hash.
     pub icon: Option<String>,
     /// The users in the group.
-    #[serde(default, with = "serde_recipients")]
+    #[serde(default, with = "serde_id_map")]
     pub recipients: HashMap<UserId, User>,
     /// The ID of the group creator.
     pub owner_id: UserId,

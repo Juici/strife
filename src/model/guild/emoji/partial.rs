@@ -1,3 +1,4 @@
+use std::borrow::{Borrow, Cow};
 use std::fmt::{self, Display};
 use std::hash::{Hash, Hasher};
 use std::str::FromStr;
@@ -7,32 +8,87 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::model::id::EmojiId;
 
+/// A custom guild emoji with partial information.
+#[non_exhaustive]
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct CustomEmoji {
+    /// The ID of the custom emoji.
+    pub id: EmojiId,
+    /// The name of the custom emoji.
+    ///
+    /// # Notes
+    ///
+    /// In `MESSAGE_REACTION_ADD` and `MESSAGE_REACTION_REMOVE` gateway
+    /// events `name` may be `None` when custom emoji data is not
+    /// available (for example, if it was deleted from the guild).
+    pub name: Option<Cow<'static, str>>,
+    /// Whether the custom emoji is animated.
+    pub animated: bool,
+}
+
+impl CustomEmoji {
+    /// Creates a custom guild emoji.
+    pub fn new<I, S>(id: I, name: S, animated: bool) -> CustomEmoji
+    where
+        I: Into<EmojiId>,
+        S: Into<Cow<'static, str>>,
+    {
+        CustomEmoji {
+            id: id.into(),
+            name: Some(name.into()),
+            animated,
+        }
+    }
+}
+
+impl PartialEq for CustomEmoji {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
+impl Eq for CustomEmoji {}
+
+impl Hash for CustomEmoji {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
+    }
+}
+
+impl Display for CustomEmoji {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        /// Rendering a custom emoji doesn't require knowing the name, however
+        /// if no name is provided the emoji will not render.
+        ///
+        /// Work around this issue by substituting unknown names with `_`.
+        const UNKNOWN_NAME: &str = "_";
+
+        if self.animated {
+            f.write_str("<a:")?;
+        } else {
+            f.write_str("<:")?;
+        }
+
+        let name = self.name.as_ref().map(Cow::borrow).unwrap_or(UNKNOWN_NAME);
+        write!(f, "{}:{}>", name, self.id)
+    }
+}
+
 /// An emoji, with partial information.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum PartialEmoji {
     /// A standard unicode emoji.
-    Standard(String),
+    Standard(Cow<'static, str>),
     /// A custom guild emoji.
-    #[non_exhaustive]
-    Custom {
-        /// The ID of the custom emoji.
-        id: EmojiId,
-        /// The name of the custom emoji.
-        ///
-        /// # Notes
-        ///
-        /// In `MESSAGE_REACTION_ADD` and `MESSAGE_REACTION_REMOVE` gateway
-        /// events `name` may be `None` when custom emoji data is not
-        /// available (for example, if it was deleted from the guild).
-        name: Option<String>,
-        /// Whether the custom emoji is animated.
-        animated: bool,
-    },
+    Custom(CustomEmoji),
 }
 
 impl PartialEmoji {
     /// Creates a standard unicode emoji.
-    pub fn standard<S: Into<String>>(emoji: S) -> PartialEmoji {
+    pub fn standard<S>(emoji: S) -> PartialEmoji
+    where
+        S: Into<Cow<'static, str>>,
+    {
         PartialEmoji::Standard(emoji.into())
     }
 
@@ -40,20 +96,16 @@ impl PartialEmoji {
     pub fn custom<I, S>(id: I, name: S, animated: bool) -> PartialEmoji
     where
         I: Into<EmojiId>,
-        S: Into<String>,
+        S: Into<Cow<'static, str>>,
     {
-        PartialEmoji::Custom {
-            id: id.into(),
-            name: Some(name.into()),
-            animated,
-        }
+        PartialEmoji::Custom(CustomEmoji::new(id, name, animated))
     }
 
     /// Returns the ID of the emoji.
     pub fn id(&self) -> Option<EmojiId> {
-        match *self {
+        match self {
             PartialEmoji::Standard(_) => None,
-            PartialEmoji::Custom { id, .. } => Some(id),
+            PartialEmoji::Custom(emoji) => Some(emoji.id),
         }
     }
 
@@ -64,82 +116,58 @@ impl PartialEmoji {
     pub fn name(&self) -> Option<&str> {
         match self {
             PartialEmoji::Standard(name) => Some(name),
-            PartialEmoji::Custom { name, .. } => name.as_deref(),
+            PartialEmoji::Custom(emoji) => emoji.name.as_deref(),
         }
     }
 
     /// Returns whether the emoji is animated.
     pub fn animated(&self) -> bool {
-        match *self {
+        match self {
             PartialEmoji::Standard(_) => false,
-            PartialEmoji::Custom { animated, .. } => animated,
+            PartialEmoji::Custom(emoji) => emoji.animated,
         }
     }
 }
 
 impl Display for PartialEmoji {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        /// Rendering a custom emoji doesn't require knowing the name, however
-        /// if no name is provided the emoji will not render.
-        ///
-        /// Work around this issue by substituting unknown names with `_`.
-        const UNKNOWN_NAME: &str = "_";
-
         match self {
             PartialEmoji::Standard(name) => f.write_str(name),
-            PartialEmoji::Custom { id, name, animated } => {
-                if *animated {
-                    f.write_str("<a:")?;
-                } else {
-                    f.write_str("<:")?;
-                }
-                write!(f, "{}:{}>", name.as_deref().unwrap_or(UNKNOWN_NAME), id)
-            }
+            PartialEmoji::Custom(emoji) => emoji.fmt(f),
         }
     }
 }
-
-impl PartialEq for PartialEmoji {
-    fn eq(&self, other: &Self) -> bool {
-        match self {
-            PartialEmoji::Standard(name) => match other {
-                PartialEmoji::Standard(other_name) => name == other_name,
-                PartialEmoji::Custom { .. } => false,
-            },
-            PartialEmoji::Custom { id, .. } => match other {
-                PartialEmoji::Standard(_) => false,
-                PartialEmoji::Custom { id: other_id, .. } => id == other_id,
-            },
-        }
-    }
-}
-
-impl Eq for PartialEmoji {}
 
 impl Hash for PartialEmoji {
     fn hash<H: Hasher>(&self, state: &mut H) {
         match self {
             PartialEmoji::Standard(name) => name.hash(state),
-            PartialEmoji::Custom { id, .. } => id.hash(state),
+            PartialEmoji::Custom(emoji) => emoji.hash(state),
         }
+    }
+}
+
+impl From<CustomEmoji> for PartialEmoji {
+    fn from(emoji: CustomEmoji) -> Self {
+        PartialEmoji::Custom(emoji)
     }
 }
 
 impl From<char> for PartialEmoji {
     fn from(ch: char) -> Self {
-        PartialEmoji::Standard(ch.to_string())
+        PartialEmoji::standard(ch.to_string())
     }
 }
 
 impl From<String> for PartialEmoji {
     fn from(s: String) -> Self {
-        PartialEmoji::Standard(s)
+        PartialEmoji::standard(s)
     }
 }
 
-impl<'a> From<&'a str> for PartialEmoji {
-    fn from(s: &'a str) -> Self {
-        PartialEmoji::Standard(s.to_owned())
+impl From<&'static str> for PartialEmoji {
+    fn from(s: &'static str) -> Self {
+        PartialEmoji::standard(s)
     }
 }
 
@@ -147,7 +175,7 @@ impl FromStr for PartialEmoji {
     type Err = std::convert::Infallible;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(PartialEmoji::from(s))
+        Ok(PartialEmoji::standard(s.to_owned()))
     }
 }
 
@@ -163,19 +191,15 @@ impl Serialize for PartialEmoji {
             PartialEmoji::Custom { .. } => 3,
         };
 
-        let mut map = serializer.serialize_map(Some(len))?;
         match self {
             PartialEmoji::Standard(name) => {
+                let mut map = serializer.serialize_map(Some(len))?;
                 map.serialize_entry("id", &None::<EmojiId>)?;
                 map.serialize_entry("name", name)?;
+                map.end()
             }
-            PartialEmoji::Custom { id, name, animated } => {
-                map.serialize_entry("id", id)?;
-                map.serialize_entry("name", name)?;
-                map.serialize_entry("animated", animated)?;
-            }
-        };
-        map.end()
+            PartialEmoji::Custom(emoji) => emoji.serialize(serializer),
+        }
     }
 }
 
@@ -234,12 +258,13 @@ impl<'de> Deserialize<'de> for PartialEmoji {
 
                 Ok(match id {
                     Some(id) => {
+                        let name = name.map(Cow::Owned);
                         let animated = animated.unwrap_or_default();
-                        PartialEmoji::Custom { id, name, animated }
+                        PartialEmoji::Custom(CustomEmoji { id, name, animated })
                     }
                     None => {
                         let name = name.ok_or(de::Error::missing_field("name"))?;
-                        PartialEmoji::Standard(name)
+                        PartialEmoji::standard(name)
                     }
                 })
             }

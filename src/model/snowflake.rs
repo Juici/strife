@@ -17,6 +17,29 @@ use crate::model::utils::U64Visitor;
 /// Discord epoch is the first second of 2015.
 const DISCORD_EPOCH: u64 = 1_420_070_400_000;
 
+pub(crate) mod private {
+    pub trait Sealed {}
+
+    impl Sealed for super::Snowflake {}
+}
+
+/// A trait for types that have a Snowflake ID.
+pub trait ToSnowflake: private::Sealed {
+    /// Returns the Snowflake ID.
+    fn snowflake(&self) -> Snowflake;
+
+    /// Gets the timestamp that the snowflake was created at.
+    fn created_at(&self) -> DateTime<FixedOffset> {
+        self.snowflake().created_at()
+    }
+}
+
+impl ToSnowflake for Snowflake {
+    fn snowflake(&self) -> Snowflake {
+        *self
+    }
+}
+
 /// A [`Snowflake`] is a 64 bit unique ID.
 ///
 /// [`Snowflake`]: https://discordapp.com/developers/docs/reference#snowflakes

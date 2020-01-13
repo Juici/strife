@@ -12,7 +12,7 @@ use crate::model::utils::is_false;
 use crate::model::voice::VoiceRegionId;
 
 pub use self::audit_log::AuditLogEvent;
-pub use self::emoji::{Emoji, PartialEmoji};
+pub use self::emoji::{CustomEmoji, Emoji, PartialEmoji};
 pub use self::member::{Member, PartialMember};
 pub use self::role::Role;
 use crate::model::permissions::Permissions;
@@ -37,6 +37,32 @@ pub enum VerificationLevel {
     Higher = 4,
 }
 
+/// The default level of message notifications in a guild.
+#[non_exhaustive]
+#[int_enum::int_enum(u8)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub enum MessageNotificationLevel {
+    /// All messages will send notifications.
+    AllMessages = 0,
+    /// Only messages that mention a user or a user's role will send
+    /// notifications.
+    OnlyMentions = 1,
+}
+
+/// The level of filter to apply to users that send messages containing explicit
+/// content.
+#[non_exhaustive]
+#[int_enum::int_enum(u8)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub enum ExplicitContentFilterLevel {
+    /// No filter will be applied.
+    Disabled = 0,
+    /// Only members with roles will be able to send explicit content.
+    MembersWithoutRoles = 1,
+    /// All members will have explicit content filtered from messages they send.
+    AllMembers = 2,
+}
+
 /// A guild with partial information.
 #[non_exhaustive]
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -48,9 +74,11 @@ pub struct PartialGuild {
     /// The hash of the guild icon.
     pub icon: Option<String>,
     /// Whether the client user is the owner of the guild.
+    #[serde(default, skip_serializing_if = "is_false")]
     pub owner: bool,
     /// The set of permissions for the client user in the guild (excluding
     /// channel overrides).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub permissions: Option<Permissions>,
 }
 
@@ -79,5 +107,10 @@ pub struct Guild {
     pub embed_channel_id: Option<ChannelId>,
     /// The verification level required for the guild.
     pub verification_level: VerificationLevel,
+    /// The default message notification level in the guild.
+    #[serde(rename = "default_message_notifications")]
+    pub message_notifications: MessageNotificationLevel,
+    /// The level at which explicit content will be filtered.
+    pub explicit_content_filter: ExplicitContentFilterLevel,
 }
 wrap!(Guild => mut guild: PartialGuild);

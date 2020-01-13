@@ -1,7 +1,6 @@
 use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 
-use crate::model::channel::utils::serde_recipient;
 use crate::model::channel::ChannelType;
 use crate::model::id::{ChannelId, MessageId};
 use crate::model::user::User;
@@ -29,6 +28,32 @@ pub struct DMChannel {
     pub last_message_id: Option<MessageId>,
     /// When the last message was pinned.
     pub last_pin_timestamp: Option<DateTime<FixedOffset>>,
+}
+
+/// Serde mapping functions between `User` sequence (with a known single entry)
+/// and `User`.
+mod serde_recipient {
+    use serde::ser::SerializeTuple;
+    use serde::{Deserialize, Deserializer, Serializer};
+
+    use crate::model::user::User;
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<User, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let [recipient] = <[User; 1]>::deserialize(deserializer)?;
+        Ok(recipient)
+    }
+
+    pub fn serialize<S>(recipient: &User, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut tuple = serializer.serialize_tuple(1)?;
+        tuple.serialize_element(recipient)?;
+        tuple.end()
+    }
 }
 
 impl_eq_fields!(DMChannel: [id, kind, recipient, last_message_id, last_pin_timestamp]);

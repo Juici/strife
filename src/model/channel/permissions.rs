@@ -4,8 +4,9 @@ use std::fmt::{self, Display};
 
 use serde::{Deserialize, Serialize};
 
-use crate::model::id::{RoleId, UserId};
+use crate::model::id::{RoleId, ToSnowflakeId, UserId};
 use crate::model::permissions::Permissions;
+use crate::model::snowflake::{Snowflake, ToSnowflake};
 
 /// The ID of a [`PermissionOverwrite`].
 ///
@@ -77,6 +78,34 @@ impl PermissionOverwrite {
     {
         let id = id.into();
         PermissionOverwrite { id, allow, deny }
+    }
+}
+
+impl crate::model::id::private::Sealed for PermissionOverwrite {}
+
+impl ToSnowflakeId for PermissionOverwrite {
+    type Id = OverwriteId;
+
+    fn id(&self) -> Self::Id {
+        self.id
+    }
+}
+
+impl crate::model::snowflake::private::Sealed for OverwriteId {}
+impl crate::model::snowflake::private::Sealed for PermissionOverwrite {}
+
+impl ToSnowflake for OverwriteId {
+    fn snowflake(&self) -> Snowflake {
+        match self {
+            OverwriteId::Role(id) => id.snowflake(),
+            OverwriteId::User(id) => id.snowflake(),
+        }
+    }
+}
+
+impl ToSnowflake for PermissionOverwrite {
+    fn snowflake(&self) -> Snowflake {
+        self.id.snowflake()
     }
 }
 
