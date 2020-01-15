@@ -4,6 +4,7 @@ mod utils;
 
 pub mod channel;
 pub mod color;
+pub mod gateway;
 pub mod guild;
 pub mod id;
 pub mod permissions;

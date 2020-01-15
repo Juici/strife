@@ -20,6 +20,7 @@ pub struct Emoji {
     #[serde(default)]
     pub roles: Vec<RoleId>,
     /// The user that created the emoji.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<User>,
     /// Whether the name requires colons to be used by a client.
     #[serde(default)]

@@ -18,6 +18,21 @@ mod inner {
                 assert_eq_fields!($left.$field, $right.$field);
             )*
         };
+        (map => $left:expr, $right:expr) => {
+            match (&$left, &$right) {
+                (left_map, right_map) => {
+                    assert_eq!(left_map.len(), right_map.len());
+                    for (key, left_val) in left_map.iter() {
+                        let right_val = match right_map.get(key) {
+                            Some(right_val) => right_val,
+                            #[cold]
+                            None => panic!("missing key: {}", key),
+                        };
+                        assert_eq_fields!(left_val, right_val);
+                    }
+                }
+            }
+        };
     }
 
     macro_rules! panic_ne_fields {

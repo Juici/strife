@@ -63,48 +63,48 @@ pub mod serde_id_map {
 
     use crate::model::id::ToSnowflakeId;
 
+    struct Visitor<'de, V: 'de>
+    where
+        V: ToSnowflakeId + Deserialize<'de>,
+    {
+        _value: &'de PhantomData<V>,
+    }
+
+    impl<'de, V: 'de> de::Visitor<'de> for Visitor<'de, V>
+    where
+        V: ToSnowflakeId + Deserialize<'de>,
+    {
+        type Value = HashMap<V::Id, V>;
+
+        fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            f.write_str("a sequence of objects with snowflake ids")
+        }
+
+        fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
+        where
+            A: de::SeqAccess<'de>,
+        {
+            let mut map: HashMap<V::Id, V> =
+                HashMap::with_capacity(seq.size_hint().unwrap_or_default());
+
+            while let Some(value) = seq.next_element::<V>()? {
+                if let Some(existing) = map.insert(<V as ToSnowflakeId>::id(&value), value) {
+                    return Err(de::Error::custom(format_args!(
+                        "duplicate snowflake id: {}",
+                        <V as ToSnowflakeId>::id(&existing),
+                    )));
+                }
+            }
+
+            Ok(map)
+        }
+    }
+
     pub fn deserialize<'de, D, V: 'de>(deserializer: D) -> Result<HashMap<V::Id, V>, D::Error>
     where
         D: Deserializer<'de>,
         V: ToSnowflakeId + Deserialize<'de>,
     {
-        struct Visitor<'de, V: 'de>
-        where
-            V: ToSnowflakeId + Deserialize<'de>,
-        {
-            _value: &'de PhantomData<V>,
-        }
-
-        impl<'de, V: 'de> de::Visitor<'de> for Visitor<'de, V>
-        where
-            V: ToSnowflakeId + Deserialize<'de>,
-        {
-            type Value = HashMap<V::Id, V>;
-
-            fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                f.write_str("a sequence of objects with snowflake ids")
-            }
-
-            fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
-            where
-                A: de::SeqAccess<'de>,
-            {
-                let mut map: HashMap<V::Id, V> =
-                    HashMap::with_capacity(seq.size_hint().unwrap_or_default());
-
-                while let Some(value) = seq.next_element::<V>()? {
-                    if let Some(existing) = map.insert(<V as ToSnowflakeId>::id(&value), value) {
-                        return Err(de::Error::custom(format_args!(
-                            "duplicate snowflake id: {}",
-                            <V as ToSnowflakeId>::id(&existing),
-                        )));
-                    }
-                }
-
-                Ok(map)
-            }
-        }
-
         deserializer.deserialize_seq(Visitor {
             _value: &PhantomData,
         })

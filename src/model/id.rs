@@ -6,8 +6,11 @@ use std::ops::Deref;
 
 use serde::{Deserialize, Serialize};
 
+use crate::model::channel::guild::{
+    Category, NewsChannel, StoreChannel, TextChannel, VoiceChannel,
+};
 use crate::model::channel::message::Attachment;
-use crate::model::channel::Message;
+use crate::model::channel::{DMChannel, Group, Message};
 use crate::model::guild::{CustomEmoji, Emoji, Guild, PartialGuild, Role};
 use crate::model::snowflake::{Snowflake, ToSnowflake};
 use crate::model::user::{ClientUser, User};
@@ -135,6 +138,7 @@ pub trait ToSnowflakeId: private::Sealed {
 
 macro_rules! impl_to_id {
     ($Parent:ident => $field:ident: $Id:ident) => {
+        #[doc(hidden)]
         impl private::Sealed for $Parent {}
 
         impl ToSnowflakeId for $Parent {
@@ -166,5 +170,14 @@ impl_to_id! {
     ClientUser => id: UserId;
 }
 
-// TODO: Implement ToSnowflakeId for Channel.
+impl_to_id! {
+    Category => id: ChannelId;
+    DMChannel => id: ChannelId;
+    Group => id: ChannelId;
+    NewsChannel => id: ChannelId;
+    StoreChannel => id: ChannelId;
+    TextChannel => id: ChannelId;
+    VoiceChannel => id: ChannelId;
+}
+
 // TODO: Implement ToSnowflakeId for other types.

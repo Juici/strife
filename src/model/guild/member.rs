@@ -1,7 +1,7 @@
 use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 
-use crate::model::id::RoleId;
+use crate::model::id::{RoleId, ToSnowflakeId, UserId};
 use crate::model::user::User;
 
 // TODO: Add `guild_id` field, injected by the http `Client` API.
@@ -20,6 +20,20 @@ pub struct Member {
     pub premium_since: Option<DateTime<FixedOffset>>,
 }
 wrap!(Member => mut member: PartialMember);
+
+#[doc(hidden)]
+impl crate::model::id::private::Sealed for Member {}
+
+impl ToSnowflakeId for Member {
+    type Id = UserId;
+
+    /// The ID of the channel.
+    fn id(&self) -> Self::Id {
+        self.user.id
+    }
+}
+
+impl_to_snowflake!(Member: |member| member.id().snowflake());
 
 /// A member of a guild, with partial information.
 #[non_exhaustive]

@@ -16,6 +16,7 @@ pub use self::news_channel::NewsChannel;
 pub use self::store_channel::StoreChannel;
 pub use self::text_channel::TextChannel;
 pub use self::voice_channel::VoiceChannel;
+use crate::model::id::{ChannelId, ToSnowflakeId};
 
 /// A channel in a [`Guild`].
 ///
@@ -53,6 +54,26 @@ impl GuildChannel {
         }
     }
 }
+
+#[doc(hidden)]
+impl crate::model::id::private::Sealed for GuildChannel {}
+
+impl ToSnowflakeId for GuildChannel {
+    type Id = ChannelId;
+
+    /// The ID of the channel.
+    fn id(&self) -> Self::Id {
+        match self {
+            GuildChannel::Text(channel) => channel.id,
+            GuildChannel::Voice(channel) => channel.id,
+            GuildChannel::Category(channel) => channel.id,
+            GuildChannel::News(channel) => channel.id,
+            GuildChannel::Store(channel) => channel.id,
+        }
+    }
+}
+
+impl_to_snowflake!(GuildChannel: |channel| channel.id().snowflake());
 
 impl GuildChannel {
     pub(crate) fn from_value<E>(

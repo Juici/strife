@@ -14,6 +14,7 @@ pub use self::dm_channel::DMChannel;
 pub use self::group::Group;
 pub use self::guild::GuildChannel;
 pub use self::message::Message;
+use crate::model::id::{ChannelId, ToSnowflakeId};
 
 /// The type of a channel.
 #[non_exhaustive]
@@ -84,6 +85,24 @@ impl Channel {
         }
     }
 }
+
+#[doc(hidden)]
+impl crate::model::id::private::Sealed for Channel {}
+
+impl ToSnowflakeId for Channel {
+    type Id = ChannelId;
+
+    /// The ID of the channel.
+    fn id(&self) -> Self::Id {
+        match self {
+            Channel::DM(channel) => channel.id,
+            Channel::Group(channel) => channel.id,
+            Channel::Guild(channel) => channel.id(),
+        }
+    }
+}
+
+impl_to_snowflake!(Channel: |channel| channel.id().snowflake());
 
 impl Serialize for Channel {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
