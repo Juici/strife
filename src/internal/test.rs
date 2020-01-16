@@ -130,6 +130,13 @@ mod inner {
         B: std::fmt::Debug,
     {
         fn eq_fields(&self, other: &Vec<B>) {
+            assert_eq!(
+                self.len(),
+                other.len(),
+                "different length vec: {:?} and {:?}",
+                self,
+                other
+            );
             for (a, b) in self.iter().zip(other.iter()) {
                 assert_eq_fields!(a, b);
             }

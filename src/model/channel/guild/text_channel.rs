@@ -1,4 +1,5 @@
 use chrono::{DateTime, FixedOffset};
+use num_traits::Zero;
 use serde::{Deserialize, Serialize};
 
 use crate::model::channel::permissions::PermissionOverwrite;
@@ -7,7 +8,7 @@ use crate::model::id::{ChannelId, GuildId, MessageId};
 
 /// A text channel in a [`Guild`].
 ///
-/// [`Guild`]: TODO
+/// [`Guild`]: ../../guild/struct.Guild.html
 #[non_exhaustive]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct TextChannel {
@@ -30,11 +31,13 @@ pub struct TextChannel {
     /// The name of the channel.
     pub name: String,
     /// The topic of the channel.
+    #[serde(default)]
     pub topic: Option<String>,
     /// Whether the channel is NSFW.
     #[serde(default)]
     pub nsfw: bool,
     /// The ID of the last message sent to the group.
+    #[serde(default)]
     pub last_message_id: Option<MessageId>,
     /// The amount of seconds a user has to wait before sending another message
     /// (0 - 216000s).
@@ -43,11 +46,14 @@ pub struct TextChannel {
     /// [`MANAGE_CHANNEL`], are unaffected.
     #[doc = "\n[`MANAGE_MESSAGES`]: ../permissions/struct.Permissions.html#associatedconstant.MANAGE_MESSAGES"]
     #[doc = "\n[`MANAGE_CHANNEL`]: ../permissions/struct.Permissions.html#associatedconstant.MANAGE_CHANNEL"]
-    #[serde(default, rename = "rate_limit_per_user")]
+    #[serde(rename = "rate_limit_per_user")]
+    #[serde(default, skip_serializing_if = "Zero::is_zero")]
     pub rate_limit: u16,
     /// The ID of the parent category of the channel.
+    #[serde(default)]
     pub parent_id: Option<ChannelId>,
     /// When the last message was pinned.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub last_pin_timestamp: Option<DateTime<FixedOffset>>,
 }
 
@@ -125,8 +131,7 @@ mod tests {
           "nsfw": true,
           "topic": "24/7 chat about how to gank Mike #2",
           "last_message_id": "155117677105512449",
-          "parent_id": "399942396007890945",
-          "last_pin_timestamp": null
+          "parent_id": "399942396007890945"
         });
         let channel = TextChannel {
             id: ChannelId::from(41771983423143937),

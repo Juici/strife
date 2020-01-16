@@ -24,19 +24,25 @@ pub struct Group {
     #[serde(rename = "type")]
     pub(crate) kind: ChannelType,
     /// The name of the group.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// The group icon hash.
+    #[serde(default)]
     pub icon: Option<String>,
     /// The users in the group.
-    #[serde(default, with = "serde_id_map")]
+    #[serde(with = "serde_id_map")]
+    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
     pub recipients: HashMap<UserId, User>,
     /// The ID of the group creator.
     pub owner_id: UserId,
     /// The application ID of the group creator, if it is bot-created.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub application_id: Option<ApplicationId>,
     /// The ID of the last message sent to the group.
+    #[serde(default)]
     pub last_message_id: Option<MessageId>,
     /// When the last message was pinned.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub last_pin_timestamp: Option<DateTime<FixedOffset>>,
 }
 
@@ -146,25 +152,19 @@ mod tests {
               "username": "test",
               "discriminator": "9999",
               "id": "82198898841029460",
-              "avatar": "33ecab261d4681afa4d85a04691c4a01",
-              "bot": false,
-              "system": false
+              "avatar": "33ecab261d4681afa4d85a04691c4a01"
             },
             {
               "username": "test2",
               "discriminator": "9999",
               "id": "53908099506183680",
-              "avatar": "a_bab14f271d565501444b2ca3be944b25",
-              "bot": false,
-              "system": false
+              "avatar": "a_bab14f271d565501444b2ca3be944b25"
             }
           ],
           "last_message_id": "3343820033257021450",
-          "last_pin_timestamp": null,
           "type": 3,
           "id": "319674150115710528",
-          "owner_id": "53908099506183680",
-          "application_id": null
+          "owner_id": "53908099506183680"
         });
         let channel = Group {
             id: ChannelId::from(319674150115710528),

@@ -3,6 +3,11 @@ pub fn is_false(b: &bool) -> bool {
     !b
 }
 
+/// Used in serde `default` attribute.
+pub fn default_true() -> bool {
+    true
+}
+
 macro_rules! int_visitor {
     (($($vis:tt)*) $name:ident: $type:ty) => {
         #[derive(Debug)]

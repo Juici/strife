@@ -4,6 +4,7 @@ use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 
 use crate::model::color::Color;
+use crate::model::utils::is_false;
 
 /// Embedded content in a [`Message`].
 ///
@@ -12,6 +13,7 @@ use crate::model::color::Color;
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct Embed {
     /// The title of the embed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
     /// The type of the embed.
     ///
@@ -21,28 +23,37 @@ pub struct Embed {
     #[serde(rename = "type")]
     pub kind: EmbedType,
     /// The description of the embed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     /// The URL of the embed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
     /// The timestamp of the embed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub timestamp: Option<DateTime<FixedOffset>>,
     /// The color code of the embed.
     #[serde(default, alias = "colour")]
     pub color: Color,
     /// The footer information of the embed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub footer: Option<EmbedFooter>,
     /// The image information of the embed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub image: Option<EmbedImage>,
     /// The thumbnail information of the embed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub thumbnail: Option<EmbedThumbnail>,
     /// The video information of the embed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub video: Option<EmbedVideo>,
     /// The provider information of the embed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub provider: Option<EmbedProvider>,
     /// The author information of the embed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub author: Option<EmbedAuthor>,
     /// The additional fields of the embed.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub fields: Vec<EmbedField>,
 }
 
@@ -91,8 +102,10 @@ pub struct EmbedFooter {
     /// The URL of the footer icon.
     ///
     /// Only supports HTTP(S).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub icon_url: Option<String>,
     /// The proxied URL of the footer icon.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub proxy_icon_url: Option<String>,
 }
 
@@ -155,6 +168,7 @@ pub struct EmbedProvider {
     /// The name of the provider.
     pub name: String,
     /// The URL of the provider.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 }
 
@@ -167,12 +181,15 @@ pub struct EmbedAuthor {
     /// The author name.
     pub name: String,
     /// The URL of the author.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
     /// The URL of the author icon.
     ///
     /// Only supports HTTP(S).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub icon_url: Option<String>,
     /// The proxied URL of the author icon.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub proxy_icon_url: Option<String>,
 }
 
@@ -187,6 +204,6 @@ pub struct EmbedField {
     /// The value of the embed.
     pub value: String,
     /// Whether the field should be displayed inline.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "is_false")]
     pub inline: bool,
 }

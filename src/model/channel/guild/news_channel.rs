@@ -7,7 +7,7 @@ use crate::model::id::{ChannelId, GuildId, MessageId};
 
 /// A text channel in a [`Guild`].
 ///
-/// [`Guild`]: TODO
+/// [`Guild`]: ../../guild/struct.Guild.html
 #[non_exhaustive]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct NewsChannel {
@@ -30,15 +30,19 @@ pub struct NewsChannel {
     /// The name of the channel.
     pub name: String,
     /// The topic of the channel.
+    #[serde(default)]
     pub topic: Option<String>,
     /// Whether the channel is NSFW.
     #[serde(default)]
     pub nsfw: bool,
     /// The ID of the last message sent to the group.
+    #[serde(default)]
     pub last_message_id: Option<MessageId>,
     /// The ID of the parent category of the channel.
+    #[serde(default)]
     pub parent_id: Option<ChannelId>,
     /// When the last message was pinned.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub last_pin_timestamp: Option<DateTime<FixedOffset>>,
 }
 
@@ -112,8 +116,7 @@ mod tests {
           "nsfw": true,
           "topic": "Rumors about Half Life 3",
           "last_message_id": "155117677105512449",
-          "parent_id": "399942396007890945",
-          "last_pin_timestamp": null
+          "parent_id": "399942396007890945"
         });
         let channel = NewsChannel {
             id: ChannelId::from(41771983423143937),

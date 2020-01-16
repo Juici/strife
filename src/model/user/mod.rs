@@ -8,6 +8,8 @@ mod flags;
 use serde::{Deserialize, Serialize};
 
 use crate::model::id::UserId;
+use crate::model::misc::Locale;
+use crate::model::utils::is_false;
 
 pub use self::discriminator::{Discriminator, DiscriminatorParseError};
 pub use self::flags::UserFlags;
@@ -20,20 +22,26 @@ pub struct ClientUser {
     user: User,
     /// Whether the user has multi-factor authentication enabled on their
     /// account.
+    #[serde(default)]
     pub mfa_enabled: bool,
     /// The chosen language of the user.
-    pub locale: String,
+    #[serde(default)]
+    pub locale: Locale,
     /// Whether the email on the user account is verified.
+    #[serde(default)]
     pub verified: bool,
     /// The email of the user.
+    #[serde(default)]
     pub email: Option<String>,
     /// The [flags] on the user account.
     ///
     /// [flags]: struct.UserFlags.html
+    #[serde(default)]
     pub flags: UserFlags,
     /// The [type of Nitro subscription][type] on the user account.
     ///
     /// [type]: struct.PremiumType.html
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub premium_type: Option<PremiumType>,
 }
 wrap!(ClientUser => mut user: User);
@@ -52,11 +60,11 @@ pub struct User {
     /// The avatar hash of the user.
     pub avatar: Option<String>,
     /// Whether the user is a bot.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "is_false")]
     pub bot: bool,
     /// Whether the user is an Official Discord System user (part of the urgent
     /// message system).
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "is_false")]
     pub system: bool,
 }
 
@@ -95,8 +103,8 @@ mod tests {
             name: "Nelly".to_owned(),
             discriminator: "1337".parse().unwrap(),
             avatar: Some("8342729096ea3675442027381ff50dfe".to_owned()),
-            bot: Default::default(),
-            system: Default::default(),
+            bot: bool::default(),
+            system: bool::default(),
         };
 
         let deserialized = User::deserialize(&value).unwrap();
@@ -109,9 +117,7 @@ mod tests {
             "id": "225336713231204353",
             "username": "Juici",
             "avatar": "a_e8b3a198dab6af59aacd1072bbedb255",
-            "discriminator": "0001",
-            "bot": false,
-            "system": false,
+            "discriminator": "0001"
         });
         let user = User {
             id: UserId::from(225336713231204353),
@@ -147,10 +153,10 @@ mod tests {
                 discriminator: "9999".parse().unwrap(),
                 avatar: Some("33ecab261d4681afa4d85a04691c4a01".to_owned()),
                 bot: false,
-                system: Default::default(),
+                system: bool::default(),
             },
             mfa_enabled: true,
-            locale: "en-US".to_string(),
+            locale: Locale::from_static("en-US"),
             verified: true,
             email: Some("test@example.com".to_owned()),
             flags: UserFlags::from_bits(64).unwrap(),
@@ -182,10 +188,10 @@ mod tests {
                 discriminator: "0369".parse().unwrap(),
                 avatar: None,
                 bot: true,
-                system: Default::default(),
+                system: bool::default(),
             },
             mfa_enabled: true,
-            locale: "en-US".to_string(),
+            locale: Locale::from_static("en-US"),
             verified: true,
             email: None,
             flags: UserFlags::NONE,
@@ -204,13 +210,11 @@ mod tests {
             "discriminator": "0369",
             "avatar": null,
             "bot": true,
-            "system": false,
             "mfa_enabled": true,
             "locale": "en-US",
             "verified": true,
             "email": null,
-            "premium_type": null,
-            "flags": 0,
+            "flags": 0
         });
         let user = ClientUser {
             user: User {
@@ -222,7 +226,7 @@ mod tests {
                 system: false,
             },
             mfa_enabled: true,
-            locale: "en-US".to_string(),
+            locale: Locale::from_static("en-US"),
             verified: true,
             email: None,
             flags: UserFlags::NONE,

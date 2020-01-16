@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::model::id::RoleId;
 use crate::model::user::User;
+use crate::model::utils::default_true;
 
 pub use self::partial::{CustomEmoji, PartialEmoji};
 
@@ -23,7 +24,7 @@ pub struct Emoji {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<User>,
     /// Whether the name requires colons to be used by a client.
-    #[serde(default)]
+    #[serde(default = "default_true")]
     pub require_colons: bool,
     /// Whether the emoji was created by an integration service.
     #[serde(default)]
@@ -96,9 +97,7 @@ mod tests {
             "username": "Luigi",
             "discriminator": "0002",
             "id": "96008815106887111",
-            "avatar": null,
-            "bot": false,
-            "system": false,
+            "avatar": null
           },
           "require_colons": true,
           "managed": false,

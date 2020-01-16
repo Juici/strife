@@ -23,6 +23,7 @@ pub struct CustomEmoji {
     /// available (for example, if it was deleted from the guild).
     pub name: Option<Cow<'static, str>>,
     /// Whether the custom emoji is animated.
+    #[serde(default)]
     pub animated: bool,
 }
 

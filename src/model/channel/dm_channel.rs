@@ -25,8 +25,10 @@ pub struct DMChannel {
     #[serde(rename = "recipients", with = "serde_recipient")]
     pub recipient: User,
     /// The ID of the last message sent to the channel.
+    #[serde(default)]
     pub last_message_id: Option<MessageId>,
     /// When the last message was pinned.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub last_pin_timestamp: Option<DateTime<FixedOffset>>,
 }
 
@@ -119,9 +121,7 @@ mod tests {
               "id": "225336713231204353",
               "username": "Juici",
               "avatar": "a_e8b3a198dab6af59aacd1072bbedb255",
-              "discriminator": "0001",
-              "bot": false,
-              "system": false
+              "discriminator": "0001"
             }
           ]
         });

@@ -71,7 +71,7 @@ pub enum Channel {
     Group(Group),
     /// A channel within a [`Guild`].
     ///
-    /// [`Guild`]: TODO
+    /// [`Guild`]: ../guild/struct.Guild.html
     Guild(GuildChannel),
 }
 

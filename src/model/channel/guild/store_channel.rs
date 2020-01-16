@@ -30,6 +30,7 @@ pub struct StoreChannel {
     #[serde(default)]
     pub nsfw: bool,
     /// The ID of the parent category of the channel.
+    #[serde(default)]
     pub parent_id: Option<ChannelId>,
 }
 

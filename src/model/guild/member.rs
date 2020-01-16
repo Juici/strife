@@ -15,8 +15,10 @@ pub struct Member {
     /// The user the member represents.
     pub user: User,
     /// The nickname of the user, if one is set.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub nick: Option<String>,
     /// When the user used their Nitro boost on the guild.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub premium_since: Option<DateTime<FixedOffset>>,
 }
 wrap!(Member => mut member: PartialMember);

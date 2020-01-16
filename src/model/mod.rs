@@ -7,6 +7,7 @@ pub mod color;
 pub mod gateway;
 pub mod guild;
 pub mod id;
+pub mod misc;
 pub mod permissions;
 pub mod snowflake;
 pub mod user;

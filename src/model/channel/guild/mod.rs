@@ -10,33 +10,33 @@ use serde::de;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::model::channel::ChannelType;
+use crate::model::id::{ChannelId, ToSnowflakeId};
 
 pub use self::category::Category;
 pub use self::news_channel::NewsChannel;
 pub use self::store_channel::StoreChannel;
 pub use self::text_channel::TextChannel;
 pub use self::voice_channel::VoiceChannel;
-use crate::model::id::{ChannelId, ToSnowflakeId};
 
 /// A channel in a [`Guild`].
 ///
-/// [`Guild`]: TODO
+/// [`Guild`]: ../../guild/struct.Guild.html
 #[non_exhaustive]
 #[derive(Clone, Debug)]
 pub enum GuildChannel {
     /// A text channel in a [`Guild`].
     ///
-    /// [`Guild`]: TODO
+    /// [`Guild`]: ../../guild/struct.Guild.html
     Text(TextChannel),
     /// A voice channel in a [`Guild`].
     ///
-    /// [`Guild`]: TODO
+    /// [`Guild`]: ../../guild/struct.Guild.html
     Voice(VoiceChannel),
     /// An organizational category that contains non-category channels.
     Category(Category),
     /// A channel that users can follow and crosspost into another [`Guild`].
     ///
-    /// [`Guild`]: TODO
+    /// [`Guild`]: ../../guild/struct.Guild.html
     News(NewsChannel),
     /// A channel in which game developers can sell games on Discord.
     Store(StoreChannel),

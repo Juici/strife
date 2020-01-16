@@ -205,9 +205,7 @@ mod tests {
             "id": "80351110224678912",
             "username": "Nelly",
             "discriminator": "1337",
-            "avatar": "8342729096ea3675442027381ff50dfe",
-            "bot": false,
-            "system": false
+            "avatar": "8342729096ea3675442027381ff50dfe"
         });
         let user = PartialUser::Full(User {
             id: UserId::from(80351110224678912),

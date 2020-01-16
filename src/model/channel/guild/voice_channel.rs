@@ -6,7 +6,7 @@ use crate::model::id::{ChannelId, GuildId};
 
 /// A voice channel in a [`Guild`].
 ///
-/// [`Guild`]: TODO
+/// [`Guild`]: ../../guild/struct.Guild.html
 #[non_exhaustive]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct VoiceChannel {
@@ -34,6 +34,7 @@ pub struct VoiceChannel {
     /// unlimited.
     pub user_limit: u8,
     /// The ID of the parent category of the channel.
+    #[serde(default)]
     pub parent_id: Option<ChannelId>,
 }
 
