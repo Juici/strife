@@ -24,6 +24,7 @@ pub use self::audit_log::AuditLogEvent;
 pub use self::emoji::{CustomEmoji, Emoji, PartialEmoji};
 pub use self::member::{Member, PartialMember};
 pub use self::role::Role;
+use crate::model::gateway::presence::Presence;
 
 /// The required level of criteria a user must meet, prior to being able to send
 /// messages in a [`Guild`].
@@ -340,7 +341,10 @@ pub struct Guild {
     #[serde(with = "serde_id_map")]
     #[serde(default, skip_serializing_if = "HashMap::is_empty")]
     pub channels: HashMap<ChannelId, GuildChannel>,
-    // TODO: Add `presences` field.
+    /// The presences of the users in the guild.
+    #[serde(with = "serde_id_map")]
+    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
+    pub presences: HashMap<UserId, Presence>,
     /// The maximum amount of members for the guild.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub max_members: Option<u64>,
@@ -406,6 +410,7 @@ impl_eq_fields!(Guild: (a, b) => {
     assert_eq_fields!(map => a.emojis, b.emojis);
     assert_eq_fields!(map => a.members, b.members);
     assert_eq_fields!(map => a.channels, b.channels);
+    assert_eq_fields!(map => a.presences, b.presences);
 });
 
 #[cfg(test)]
@@ -474,6 +479,7 @@ mod tests {
             voice_states: vec![],
             members: HashMap::default(),
             channels: HashMap::default(),
+            presences: HashMap::default(),
             max_members: None,
             vanity_url_code: None,
             description: None,

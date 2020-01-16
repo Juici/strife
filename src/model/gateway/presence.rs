@@ -4,7 +4,7 @@ use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 
 use crate::model::gateway::activity::Activity;
-use crate::model::id::{GuildId, RoleId, UserId};
+use crate::model::id::{GuildId, RoleId, ToSnowflakeId, UserId};
 use crate::model::user::User;
 
 /// A user with possibly only partial information.
@@ -20,6 +20,21 @@ pub enum PartialUser {
         id: UserId,
     },
 }
+
+impl crate::model::id::private::Sealed for PartialUser {}
+
+impl ToSnowflakeId for PartialUser {
+    type Id = UserId;
+
+    fn id(&self) -> Self::Id {
+        match self {
+            PartialUser::Full(user) => user.id,
+            PartialUser::Partial { id } => *id,
+        }
+    }
+}
+
+impl_to_snowflake!(PartialUser: |user| user.id().snowflake());
 
 /// The online status of a [`User`] in a [`Presence`].
 ///
@@ -98,6 +113,18 @@ pub struct Presence {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub nick: Option<String>,
 }
+
+impl crate::model::id::private::Sealed for Presence {}
+
+impl ToSnowflakeId for Presence {
+    type Id = <PartialUser as ToSnowflakeId>::Id;
+
+    fn id(&self) -> Self::Id {
+        self.user.id()
+    }
+}
+
+impl_to_snowflake!(Presence: |presence| presence.id().snowflake());
 
 impl_eq_fields!(PartialUser: (a, b) => {
     match (a, b) {
