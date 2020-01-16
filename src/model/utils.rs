@@ -58,8 +58,8 @@ pub mod serde_id_map {
     use std::fmt;
     use std::marker::PhantomData;
 
-    use serde::{de, Deserialize, Serialize};
-    use serde::{Deserializer, Serializer};
+    use serde::de;
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
     use crate::model::id::ToSnowflakeId;
 
