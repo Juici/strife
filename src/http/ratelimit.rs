@@ -33,9 +33,12 @@ pub struct RateLimiter {
 
 impl RateLimiter {
     /// Creates a new rate limit manager.
-    pub fn new<S: AsRef<str>>(client: Arc<HyperClient>, token: S) -> RateLimiter {
+    pub fn new<T>(client: Arc<HyperClient>, token: T) -> RateLimiter
+    where
+        T: Into<Bytes>,
+    {
         RateLimiter {
-            token: Bytes::copy_from_slice(token.as_ref().as_bytes()),
+            token: token.into(),
             client,
             global: Default::default(),
             routes: Default::default(),
