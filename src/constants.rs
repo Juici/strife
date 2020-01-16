@@ -12,8 +12,8 @@ pub const MESSAGE_MAX_LENGTH: usize = 2000;
 pub const USER_AGENT: &str = concat!("DiscordBot (", pkg_repo!(), ", ", pkg_version!(), ")");
 
 /// Gateway opcodes.
-#[int_enum::int_enum(u8)]
 #[non_exhaustive]
+#[int_enum::int_enum(u8)]
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum OpCode {
     /// Dispatches an event.

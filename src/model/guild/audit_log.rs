@@ -1,8 +1,8 @@
 /// The [type of action] that occurred in an [`AuditLogEntry`].
 ///
 /// [type of action]: https://discordapp.com/developers/docs/resources/audit-log#audit-log-entry-object-audit-log-events
-#[int_enum::int_enum(u8)]
 #[non_exhaustive]
+#[int_enum::int_enum(u8)]
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum AuditLogEvent {
     /// The guild settings were updated.

@@ -1,5 +1,6 @@
 use async_std::sync::Arc;
 
+use bytes::Bytes;
 use serde::de::DeserializeOwned;
 
 use crate::internal::prelude::*;
@@ -17,7 +18,14 @@ pub struct Http {
 impl Http {
     /// Creates a new HTTP client with the given API token.
     pub fn new<S: AsRef<str>>(token: S) -> Http {
-        let token = token.as_ref();
+        // Trim whitespace from token.
+        let token = token.as_ref().trim();
+        // Add "Bot " prefix to token if necessary.
+        let token = if token.starts_with("Bot ") {
+            Bytes::copy_from_slice(token.as_bytes())
+        } else {
+            Bytes::from(format!("Bot {}", token))
+        };
 
         let client = hyper::Client::builder().build(HttpsConnector::new());
         let client = Arc::new(client);

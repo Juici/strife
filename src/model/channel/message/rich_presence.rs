@@ -16,8 +16,8 @@ pub struct MessageActivity {
 ///
 /// [`Message`]: struct.MessageActivity.html
 #[allow(missing_docs)]
-#[int_enum::int_enum(u8)]
 #[non_exhaustive]
+#[int_enum::int_enum(u8)]
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum MessageActivityType {
     Join = 1,
@@ -28,7 +28,7 @@ pub enum MessageActivityType {
 
 /// Rich Presence application information.
 #[non_exhaustive]
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct MessageApplication {
     /// The ID of the application.
     pub id: ApplicationId,

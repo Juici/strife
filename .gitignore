@@ -1,3 +1,7 @@
+# Rust/Cargo
 /target
 **/*.rs.bk
 Cargo.lock
+
+# Discord Token
+examples/.token

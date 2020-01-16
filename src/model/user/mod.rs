@@ -8,6 +8,8 @@ mod flags;
 use serde::{Deserialize, Serialize};
 
 use crate::model::id::UserId;
+use crate::model::misc::Locale;
+use crate::model::utils::is_false;
 
 pub use self::discriminator::{Discriminator, DiscriminatorParseError};
 pub use self::flags::UserFlags;
@@ -20,20 +22,26 @@ pub struct ClientUser {
     user: User,
     /// Whether the user has multi-factor authentication enabled on their
     /// account.
+    #[serde(default)]
     pub mfa_enabled: bool,
     /// The chosen language of the user.
-    pub locale: String,
+    #[serde(default)]
+    pub locale: Locale,
     /// Whether the email on the user account is verified.
+    #[serde(default)]
     pub verified: bool,
     /// The email of the user.
+    #[serde(default)]
     pub email: Option<String>,
     /// The [flags] on the user account.
     ///
     /// [flags]: struct.UserFlags.html
+    #[serde(default)]
     pub flags: UserFlags,
     /// The [type of Nitro subscription][type] on the user account.
     ///
     /// [type]: struct.PremiumType.html
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub premium_type: Option<PremiumType>,
 }
 wrap!(ClientUser => mut user: User);
@@ -52,19 +60,19 @@ pub struct User {
     /// The avatar hash of the user.
     pub avatar: Option<String>,
     /// Whether the user is a bot.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "is_false")]
     pub bot: bool,
     /// Whether the user is an Official Discord System user (part of the urgent
     /// message system).
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "is_false")]
     pub system: bool,
 }
 
 /// The level of premium a [`User`] has.
 ///
 /// [`User`]: struct.User.html
-#[int_enum::int_enum(u8)]
 #[non_exhaustive]
+#[int_enum::int_enum(u8)]
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum PremiumType {
     /// Nitro Classic.
@@ -73,17 +81,14 @@ pub enum PremiumType {
     Nitro = 2,
 }
 
+impl_eq_fields!(ClientUser: [user, mfa_enabled, locale, verified, email, flags, premium_type]);
+impl_eq_fields!(User: [id, name, discriminator, avatar, bot, system]);
+
 #[cfg(test)]
 mod tests {
     use serde_json::json;
 
     use super::*;
-
-    macro_rules! assert_eq_fields {
-        ($left:expr, $right:expr, [$($field:ident),* $(,)*]) => {$(
-            assert_eq!($left.$field, $right.$field);
-        )*};
-    }
 
     #[test]
     fn test_deserialize_user() {
@@ -98,13 +103,12 @@ mod tests {
             name: "Nelly".to_owned(),
             discriminator: "1337".parse().unwrap(),
             avatar: Some("8342729096ea3675442027381ff50dfe".to_owned()),
-            bot: Default::default(),
-            system: Default::default(),
+            bot: bool::default(),
+            system: bool::default(),
         };
 
-        let user2: User = serde_json::from_value(value.clone()).unwrap();
-
-        assert_eq_fields!(user, user2, [id, name, discriminator, avatar, bot, system]);
+        let deserialized = User::deserialize(&value).unwrap();
+        assert_eq_fields!(user, deserialized);
     }
 
     #[test]
@@ -113,9 +117,7 @@ mod tests {
             "id": "225336713231204353",
             "username": "Juici",
             "avatar": "a_e8b3a198dab6af59aacd1072bbedb255",
-            "discriminator": "0001",
-            "bot": false,
-            "system": false,
+            "discriminator": "0001"
         });
         let user = User {
             id: UserId::from(225336713231204353),
@@ -126,9 +128,7 @@ mod tests {
             system: false,
         };
 
-        let value2 = serde_json::to_value(user).unwrap();
-
-        assert_eq!(value, value2);
+        assert_eq!(value, serde_json::to_value(&user).unwrap());
     }
 
     #[test]
@@ -153,36 +153,18 @@ mod tests {
                 discriminator: "9999".parse().unwrap(),
                 avatar: Some("33ecab261d4681afa4d85a04691c4a01".to_owned()),
                 bot: false,
-                system: Default::default(),
+                system: bool::default(),
             },
             mfa_enabled: true,
-            locale: "en-US".to_string(),
+            locale: Locale::from_static("en-US"),
             verified: true,
             email: Some("test@example.com".to_owned()),
             flags: UserFlags::from_bits(64).unwrap(),
             premium_type: Some(PremiumType::NitroClassic),
         };
 
-        let user2: ClientUser = serde_json::from_value(value.clone()).unwrap();
-
-        assert_eq_fields!(
-            user,
-            user2,
-            [
-                id,
-                name,
-                discriminator,
-                avatar,
-                bot,
-                system,
-                mfa_enabled,
-                locale,
-                verified,
-                email,
-                flags,
-                premium_type,
-            ]
-        );
+        let deserialized = ClientUser::deserialize(&value).unwrap();
+        assert_eq_fields!(user, deserialized);
     }
 
     #[test]
@@ -206,36 +188,18 @@ mod tests {
                 discriminator: "0369".parse().unwrap(),
                 avatar: None,
                 bot: true,
-                system: Default::default(),
+                system: bool::default(),
             },
             mfa_enabled: true,
-            locale: "en-US".to_string(),
+            locale: Locale::from_static("en-US"),
             verified: true,
             email: None,
             flags: UserFlags::NONE,
             premium_type: None,
         };
 
-        let user2: ClientUser = serde_json::from_value(value.clone()).unwrap();
-
-        assert_eq_fields!(
-            user,
-            user2,
-            [
-                id,
-                name,
-                discriminator,
-                avatar,
-                bot,
-                system,
-                mfa_enabled,
-                locale,
-                verified,
-                email,
-                flags,
-                premium_type,
-            ]
-        );
+        let deserialized = ClientUser::deserialize(&value).unwrap();
+        assert_eq_fields!(user, deserialized);
     }
 
     #[test]
@@ -246,13 +210,11 @@ mod tests {
             "discriminator": "0369",
             "avatar": null,
             "bot": true,
-            "system": false,
             "mfa_enabled": true,
             "locale": "en-US",
             "verified": true,
             "email": null,
-            "premium_type": null,
-            "flags": 0,
+            "flags": 0
         });
         let user = ClientUser {
             user: User {
@@ -264,15 +226,13 @@ mod tests {
                 system: false,
             },
             mfa_enabled: true,
-            locale: "en-US".to_string(),
+            locale: Locale::from_static("en-US"),
             verified: true,
             email: None,
             flags: UserFlags::NONE,
             premium_type: None,
         };
 
-        let value2 = serde_json::to_value(user).unwrap();
-
-        assert_eq!(value, value2);
+        assert_eq!(value, serde_json::to_value(&user).unwrap());
     }
 }

@@ -43,15 +43,6 @@ impl Client {
         S: AsRef<str>,
         H: EventHandler + Send + Sync + 'static,
     {
-        let token = token.as_ref().trim();
-
-        // Prepend "Bot " to token if required.
-        let token = if token.starts_with("Bot ") {
-            token.to_string()
-        } else {
-            format!("Bot {}", token)
-        };
-
         let _http = Http::new(token);
 
         // TODO: thread pool

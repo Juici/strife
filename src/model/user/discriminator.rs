@@ -187,17 +187,17 @@ mod tests {
 
     #[test]
     fn test_serialize() {
-        let v = json!("0001");
+        let value = json!("0001");
         let d = Discriminator::new(1).unwrap();
 
-        assert_eq!(v, serde_json::to_value(&d).unwrap());
+        assert_eq!(value, serde_json::to_value(&d).unwrap());
     }
 
     #[test]
     fn test_deserialize() {
-        let v = json!("0001");
+        let value = json!("0001");
         let d = Discriminator::new(1).unwrap();
 
-        assert_eq!(d, serde_json::from_value(v).unwrap());
+        assert_eq!(d, Discriminator::deserialize(&value).unwrap());
     }
 }

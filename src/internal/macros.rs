@@ -19,16 +19,12 @@ macro_rules! pkg_repo {
 }
 
 #[doc(hidden)]
-macro_rules! api_base {
+macro_rules! __api {
     () => {
         "https://discordapp.com/api/v6"
     };
-}
-
-#[doc(hidden)]
-macro_rules! __api {
     (@s $s:expr) => {
-        concat!(api_base!(), $s)
+        concat!(__api!(), $s)
     };
     (@s $s:expr; @a $($arg:expr),*) => {
         format!(__api!(@s $s), $($arg),*)
@@ -61,6 +57,9 @@ macro_rules! __api {
 }
 
 macro_rules! api {
+    () => {
+        __api!()
+    };
     ($s:expr) => {
         __api!(@s $s)
     };
@@ -114,24 +113,38 @@ macro_rules! wrap {
     };
 }
 
+macro_rules! impl_to_snowflake {
+    ($T:ident: |$_self:ident| $($map:tt)*) => {
+        #[doc(hidden)]
+        impl $crate::model::snowflake::private::Sealed for $T {}
+
+        impl $crate::model::snowflake::ToSnowflake for $T {
+            fn snowflake(&self) -> $crate::model::snowflake::Snowflake {
+                match self {
+                    $_self => { $($map)* }
+                }
+            }
+        }
+    };
+}
+
 #[cfg(test)]
 mod tests {
     const ID: u64 = 80351110224678912;
 
     #[test]
     fn test_basic() {
-        assert_eq!(api_base!(), api!(""));
-        assert_eq!(concat!(api_base!(), "/guilds"), api!("/guilds"));
+        assert_eq!(concat!(api!(), "/guilds"), api!("/guilds"));
     }
 
     #[test]
     fn test_arg() {
         assert_eq!(
-            format!("{}/guilds/{}/audit-logs", api_base!(), ID),
+            format!("{}/guilds/{}/audit-logs", api!(), ID),
             api!("/guilds/{}/audit-logs", ID)
         );
         assert_eq!(
-            format!("{}/guilds/{}/audit-logs", api_base!(), ID),
+            format!("{}/guilds/{}/audit-logs", api!(), ID),
             api!("/guilds/{}/audit-logs", ID; [])
         );
     }
@@ -139,12 +152,7 @@ mod tests {
     #[test]
     fn test_query_basic() {
         let user_id: u64 = 123;
-        let url = format!(
-            "{}/guilds/{}/audit-logs?&user_id={}",
-            api_base!(),
-            ID,
-            user_id
-        );
+        let url = format!("{}/guilds/{}/audit-logs?&user_id={}", api!(), ID, user_id);
 
         assert_eq!(
             url,
@@ -157,7 +165,7 @@ mod tests {
     #[test]
     fn test_query_none() {
         let user_id: Option<u64> = None;
-        let url = format!("{}/guilds/{}/audit-logs?", api_base!(), ID);
+        let url = format!("{}/guilds/{}/audit-logs?", api!(), ID);
 
         assert_eq!(
             url,
@@ -172,7 +180,7 @@ mod tests {
         let user_id: Option<u64> = Some(456);
         let url = format!(
             "{}/guilds/{}/audit-logs?&user_id={}",
-            api_base!(),
+            api!(),
             ID,
             user_id.unwrap()
         );
@@ -194,7 +202,7 @@ mod tests {
 
         let url = format!(
             "{}/guilds/{}/audit-logs?&user_id={}&limit={}&action_type={}",
-            api_base!(),
+            api!(),
             ID,
             user_id,
             limit,

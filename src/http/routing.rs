@@ -7,7 +7,7 @@ use std::fmt::Write;
 
 use hyper::Method as HttpMethod;
 
-use crate::model::channel::OverwriteId;
+use crate::model::channel::permissions::OverwriteId;
 use crate::model::guild::{AuditLogEvent, Emoji};
 use crate::model::id::*;
 
@@ -249,6 +249,11 @@ pub enum Bucket {
     UsersMeChannels,
     /// Route:
     /// ```text
+    /// /users/@me/guilds
+    /// ```
+    UsersMeGuilds,
+    /// Route:
+    /// ```text
     /// /users/@me/guilds/{guild.id}
     /// ```
     UsersMeGuildsId(GuildId),
@@ -469,6 +474,7 @@ pub enum Route<'a> {
         channel_id: ChannelId,
     },
     GetCurrentUser,
+    GetCurrentUserGuilds,
     GetEmoji {
         guild_id: GuildId,
         emoji_id: EmojiId,
@@ -652,6 +658,7 @@ impl<'a> Route<'a> {
             GetChannels { .. } => Method::Get,
             GetChannelWebhooks { .. } => Method::Get,
             GetCurrentUser => Method::Get,
+            GetCurrentUserGuilds => Method::Get,
             GetEmoji { .. } => Method::Get,
             GetGateway => Method::Get,
             GetGuild { .. } => Method::Get,
@@ -815,6 +822,8 @@ impl<'a> Route<'a> {
             GetInvite { .. } | DeleteInvite { .. } => Bucket::InvitesCode,
 
             GetCurrentUser | EditCurrentUser | GetUser { .. } => Bucket::UsersId,
+
+            GetCurrentUserGuilds => Bucket::UsersMeGuilds,
 
             LeaveGuild { guild_id } => Bucket::UsersMeGuildsId(guild_id),
 
@@ -1130,6 +1139,8 @@ impl<'a> Route<'a> {
             DeleteInvite { code } => Cow::from(api!("/invites/{}", code)),
 
             GetCurrentUser | EditCurrentUser => Cow::from(api!("/users/@me")),
+
+            GetCurrentUserGuilds => Cow::from(api!("/users/@me/guilds")),
 
             GetUser { user_id } => Cow::from(api!("/users/{}", user_id)),
 

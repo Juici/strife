@@ -142,13 +142,13 @@ mod tests {
             | Permissions::READ_MESSAGE_HISTORY
             | Permissions::SEND_MESSAGES;
 
-        assert_eq!(perms, serde_json::from_value(value).unwrap());
+        assert_eq!(perms, Permissions::deserialize(&value).unwrap());
     }
 
     #[test]
     fn test_deserialize_invalid() {
         let value = serde_json::json!(0x00080000);
-        let err = serde_json::from_value::<Permissions>(value);
+        let err = Permissions::deserialize(&value);
 
         assert!(err.is_err());
         assert!(err.unwrap_err().is_data());
