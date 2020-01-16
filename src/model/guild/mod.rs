@@ -139,7 +139,7 @@ impl Default for MfaLevel {
     }
 }
 
-/// The tier of premium for a guild, provided by nitro boosts.
+/// The tier of premium for a guild, provided by Nitro boosts.
 #[non_exhaustive]
 #[int_enum::int_enum(u8)]
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -350,7 +350,7 @@ pub struct Guild {
     pub description: Option<String>,
     /// The hash of the guild banner.
     pub banner: Option<String>,
-    /// The tier of premium for the guild, provided by nitro boosts.
+    /// The tier of premium for the guild, provided by Nitro boosts.
     #[serde(default)]
     pub premium_tier: PremiumTier,
     /// The total number of users currently boosting the guild.

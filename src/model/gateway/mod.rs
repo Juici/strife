@@ -1,8 +1,10 @@
 //! Models related to the gateway.
 
+use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 
-use crate::model::id::UserId;
+use crate::model::gateway::activity::Activity;
+use crate::model::id::{GuildId, RoleId, UserId};
 use crate::model::user::User;
 
 pub mod activity;
@@ -21,10 +23,83 @@ pub enum PartialUser {
     },
 }
 
-//#[derive(Clone, Debug, Deserialize, Serialize)]
-// pub struct Presence {
-//    pub user: PartialUser,
-//}
+/// The online status of a [`User`] in a [`Presence`].
+///
+/// [`User`]: ../user/struct.User.html
+/// [`Presence`]: struct.Presence.html
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
+pub enum OnlineStatus {
+    /// Idle.
+    #[serde(rename = "idle")]
+    Idle,
+    /// Do not disturb.
+    #[serde(rename = "dnd")]
+    DoNotDisturb,
+    /// Online.
+    #[serde(rename = "online")]
+    Online,
+    /// Offline or invisible.
+    #[serde(rename = "offline")]
+    Offline,
+}
+
+impl OnlineStatus {
+    fn is_offline(&self) -> bool {
+        *self == OnlineStatus::Offline
+    }
+}
+
+impl Default for OnlineStatus {
+    fn default() -> Self {
+        OnlineStatus::Offline
+    }
+}
+
+/// Statuses of the active sessions for each platform for a [`User`].
+///
+/// [`User`]: ../user/struct.User.html
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+pub struct ClientStatus {
+    /// The status set for an active desktop (Windows, Linux, Mac) application
+    /// session.
+    #[serde(default, skip_serializing_if = "OnlineStatus::is_offline")]
+    pub desktop: OnlineStatus,
+    /// The status set for an active mobile (iOS, Android) application session.
+    #[serde(default, skip_serializing_if = "OnlineStatus::is_offline")]
+    pub mobile: OnlineStatus,
+    /// The status set for an active web (browser, bot account) application
+    /// session.
+    #[serde(default, skip_serializing_if = "OnlineStatus::is_offline")]
+    pub web: OnlineStatus,
+}
+
+/// The presence state of a [`User`] in a [`Guild`].
+///
+/// [`User`]: ../user/struct.User.html
+/// [`Guild`]: ../guild/struct.Guild.html
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Presence {
+    /// The user the presence relates to.
+    pub user: PartialUser,
+    /// The roles of the user.
+    pub roles: Vec<RoleId>,
+    /// The current activity of the user.
+    pub game: Option<Activity>,
+    /// The ID of the guild.
+    pub guild_id: GuildId,
+    /// The online status of the user.
+    pub status: OnlineStatus,
+    /// The current activities of the user.
+    pub activities: Vec<Activity>,
+    /// The platform dependent status of the user.
+    pub client_status: ClientStatus,
+    /// When the user Nitro boosted the guild.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub premium_since: Option<DateTime<FixedOffset>>,
+    /// The nickname of the user in the guild, if set.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub nick: Option<String>,
+}
 
 impl_eq_fields!(PartialUser: (a, b) => {
     match (a, b) {
@@ -33,6 +108,17 @@ impl_eq_fields!(PartialUser: (a, b) => {
         (a, b) => panic_ne_fields!(a, b),
     }
 });
+impl_eq_fields!(Presence: [
+    user,
+    roles,
+    game,
+    guild_id,
+    status,
+    activities,
+    client_status,
+    premium_since,
+    nick
+]);
 
 #[cfg(test)]
 mod tests {
