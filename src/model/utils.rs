@@ -118,3 +118,32 @@ pub mod serde_id_map {
         serializer.collect_seq(map.values())
     }
 }
+
+pub mod serde_option_timestamp {
+    use chrono::serde::ts_milliseconds;
+    use chrono::{DateTime, Utc};
+    use serde::{Deserialize, Deserializer, Serializer};
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<DateTime<Utc>>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        struct OptionWrapper(
+            #[serde(deserialize_with = "ts_milliseconds::deserialize")] DateTime<Utc>,
+        );
+
+        let v = Option::deserialize(deserializer)?;
+        Ok(v.map(|OptionWrapper(dt)| dt))
+    }
+
+    pub fn serialize<S>(dt: &Option<DateTime<Utc>>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match dt {
+            Some(dt) => ts_milliseconds::serialize(dt, serializer),
+            None => serializer.serialize_none(),
+        }
+    }
+}
