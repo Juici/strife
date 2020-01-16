@@ -116,8 +116,8 @@ pub struct Message {
 /// [`Message`]: struct.Message.html
 // TODO: Add docs.
 #[allow(missing_docs)]
-#[int_enum::int_enum(u8)]
 #[non_exhaustive]
+#[int_enum::int_enum(u8)]
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum MessageType {
     Default = 0,

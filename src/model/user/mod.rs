@@ -71,8 +71,8 @@ pub struct User {
 /// The level of premium a [`User`] has.
 ///
 /// [`User`]: struct.User.html
-#[int_enum::int_enum(u8)]
 #[non_exhaustive]
+#[int_enum::int_enum(u8)]
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum PremiumType {
     /// Nitro Classic.
