@@ -139,17 +139,17 @@ bitflags! {
     /// A set of flags describing an activity.
     #[derive(Default)]
     pub struct ActivityFlags: u8 {
-        #[allow(missing_docs)]
+        /// The activity is an instance activity.
         const INSTANCE = 1 << 0;
-        #[allow(missing_docs)]
+        /// The activity is joinable.
         const JOIN = 1 << 1;
-        #[allow(missing_docs)]
+        /// The activity can be spectated.
         const SPECTATE = 1 << 2;
-        #[allow(missing_docs)]
+        /// A request can be sent to join the activity party.
         const JOIN_REQUEST = 1 << 3;
-        #[allow(missing_docs)]
+        /// The activity can be synced.
         const SYNC = 1 << 4;
-        #[allow(missing_docs)]
+        /// The activity can be played.
         const PLAY = 1 << 5;
     }
 }
