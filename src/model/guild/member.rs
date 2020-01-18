@@ -35,8 +35,6 @@ impl ToSnowflakeId for Member {
     }
 }
 
-impl_to_snowflake!(Member: |member| member.id().snowflake());
-
 /// A member of a guild, with partial information.
 #[non_exhaustive]
 #[derive(Clone, Debug, Deserialize, Serialize)]

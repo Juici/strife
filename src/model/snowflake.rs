@@ -23,20 +23,20 @@ pub(crate) mod private {
     impl Sealed for super::Snowflake {}
 }
 
-/// A trait for types that have a Snowflake ID.
-pub trait ToSnowflake: private::Sealed {
+/// A trait for strongly-typed IDs that have a Snowflake ID.
+pub trait ToSnowflake: Copy + private::Sealed {
     /// Returns the Snowflake ID.
-    fn snowflake(&self) -> Snowflake;
+    fn snowflake(self) -> Snowflake;
 
     /// Gets the timestamp that the snowflake was created at.
-    fn created_at(&self) -> DateTime<FixedOffset> {
+    fn created_at(self) -> DateTime<FixedOffset> {
         self.snowflake().created_at()
     }
 }
 
 impl ToSnowflake for Snowflake {
-    fn snowflake(&self) -> Snowflake {
-        *self
+    fn snowflake(self) -> Snowflake {
+        self
     }
 }
 
@@ -48,7 +48,7 @@ pub struct Snowflake(u64);
 
 impl Snowflake {
     /// Gets the timestamp that the snowflake was created at.
-    pub fn created_at(&self) -> DateTime<FixedOffset> {
+    pub fn created_at(self) -> DateTime<FixedOffset> {
         // Snowflake timestamp is offset.
         let timestamp = (self.0 >> 22) + DISCORD_EPOCH;
 
@@ -92,12 +92,6 @@ impl From<Snowflake> for u64 {
 impl AsRef<u64> for Snowflake {
     fn as_ref(&self) -> &u64 {
         &self.0
-    }
-}
-
-impl AsMut<u64> for Snowflake {
-    fn as_mut(&mut self) -> &mut u64 {
-        &mut self.0
     }
 }
 

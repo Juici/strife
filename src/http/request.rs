@@ -12,8 +12,8 @@ use super::prelude::*;
 
 const RATELIMIT_PRECISION: &str = "x-ratelimit-precision";
 
-const APPLICATION_JSON: Bytes = Bytes::from_static(b"application/json");
-const MILLISECOND: Bytes = Bytes::from_static(b"millisecond");
+static APPLICATION_JSON: Bytes = Bytes::from_static(b"application/json");
+static MILLISECOND: Bytes = Bytes::from_static(b"millisecond");
 
 /// A request to be sent by the [`Http`] client.
 ///
@@ -149,7 +149,7 @@ impl<'a> Request<'a> {
         // invalid bytes, since we can validate this before compile time.
 
         // SAFETY: "millisecond" contains no invalid bytes.
-        let millisecond = unsafe { HeaderValue::from_maybe_shared_unchecked(MILLISECOND) };
+        let millisecond = unsafe { HeaderValue::from_maybe_shared_unchecked(MILLISECOND.clone()) };
 
         // Add base headers, cannot be overridden by custom headers.
         headers.insert(USER_AGENT, HeaderValue::from_static(constants::USER_AGENT));
@@ -159,7 +159,7 @@ impl<'a> Request<'a> {
         // Allow content-type to be overridden by custom headers.
         let _ = headers.entry(CONTENT_TYPE).or_insert_with(|| unsafe {
             // SAFETY: "application/json" contains no invalid bytes.
-            HeaderValue::from_maybe_shared_unchecked(APPLICATION_JSON)
+            HeaderValue::from_maybe_shared_unchecked(APPLICATION_JSON.clone())
         });
 
         Ok(headers)

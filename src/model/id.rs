@@ -62,7 +62,14 @@ macro_rules! id_type {
             }
         }
 
-        impl_to_snowflake!($Id: |id| id.0);
+        #[doc(hidden)]
+        impl $crate::model::snowflake::private::Sealed for $Id {}
+
+        impl ToSnowflake for $Id {
+            fn snowflake(self) -> Snowflake {
+                self.0
+            }
+        }
     )*};
 }
 
@@ -127,10 +134,10 @@ pub(crate) mod private {
     pub trait Sealed {}
 }
 
-/// A trait that have a strongly-typed Snowflake ID.
+/// A trait for types that have a strongly-typed Snowflake ID.
 pub trait ToSnowflakeId: private::Sealed {
     /// The strongly-typed Snowflake ID type.
-    type Id: ToSnowflake + Copy + Debug + Display + Eq + Hash;
+    type Id: ToSnowflake + Debug + Display + Eq + Hash;
 
     /// Returns the Snowflake ID.
     fn id(&self) -> Self::Id;
@@ -148,8 +155,6 @@ macro_rules! impl_to_id {
                 self.$field
             }
         }
-
-        impl_to_snowflake!($Parent: |parent| parent.id().snowflake());
     };
     ($(
         $Parent:ident => $field:ident: $Id:ident;
@@ -180,4 +185,4 @@ impl_to_id! {
     VoiceChannel => id: ChannelId;
 }
 
-// TODO: Implement ToSnowflakeId for other types.
+// TODO: Implement ToSnowflakeId for other strongly-typed IDs.

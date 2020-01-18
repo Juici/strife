@@ -34,8 +34,6 @@ impl ToSnowflakeId for PartialUser {
     }
 }
 
-impl_to_snowflake!(PartialUser: |user| user.id().snowflake());
-
 /// The online status of a [`User`] in a [`Presence`].
 ///
 /// [`User`]: ../../user/struct.User.html
@@ -57,8 +55,14 @@ pub enum OnlineStatus {
 }
 
 impl OnlineStatus {
+    /// Used in serde `skip_serializing_if` attribute.
+    #[allow(clippy::trivially_copy_pass_by_ref)]
+    #[inline]
     fn is_offline(&self) -> bool {
-        *self == OnlineStatus::Offline
+        match self {
+            OnlineStatus::Offline => true,
+            _ => false,
+        }
     }
 }
 
@@ -123,8 +127,6 @@ impl ToSnowflakeId for Presence {
         self.user.id()
     }
 }
-
-impl_to_snowflake!(Presence: |presence| presence.id().snowflake());
 
 impl_eq_fields!(PartialUser: (a, b) => {
     match (a, b) {

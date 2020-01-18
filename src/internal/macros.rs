@@ -113,21 +113,6 @@ macro_rules! wrap {
     };
 }
 
-macro_rules! impl_to_snowflake {
-    ($T:ident: |$_self:ident| $($map:tt)*) => {
-        #[doc(hidden)]
-        impl $crate::model::snowflake::private::Sealed for $T {}
-
-        impl $crate::model::snowflake::ToSnowflake for $T {
-            fn snowflake(&self) -> $crate::model::snowflake::Snowflake {
-                match self {
-                    $_self => { $($map)* }
-                }
-            }
-        }
-    };
-}
-
 #[cfg(test)]
 mod tests {
     const ID: u64 = 80351110224678912;

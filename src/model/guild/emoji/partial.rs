@@ -76,7 +76,7 @@ impl Display for CustomEmoji {
 }
 
 /// An emoji, with partial information.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum PartialEmoji {
     /// A standard unicode emoji.
     Standard(Cow<'static, str>),
@@ -135,15 +135,6 @@ impl Display for PartialEmoji {
         match self {
             PartialEmoji::Standard(name) => f.write_str(name),
             PartialEmoji::Custom(emoji) => emoji.fmt(f),
-        }
-    }
-}
-
-impl Hash for PartialEmoji {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        match self {
-            PartialEmoji::Standard(name) => name.hash(state),
-            PartialEmoji::Custom(emoji) => emoji.hash(state),
         }
     }
 }
@@ -260,11 +251,11 @@ impl<'de> Deserialize<'de> for PartialEmoji {
                 Ok(match id {
                     Some(id) => {
                         let name = name.map(Cow::Owned);
-                        let animated = animated.unwrap_or_default();
+                        let animated = animated.unwrap_or(false);
                         PartialEmoji::Custom(CustomEmoji { id, name, animated })
                     }
                     None => {
-                        let name = name.ok_or(de::Error::missing_field("name"))?;
+                        let name = name.ok_or_else(|| de::Error::missing_field("name"))?;
                         PartialEmoji::standard(name)
                     }
                 })

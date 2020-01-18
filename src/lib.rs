@@ -2,6 +2,7 @@
 
 #![doc(html_root_url = "https://docs.rs/strife/*")]
 #![deny(missing_docs)]
+#![allow(clippy::identity_op)]
 
 mod error;
 #[macro_use]

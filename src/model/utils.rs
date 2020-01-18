@@ -1,9 +1,12 @@
 /// Used in serde `skip_serializing_if` attribute.
+#[allow(clippy::trivially_copy_pass_by_ref)]
+#[inline]
 pub fn is_false(b: &bool) -> bool {
     !b
 }
 
 /// Used in serde `default` attribute.
+#[inline]
 pub fn default_true() -> bool {
     true
 }
@@ -59,6 +62,10 @@ int_visitor! {
 /// Serde mappings of sequences of objects with Snowflake IDs to HashMaps keyed
 /// with by the Snowflake IDs.
 pub mod serde_id_map {
+    // ToSnowflakeId::Id is marked as interior mutable by clippy, but due to the
+    // trait being sealed we can assert it is not.
+    #![allow(clippy::mutable_key_type)]
+
     use std::collections::HashMap;
     use std::fmt;
     use std::marker::PhantomData;
@@ -89,8 +96,10 @@ pub mod serde_id_map {
         where
             A: de::SeqAccess<'de>,
         {
-            let mut map: HashMap<V::Id, V> =
-                HashMap::with_capacity(seq.size_hint().unwrap_or_default());
+            // Default to `0` to avoid allocations for empty maps.
+            let size = seq.size_hint().unwrap_or(0);
+
+            let mut map: HashMap<V::Id, V> = HashMap::with_capacity(size);
 
             while let Some(value) = seq.next_element::<V>()? {
                 if let Some(existing) = map.insert(<V as ToSnowflakeId>::id(&value), value) {

@@ -81,6 +81,7 @@ impl PermissionOverwrite {
     }
 }
 
+#[doc(hidden)]
 impl crate::model::id::private::Sealed for PermissionOverwrite {}
 
 impl ToSnowflakeId for PermissionOverwrite {
@@ -91,21 +92,15 @@ impl ToSnowflakeId for PermissionOverwrite {
     }
 }
 
+#[doc(hidden)]
 impl crate::model::snowflake::private::Sealed for OverwriteId {}
-impl crate::model::snowflake::private::Sealed for PermissionOverwrite {}
 
 impl ToSnowflake for OverwriteId {
-    fn snowflake(&self) -> Snowflake {
+    fn snowflake(self) -> Snowflake {
         match self {
             OverwriteId::Role(id) => id.snowflake(),
             OverwriteId::User(id) => id.snowflake(),
         }
-    }
-}
-
-impl ToSnowflake for PermissionOverwrite {
-    fn snowflake(&self) -> Snowflake {
-        self.id.snowflake()
     }
 }
 

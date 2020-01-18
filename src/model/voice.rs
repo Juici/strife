@@ -81,13 +81,13 @@ impl PartialEq<str> for VoiceRegionId {
 
 impl PartialEq<String> for VoiceRegionId {
     fn eq(&self, other: &String) -> bool {
-        self.0 == &other[..]
+        self.0 == other[..]
     }
 }
 
 impl<'a> PartialEq<Cow<'a, str>> for VoiceRegionId {
     fn eq(&self, other: &Cow<'a, str>) -> bool {
-        &self.0[..] == &other[..]
+        self.0[..] == other[..]
     }
 }
 

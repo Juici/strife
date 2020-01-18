@@ -1,5 +1,7 @@
 //! Models a color as an integer matching the Discord API representation.
 
+#![allow(clippy::unreadable_literal)]
+
 use std::fmt;
 
 use serde::{Deserialize, Serialize};

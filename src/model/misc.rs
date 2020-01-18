@@ -84,12 +84,12 @@ impl PartialEq<str> for Locale {
 
 impl PartialEq<String> for Locale {
     fn eq(&self, other: &String) -> bool {
-        self.0 == &other[..]
+        self.0 == other[..]
     }
 }
 
 impl<'a> PartialEq<Cow<'a, str>> for Locale {
     fn eq(&self, other: &Cow<'a, str>) -> bool {
-        &self.0[..] == &other[..]
+        self.0[..] == other[..]
     }
 }

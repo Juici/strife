@@ -73,8 +73,6 @@ impl ToSnowflakeId for GuildChannel {
     }
 }
 
-impl_to_snowflake!(GuildChannel: |channel| channel.id().snowflake());
-
 impl GuildChannel {
     pub(crate) fn from_value<E>(
         kind: ChannelType,

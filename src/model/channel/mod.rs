@@ -47,9 +47,9 @@ impl ChannelType {
         match map.get("type") {
             Some(kind) => match Deserialize::deserialize(kind) {
                 Ok(kind) => Ok(kind),
-                Err(_) => return Err(E::custom(format_args!("unknown channel type: {}", kind))),
+                Err(_) => Err(E::custom(format_args!("unknown channel type: {}", kind))),
             },
-            None => return Err(E::missing_field("type")),
+            None => Err(E::missing_field("type")),
         }
     }
 }
@@ -101,8 +101,6 @@ impl ToSnowflakeId for Channel {
         }
     }
 }
-
-impl_to_snowflake!(Channel: |channel| channel.id().snowflake());
 
 impl Serialize for Channel {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
