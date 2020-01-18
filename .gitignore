@@ -4,4 +4,4 @@
 Cargo.lock
 
 # Discord Token
-examples/.token
+.discord_token
