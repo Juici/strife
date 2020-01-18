@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Client","A client that connects to Discord via the WebSocket and API."]],"trait":[["EventHandler","Trait for handling events for a `Client`."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["OverwriteId","The ID of a [`PermissionOverwrite`]."]],"struct":[["PermissionOverwrite","Channel-specific permission overwrites for a role or user."]]});

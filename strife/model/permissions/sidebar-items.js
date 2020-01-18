@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Permissions","A set of permissions for a [`Role`] or [`User`]."]]});

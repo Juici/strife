@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["HttpError","An HTTP error."]],"mod":[["unstable","Unstable HTTP API."]],"struct":[["Http","An HTTP client for performing requests to the REST API."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Color","A color used in the Discord API."]]});

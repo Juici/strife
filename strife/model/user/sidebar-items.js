@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["DiscriminatorParseError","An error parsing a 4-digit discriminator tag."],["PremiumType","The level of premium a [`User`] has."]],"struct":[["ClientUser","The client user."],["Discriminator","A 4-digit user discriminator tag."],["User","A user."],["UserFlags","Flags on a [`User`] account."]]});

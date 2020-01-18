@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["OnlineStatus","The online status of a [`User`] in a [`Presence`]."],["PartialUser","A user with possibly only partial information."]],"struct":[["ClientStatus","Statuses of the active sessions for each platform for a [`User`]."],["Presence","The presence state of a [`User`] in a [`Guild`]."]]});

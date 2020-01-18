@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["VoiceRegion","A voice region that can be used."],["VoiceRegionId","The ID of a [`VoiceRegion`]."],["VoiceState","The voice connection state of a [`User`]."]]});

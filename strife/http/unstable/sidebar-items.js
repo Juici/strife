@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Route","An API endpoint."]],"struct":[["Request","A request to be sent by the [`Http`] client."]]});

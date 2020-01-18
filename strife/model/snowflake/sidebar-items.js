@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Snowflake","A [`Snowflake`] is a 64 bit unique ID."]],"trait":[["ToSnowflake","A trait for strongly-typed IDs that have a Snowflake ID."]]});
