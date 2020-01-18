@@ -233,9 +233,11 @@ fn parse_header<T: FromStr>(headers: &HeaderMap, header: &str) -> Result<Option<
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use hyper::header::{HeaderName, HeaderValue};
     use std::iter::FromIterator;
+
+    use hyper::header::{HeaderName, HeaderValue};
+
+    use super::*;
 
     #[test]
     fn test_parse_header() {

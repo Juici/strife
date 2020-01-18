@@ -65,13 +65,3 @@ impl<'de> Deserialize<'de> for UserFlags {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_default() {
-        assert_eq!(UserFlags::default(), UserFlags::empty());
-    }
-}
