@@ -84,7 +84,7 @@ impl RateLimiter {
                 // Parse the retry-after header.
                 match parse_header::<u64>(response.headers(), RETRY_AFTER)? {
                     Some(retry_after) => {
-                        log::debug!("Ratelimited on bucket {:?} for {}ms", &bucket, retry_after);
+                        log::debug!("ratelimited on bucket {:?} for {}ms", &bucket, retry_after);
 
                         // Wait for ratelimit delay.
                         Delay::new(Duration::from_millis(retry_after)).await;
@@ -149,7 +149,7 @@ impl RateLimit {
             let delay = delay as u64;
 
             log::debug!(
-                "Pre-emptive ratelimit on bucket {:?} for {}ms",
+                "pre-emptive ratelimit on bucket {:?} for {}ms",
                 bucket,
                 delay
             );
@@ -191,7 +191,7 @@ impl RateLimit {
 
         match parse_header::<u64>(&response.headers(), RETRY_AFTER)? {
             Some(retry_after) => {
-                log::debug!("Ratelimited on route {:?} for {}ms", bucket, retry_after);
+                log::debug!("ratelimited on route {:?} for {}ms", bucket, retry_after);
                 Delay::new(Duration::from_millis(retry_after)).await;
 
                 Ok(true)
