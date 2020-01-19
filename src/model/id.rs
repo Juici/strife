@@ -15,6 +15,19 @@ use crate::model::guild::{CustomEmoji, Emoji, Guild, PartialGuild, Role};
 use crate::model::snowflake::{Snowflake, ToSnowflake};
 use crate::model::user::{ClientUser, User};
 
+pub(crate) mod private {
+    pub trait Sealed {}
+}
+
+/// A trait for types that have a strongly-typed Snowflake ID.
+pub trait ToSnowflakeId: private::Sealed {
+    /// The strongly-typed Snowflake ID type.
+    type Id: ToSnowflake + Debug + Display + Eq + Hash;
+
+    /// Returns the Snowflake ID.
+    fn id(&self) -> Self::Id;
+}
+
 macro_rules! id_type {
     ($(
         $(#[$attr:meta])*
@@ -68,6 +81,17 @@ macro_rules! id_type {
         impl ToSnowflake for $Id {
             fn snowflake(self) -> Snowflake {
                 self.0
+            }
+        }
+
+        #[doc(hidden)]
+        impl private::Sealed for $Id {}
+
+        impl ToSnowflakeId for $Id {
+            type Id = $Id;
+
+            fn id(&self) -> Self::Id {
+                *self
             }
         }
     )*};
@@ -128,19 +152,6 @@ id_type! {
     ///
     /// [`Webhook`]: TODO
     WebhookId;
-}
-
-pub(crate) mod private {
-    pub trait Sealed {}
-}
-
-/// A trait for types that have a strongly-typed Snowflake ID.
-pub trait ToSnowflakeId: private::Sealed {
-    /// The strongly-typed Snowflake ID type.
-    type Id: ToSnowflake + Debug + Display + Eq + Hash;
-
-    /// Returns the Snowflake ID.
-    fn id(&self) -> Self::Id;
 }
 
 macro_rules! impl_to_id {
