@@ -4,13 +4,13 @@ use bytes::Bytes;
 use hyper::StatusCode;
 use serde::de::DeserializeOwned;
 
+use crate::builder::CreateChannel;
 use crate::internal::prelude::*;
 use crate::model::id::{ChannelId, GuildId, RoleId, ToSnowflakeId, UserId};
 
 use super::error::ErrorResponse;
 use super::prelude::*;
 use super::ratelimit::RateLimiter;
-use crate::model::channel::GuildChannel;
 
 /// An HTTP client for performing requests to the REST API.
 pub struct Http {
@@ -158,17 +158,28 @@ impl Http {
     /// Requires the [`MANAGE_CHANNELS`] permission.
     ///
     /// [`Channel`]: ../model/channel/enum.Channel.html
+    /// [`Guild`]: ../model/guild/struct.Guild.html
     /// [`GuildChannel`]: ../model/channel/guild/enum.GuildChannel.html
     #[doc = "\n[`MANAGE_CHANNELS`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_CHANNELS"]
-    pub async fn create_channel<G>(&self, guild: G) -> Result<GuildChannel>
+    pub async fn create_channel<G, S, F, T>(
+        &self,
+        guild: G,
+        name: S,
+        create_channel: F,
+    ) -> Result<T>
     where
         G: ToSnowflakeId<Id = GuildId>,
+        S: Into<String>,
+        F: FnOnce(&mut CreateChannel<T>),
+        T: crate::builder::marker::GuildChannelMarker + DeserializeOwned,
     {
         let guild_id = guild.id();
 
-        let request = Request::new(Route::CreateChannel { guild_id });
+        let mut channel = CreateChannel::<T>::create(name);
+        create_channel(&mut channel);
 
-        // TODO: Add body https://discordapp.com/developers/docs/resources/guild#create-guild-channel.
+        let mut request = Request::new(Route::CreateChannel { guild_id });
+        request.json(&channel)?;
 
         self.request(request).await
     }

@@ -8,6 +8,7 @@ mod error;
 #[macro_use]
 mod internal;
 
+pub mod builder;
 pub mod client;
 pub mod constants;
 pub mod http;
