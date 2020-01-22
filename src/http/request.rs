@@ -23,7 +23,7 @@ static MILLISECOND: Bytes = Bytes::from_static(b"millisecond");
 /// API use the functions on the [`Http`] client.
 ///
 /// [`Http`]: ../struct.Http.html
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Request<'a> {
     pub(crate) headers: Option<HeaderMap>,
     pub(crate) body: Option<Bytes>,

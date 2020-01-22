@@ -12,3 +12,4 @@ pub mod permissions;
 pub mod snowflake;
 pub mod user;
 pub mod voice;
+pub mod webhook;
