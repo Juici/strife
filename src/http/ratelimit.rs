@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::str::FromStr;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use std::{i64, str};
 
 use async_std::sync::{Arc, Mutex, RwLock};
@@ -28,7 +28,7 @@ pub struct RateLimiter {
     token: Bytes,
     client: Arc<HyperClient>,
     global: Arc<Mutex<()>>,
-    routes: Arc<RwLock<HashMap<Bucket, Arc<Mutex<RateLimit>>>>>,
+    buckets: Arc<RwLock<HashMap<Bucket, Arc<Mutex<RateLimit>>>>>,
 }
 
 impl RateLimiter {
@@ -41,73 +41,143 @@ impl RateLimiter {
             token: token.into(),
             client,
             global: Default::default(),
-            routes: Default::default(),
+            buckets: Default::default(),
         }
     }
 
     /// Performs a ratelimited request.
     pub async fn perform(&self, request: &Request<'_>) -> Result<HttpResponse> {
+        log::trace!("performing request: {:#?}", request);
+
         let bucket = request.route.bucket();
 
         loop {
-            // Block if the global ratelimit has been reached by another thread.
-            // Drop instantly to prevent blocking other threads.
-            drop(self.global.lock().await);
+            // Build request and apply pre-request hooks before blocking on global
+            // ratelimit, to reduce wasted time.
 
+            // Build request with token.
             let req = request.build(self.token.clone())?;
 
-            // No rate limits apply.
-            if bucket == Bucket::None {}
-
             // Get the ratelimits for the bucket.
-            let bucket_mtx = self.routes.write().await.entry(bucket).or_default().clone();
+            let bucket_mtx = match bucket {
+                // No ratelimits.
+                Bucket::None => None,
+                // Get the ratelimits for the bucket.
+                bucket => {
+                    // Since it's potentially costly to acquire a write lock when not needed, get a
+                    // read lock and attempt to get the ratelimits mutex for the bucket.
+                    let bucket_mtx = {
+                        // Get a read lock on the bucket map.
+                        let buckets = self.buckets.read().await;
+                        // Get the ratelimits mutex for the bucket.
+                        buckets.get(&bucket).cloned()
+                    };
 
-            // Apply pre-request hooks.
-            bucket_mtx.lock().await.pre_hook(&bucket).await;
+                    // If there was no ratelimits mutex for the bucket, we will have to create a new
+                    // default one and insert it back into the map.
+                    let bucket_mtx = match bucket_mtx {
+                        Some(bucket_mtx) => bucket_mtx,
+                        None => {
+                            // Create a new default ratelimits mutex.
+                            let bucket_mtx = Arc::new(Mutex::new(RateLimit::default()));
+                            // Get a write lock on the bucket map.
+                            let mut buckets = self.buckets.write().await;
+                            // Insert the new ratelimits mutex for the bucket.
+                            let _ = buckets.insert(bucket, bucket_mtx.clone());
+                            bucket_mtx
+                        }
+                    };
 
+                    // Apply pre-request hooks, awaiting ratelimits if required.
+                    bucket_mtx.lock().await.pre_hook(&bucket).await;
+
+                    Some(bucket_mtx)
+                }
+            };
+
+            // Block if the global ratelimit has been reached by another thread.
+            // Drop instantly to prevent blocking other threads.
+            let _ = self.global.lock().await;
+
+            // Send the request and await response.
             let response = self
                 .client
                 .request(req)
                 .await
                 .map_err(HttpError::HyperError)?;
 
-            // No ratelimits apply to this request.
-            if bucket == Bucket::None {
-                return Ok(response);
-            }
+            let bucket_mtx = match bucket_mtx {
+                Some(bucket_mtx) => bucket_mtx,
+                // No ratelimits apply to this request, return early.
+                None => return Ok(response),
+            };
+
+            // Global ratelimit and bucket ratelimits are mutually exclusive, it is not
+            // possible to hit both at the same time.
 
             // Check if global ratelimit was hit.
             if response.headers().contains_key(RATELIMIT_GLOBAL) {
-                // Lock on global ratelimit mutex to block other threads.
-                let _global = self.global.lock().await;
-
                 // Parse the retry-after header.
                 match parse_header::<u64>(response.headers(), RETRY_AFTER)? {
+                    Some(0) => {}
                     Some(retry_after) => {
-                        log::debug!("ratelimited on bucket {:?} for {}ms", &bucket, retry_after);
+                        // Instant before retrieving a lock on global ratelimit mutex.
+                        let now = Instant::now();
 
-                        // Wait for ratelimit delay.
-                        Delay::new(Duration::from_millis(retry_after)).await;
+                        // Lock on global ratelimit mutex to block other threads.
+                        let _global = self.global.lock().await;
 
-                        // Request needs to be resent.
-                        continue;
+                        // The time elapsed since the instant before retrieving the lock global
+                        // ratelimit mutex.
+                        let elapsed = now.elapsed();
+                        // The duration of the retry-after delay.
+                        let delay = Duration::from_millis(retry_after);
+
+                        /// A zero duration constant for comparison below.
+                        const ZERO_DURATION: Duration = Duration::from_secs(0);
+
+                        // Compare the ratelimit delay to the elapsed time.
+                        match delay.checked_sub(elapsed) {
+                            // The elapsed time is greater than or equal to the target delay.
+                            None | Some(ZERO_DURATION) => {}
+                            // Wait for the difference between the target delay and elapsed time.
+                            Some(delay) => {
+                                log::debug!("ratelimited globally for {}ms", retry_after);
+
+                                // Wait for delay.
+                                Delay::new(delay).await;
+                            }
+                        }
                     }
-                    None => return Ok(response),
+                    // The global ratelimit was hit, but there is no retry-after header.
+                    // This shouldn't happen and would be an error on the part of the Discord API.
+                    // In this case, just return the response and log a warning.
+                    #[cold]
+                    None => {
+                        log::warn!(
+                            "global ratelimit hit, but no retry-after header found: {:#?}",
+                            response
+                        );
+
+                        return Ok(response);
+                    }
+                }
+            } else {
+                // Apply post-request hooks and await bucket ratelimits.
+                let resend = bucket_mtx
+                    .lock()
+                    .await
+                    .post_hook(&response, &bucket)
+                    .await?;
+
+                // Request was sent, return the response.
+                if !resend {
+                    return Ok(response);
                 }
             }
 
-            // Check if bucket ratelimit was hit.
-            let resend = {
-                let mut lock = bucket_mtx.lock().await;
-                lock.post_hook(&response, &bucket).await?
-            };
-
-            // Request was sent, return the response.
-            if !resend {
-                return Ok(response);
-            }
-
-            // Request needs to be resent.
+            // Request needs to be resent, go to start of next loop.
+            continue;
         }
     }
 }
@@ -223,6 +293,7 @@ fn parse_header<T: FromStr>(headers: &HeaderMap, header: &str) -> Result<Option<
     let bytes = value.as_bytes();
     let s = str::from_utf8(bytes)
         .map_err(|_| HttpError::InvalidHeader(Bytes::copy_from_slice(bytes)))?;
+
     let value: T = s.parse().map_err(|_| HttpError::ParseHeaderError {
         name: header.to_string(),
         value: Bytes::copy_from_slice(bytes),

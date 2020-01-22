@@ -276,6 +276,7 @@ pub enum Bucket {
     WebhooksIdToken(WebhookId),
 
     /// Routes where no rate limits are in place.
+    #[allow(dead_code)]
     #[remain::unsorted]
     None,
 }
