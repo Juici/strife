@@ -6,7 +6,7 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 
 use crate::builder::marker::GuildChannelBuilder;
-use crate::builder::{CreateChannel, CreateGuild, CreateInvite, EditChannel};
+use crate::builder::{CreateChannel, CreateGuild, CreateInvite, CreateMessage, EditChannel};
 use crate::internal::prelude::*;
 use crate::model::emoji::Emoji;
 use crate::model::guild::Guild;
@@ -17,6 +17,7 @@ use crate::model::webhook::Webhook;
 use super::error::ErrorResponse;
 use super::prelude::*;
 use super::ratelimit::RateLimiter;
+use crate::model::channel::Message;
 use crate::model::guild::invite::Invite;
 
 /// An HTTP client for performing requests to the REST API.
@@ -252,7 +253,7 @@ impl Http {
 
     // TODO: create_integration
 
-    /// Create a new [`Invite`] for the specified [`GuildChannel`].
+    /// Creates a new [`Invite`] for the specified [`GuildChannel`].
     ///
     /// Requires the [`CREATE_INSTANT_INVITE`] permission.
     ///
@@ -268,6 +269,31 @@ impl Http {
 
         let mut request = Request::new(Route::CreateInvite { channel_id });
         request.json(&invite)?;
+
+        self.request(request).await
+    }
+
+    /// Creates a new [`Message`] in the specified [`Channel`].
+    ///
+    /// Requires the [`SEND_MESSAGES`] permission if in a [`Guild`].
+    ///
+    /// [`Message`]: ../model/channel/message/struct.Message.html
+    /// [`Channel`]: ../model/channel/enum.Channel.html
+    /// [`Guild`]: ../model/guild/struct.Guild.html
+    #[doc = "\n[`SEND_MESSAGES`]: ../model/permissions/struct.Permissions.html#associatedconstant.SEND_MESSAGES"]
+    pub async fn create_message<F>(
+        &self,
+        channel_id: ChannelId,
+        create_message: F,
+    ) -> Result<Message>
+    where
+        F: FnOnce(&mut CreateMessage),
+    {
+        let mut msg = CreateMessage::create();
+        create_message(&mut msg);
+
+        let mut request = Request::new(Route::CreateMessage { channel_id });
+        request.json(&msg)?;
 
         self.request(request).await
     }
