@@ -10,11 +10,12 @@ pub mod permissions;
 use serde::de;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
+use crate::model::id::{ChannelId, ToSnowflakeId};
+
 pub use self::dm_channel::DMChannel;
 pub use self::group::Group;
 pub use self::guild::GuildChannel;
 pub use self::message::Message;
-use crate::model::id::{ChannelId, ToSnowflakeId};
 
 /// The type of a channel.
 #[non_exhaustive]

@@ -4,6 +4,7 @@ mod utils;
 
 pub mod channel;
 pub mod color;
+pub mod emoji;
 pub mod gateway;
 pub mod guild;
 pub mod id;

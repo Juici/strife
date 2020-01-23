@@ -1,22 +1,15 @@
 use serde::{Deserialize, Serialize};
 
+use crate::model::channel::guild::PartialGuildChannel;
 use crate::model::channel::permissions::PermissionOverwrite;
-use crate::model::channel::ChannelType;
 use crate::model::id::{ChannelId, GuildId};
 
 /// A channel in which game developers can sell games on Discord.
 #[non_exhaustive]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct StoreChannel {
-    /// The ID of the channel.
-    pub id: ChannelId,
-    /// The type of the channel.
-    ///
-    /// This should always be [`ChannelType::Store`].
-    ///
-    /// [`ChannelType::Store`]: ../enum.ChannelType.html#variant.Store
-    #[serde(rename = "type")]
-    pub(crate) kind: ChannelType,
+    #[serde(flatten)]
+    channel: PartialGuildChannel,
     /// The ID of the guild.
     pub guild_id: GuildId,
     /// The sorting position of the chanel.
@@ -24,8 +17,6 @@ pub struct StoreChannel {
     /// A collection of explicit permission overwrites for members and roles.
     #[serde(default)]
     pub permission_overwrites: Vec<PermissionOverwrite>,
-    /// The name of the channel.
-    pub name: String,
     /// Whether the channel is NSFW.
     #[serde(default)]
     pub nsfw: bool,
@@ -33,14 +24,13 @@ pub struct StoreChannel {
     #[serde(default)]
     pub parent_id: Option<ChannelId>,
 }
+wrap!(StoreChannel => mut channel: PartialGuildChannel);
 
 impl_eq_fields!(StoreChannel: [
-    id,
-    kind,
+    channel,
     guild_id,
     position,
     permission_overwrites,
-    name,
     nsfw,
     parent_id,
 ]);
@@ -49,7 +39,7 @@ impl_eq_fields!(StoreChannel: [
 mod tests {
     use serde_json::json;
 
-    use crate::model::channel::{Channel, GuildChannel};
+    use crate::model::channel::{Channel, ChannelType, GuildChannel};
 
     use super::*;
 
@@ -66,12 +56,14 @@ mod tests {
           "parent_id": null
         });
         let channel = StoreChannel {
-            id: ChannelId::from(41771983423143937),
-            kind: ChannelType::Store,
+            channel: PartialGuildChannel {
+                id: ChannelId::from(41771983423143937),
+                kind: ChannelType::Store,
+                name: "buy dota-2".to_owned(),
+            },
             guild_id: GuildId::from(41771983423143937),
             position: 0,
             permission_overwrites: vec![],
-            name: "buy dota-2".to_owned(),
             nsfw: false,
             parent_id: None,
         };
@@ -97,12 +89,14 @@ mod tests {
           "parent_id": null
         });
         let channel = StoreChannel {
-            id: ChannelId::from(41771983423143937),
-            kind: ChannelType::Store,
+            channel: PartialGuildChannel {
+                id: ChannelId::from(41771983423143937),
+                kind: ChannelType::Store,
+                name: "buy dota-2".to_owned(),
+            },
             guild_id: GuildId::from(41771983423143937),
             position: 0,
             permission_overwrites: vec![],
-            name: "buy dota-2".to_owned(),
             nsfw: false,
             parent_id: None,
         };

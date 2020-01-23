@@ -7,11 +7,12 @@ use std::ops::Deref;
 use serde::{Deserialize, Serialize};
 
 use crate::model::channel::guild::{
-    Category, NewsChannel, StoreChannel, TextChannel, VoiceChannel,
+    Category, NewsChannel, PartialGuildChannel, StoreChannel, TextChannel, VoiceChannel,
 };
 use crate::model::channel::message::Attachment;
-use crate::model::channel::{DMChannel, Group, Message};
-use crate::model::guild::{CustomEmoji, Emoji, Guild, PartialGuild, Role};
+use crate::model::channel::{DMChannel, Group, GuildChannel, Message};
+use crate::model::emoji::{CustomEmoji, Emoji};
+use crate::model::guild::{Guild, PartialGuild, Role};
 use crate::model::snowflake::{Snowflake, ToSnowflake};
 use crate::model::user::{ClientUser, User};
 
@@ -120,7 +121,7 @@ id_type! {
 
     /// The ID of an [`Emoji`].
     ///
-    /// [`Emoji`]: ../guild/struct.Emoji.html
+    /// [`Emoji`]: ../emoji/struct.Emoji.html
     EmojiId;
 
     /// The ID of a [`Guild`].
@@ -187,6 +188,8 @@ impl_to_id! {
 }
 
 impl_to_id! {
+    PartialGuildChannel => id: ChannelId;
+    GuildChannel => id: ChannelId;
     Category => id: ChannelId;
     DMChannel => id: ChannelId;
     Group => id: ChannelId;

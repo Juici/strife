@@ -1,3 +1,5 @@
+//! Models related to guild audit logs.
+
 /// The [type of action] that occurred in an [`AuditLogEntry`].
 ///
 /// [type of action]: https://discordapp.com/developers/docs/resources/audit-log#audit-log-entry-object-audit-log-events

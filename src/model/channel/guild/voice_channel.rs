@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::model::channel::guild::PartialGuildChannel;
 use crate::model::channel::permissions::PermissionOverwrite;
-use crate::model::channel::ChannelType;
 use crate::model::id::{ChannelId, GuildId};
 
 /// A voice channel in a [`Guild`].
@@ -10,15 +10,8 @@ use crate::model::id::{ChannelId, GuildId};
 #[non_exhaustive]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct VoiceChannel {
-    /// The ID of the channel.
-    pub id: ChannelId,
-    /// The type of the channel.
-    ///
-    /// This should always be [`ChannelType::Voice`].
-    ///
-    /// [`ChannelType::Voice`]: ../enum.ChannelType.html#variant.Voice
-    #[serde(rename = "type")]
-    pub(crate) kind: ChannelType,
+    #[serde(flatten)]
+    channel: PartialGuildChannel,
     /// The ID of the guild.
     pub guild_id: GuildId,
     /// The sorting position of the chanel.
@@ -26,8 +19,6 @@ pub struct VoiceChannel {
     /// A collection of explicit permission overwrites for members and roles.
     #[serde(default)]
     pub permission_overwrites: Vec<PermissionOverwrite>,
-    /// The name of the channel.
-    pub name: String,
     /// The bitrate (in bits) of the voice channel.
     pub bitrate: u32,
     /// The user limit of the channel voice channel, a limit of `0` is
@@ -37,14 +28,13 @@ pub struct VoiceChannel {
     #[serde(default)]
     pub parent_id: Option<ChannelId>,
 }
+wrap!(VoiceChannel => mut channel: PartialGuildChannel);
 
 impl_eq_fields!(VoiceChannel: [
-    id,
-    kind,
+    channel,
     guild_id,
     position,
     permission_overwrites,
-    name,
     bitrate,
     user_limit,
     parent_id,
@@ -54,7 +44,7 @@ impl_eq_fields!(VoiceChannel: [
 mod tests {
     use serde_json::json;
 
-    use crate::model::channel::{Channel, GuildChannel};
+    use crate::model::channel::{Channel, ChannelType, GuildChannel};
 
     use super::*;
 
@@ -73,12 +63,14 @@ mod tests {
           "parent_id": null
         });
         let channel = VoiceChannel {
-            id: ChannelId::from(155101607195836416),
-            kind: ChannelType::Voice,
+            channel: PartialGuildChannel {
+                id: ChannelId::from(155101607195836416),
+                kind: ChannelType::Voice,
+                name: "ROCKET CHEESE".to_owned(),
+            },
             guild_id: GuildId::from(41771983423143937),
             position: 5,
             permission_overwrites: vec![],
-            name: "ROCKET CHEESE".to_owned(),
             bitrate: 64000,
             user_limit: 0,
             parent_id: None,
@@ -106,12 +98,14 @@ mod tests {
           "parent_id": null
         });
         let channel = VoiceChannel {
-            id: ChannelId::from(155101607195836416),
-            kind: ChannelType::Voice,
+            channel: PartialGuildChannel {
+                id: ChannelId::from(155101607195836416),
+                kind: ChannelType::Voice,
+                name: "ROCKET CHEESE".to_owned(),
+            },
             guild_id: GuildId::from(41771983423143937),
             position: 5,
             permission_overwrites: vec![],
-            name: "ROCKET CHEESE".to_owned(),
             bitrate: 64000,
             user_limit: 0,
             parent_id: None,

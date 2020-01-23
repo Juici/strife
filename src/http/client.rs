@@ -6,9 +6,10 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 
 use crate::builder::marker::GuildChannelBuilder;
-use crate::builder::{CreateChannel, CreateGuild, EditChannel};
+use crate::builder::{CreateChannel, CreateGuild, CreateInvite, EditChannel};
 use crate::internal::prelude::*;
-use crate::model::guild::{Emoji, Guild};
+use crate::model::emoji::Emoji;
+use crate::model::guild::Guild;
 use crate::model::id::{ChannelId, GuildId, RoleId, ToSnowflakeId, UserId};
 use crate::model::voice::VoiceRegionId;
 use crate::model::webhook::Webhook;
@@ -16,6 +17,7 @@ use crate::model::webhook::Webhook;
 use super::error::ErrorResponse;
 use super::prelude::*;
 use super::ratelimit::RateLimiter;
+use crate::model::guild::invite::Invite;
 
 /// An HTTP client for performing requests to the REST API.
 pub struct Http {
@@ -244,6 +246,28 @@ impl Http {
 
         let mut request = Request::new(Route::CreateGuild);
         request.json(&guild)?;
+
+        self.request(request).await
+    }
+
+    // TODO: create_integration
+
+    /// Create a new [`Invite`] for the specified [`GuildChannel`].
+    ///
+    /// Requires the [`CREATE_INSTANT_INVITE`] permission.
+    ///
+    /// [`Invite`]: ../model/guild/invite/struct.Invite.html
+    /// [`GuildChannel`]: ../model/channel/guild/enum.GuildChannel.html
+    #[doc = "\n[`CREATE_INSTANT_INVITE`]: ../model/permissions/struct.Permissions.html#associatedconstant.CREATE_INSTANT_INVITE"]
+    pub async fn create_invite<F>(&self, channel_id: ChannelId, create_invite: F) -> Result<Invite>
+    where
+        F: FnOnce(&mut CreateInvite),
+    {
+        let mut invite = CreateInvite::create();
+        create_invite(&mut invite);
+
+        let mut request = Request::new(Route::CreateInvite { channel_id });
+        request.json(&invite)?;
 
         self.request(request).await
     }

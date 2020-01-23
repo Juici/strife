@@ -1,9 +1,11 @@
 //! Models related to guilds.
 
-mod audit_log;
-mod emoji;
 mod member;
 mod role;
+
+pub mod audit_log;
+pub mod invite;
+pub mod settings;
 
 use std::collections::{HashMap, HashSet};
 
@@ -12,6 +14,7 @@ use num_traits::Zero;
 use serde::{Deserialize, Serialize};
 
 use crate::model::channel::GuildChannel;
+use crate::model::emoji::Emoji;
 use crate::model::gateway::presence::Presence;
 use crate::model::id::{ApplicationId, ChannelId, EmojiId, GuildId, RoleId, UserId};
 use crate::model::misc::Locale;
@@ -19,74 +22,12 @@ use crate::model::permissions::Permissions;
 use crate::model::utils::{is_false, serde_id_map};
 use crate::model::voice::{VoiceRegionId, VoiceState};
 
-pub use self::audit_log::AuditLogEvent;
-pub use self::emoji::{CustomEmoji, Emoji, PartialEmoji};
+use self::settings::{
+    ExplicitContentFilterLevel, MessageNotificationLevel, MfaLevel, VerificationLevel,
+};
+
 pub use self::member::{Member, PartialMember};
 pub use self::role::Role;
-
-/// The required level of criteria a user must meet, prior to being able to send
-/// messages in a [`Guild`].
-///
-/// [`Guild`]: struct.Guild.html
-#[non_exhaustive]
-#[int_enum::int_enum(u8)]
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub enum VerificationLevel {
-    /// Does not require any verification.
-    None = 0,
-    /// Must have a verified email on the user's Discord account.
-    Low = 1,
-    /// Must also be a registered user on Discord for longer than 5 minutes.
-    Medium = 2,
-    /// Must also be a member of the guild for longer than 10 minutes.
-    High = 3,
-    /// Must have a verified phone on the user's Discord account.
-    Higher = 4,
-}
-
-impl Default for VerificationLevel {
-    fn default() -> Self {
-        VerificationLevel::None
-    }
-}
-
-/// The default level of message notifications in a guild.
-#[non_exhaustive]
-#[int_enum::int_enum(u8)]
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub enum MessageNotificationLevel {
-    /// All messages will send notifications.
-    AllMessages = 0,
-    /// Only messages that mention a user or a user's role will send
-    /// notifications.
-    OnlyMentions = 1,
-}
-
-impl Default for MessageNotificationLevel {
-    fn default() -> Self {
-        MessageNotificationLevel::AllMessages
-    }
-}
-
-/// The level of filter to apply to users that send messages containing explicit
-/// content.
-#[non_exhaustive]
-#[int_enum::int_enum(u8)]
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub enum ExplicitContentFilterLevel {
-    /// No filter will be applied.
-    Disabled = 0,
-    /// Only members with roles will be able to send explicit content.
-    MembersWithoutRoles = 1,
-    /// All members will have explicit content filtered from messages they send.
-    AllMembers = 2,
-}
-
-impl Default for ExplicitContentFilterLevel {
-    fn default() -> Self {
-        ExplicitContentFilterLevel::Disabled
-    }
-}
 
 /// A feature enabled for a guild.
 #[non_exhaustive]
@@ -120,24 +61,6 @@ pub enum GuildFeature {
     Banner,
 }
 
-/// The required level of multi-factor authentication required for a guild.
-#[non_exhaustive]
-#[int_enum::int_enum(u8)]
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub enum MfaLevel {
-    /// Multi-factor authentication is not required.
-    None = 0,
-    /// Multi-factor authentication is required for members to take moderation
-    /// actions (eg. kick, ban, delete messages).
-    Elevated = 1,
-}
-
-impl Default for MfaLevel {
-    fn default() -> Self {
-        MfaLevel::None
-    }
-}
-
 /// The tier of premium for a guild, provided by Nitro boosts.
 #[non_exhaustive]
 #[int_enum::int_enum(u8)]
@@ -169,6 +92,8 @@ pub struct PartialGuild {
     pub name: String,
     /// The hash of the guild icon.
     pub icon: Option<String>,
+    /// The hash of the guild splash.
+    pub splash: Option<String>,
     /// Whether the client user is the owner of the guild.
     #[serde(default, skip_serializing_if = "is_false")]
     pub owner: bool,
@@ -185,8 +110,6 @@ pub struct PartialGuild {
 pub struct Guild {
     #[serde(flatten)]
     guild: PartialGuild,
-    /// The hash of the guild splash.
-    pub splash: Option<String>,
     /// The ID of the owner of the guild.
     pub owner_id: UserId,
     /// The ID of the guild voice region.
@@ -361,10 +284,10 @@ mod tests {
                 id: GuildId::from(41771983423143937),
                 name: "Discord Developers".to_owned(),
                 icon: Some("86e39f7ae3307e811784e2ffd11a7310".to_owned()),
+                splash: None,
                 owner: false,
                 permissions: None,
             },
-            splash: None,
             owner_id: UserId::from(80351110224678912),
             region: VoiceRegionId::US_EAST,
             afk_channel_id: Some(ChannelId::from(42072017402331136)),

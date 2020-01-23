@@ -1,6 +1,6 @@
 use serde::Deserialize;
 use serde_json::json;
-use strife::model::guild::PartialEmoji;
+use strife::model::emoji::PartialEmoji;
 
 #[test]
 fn test_deserialize_standard() {

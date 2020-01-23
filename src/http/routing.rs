@@ -8,7 +8,8 @@ use std::fmt::Write;
 use hyper::Method as HttpMethod;
 
 use crate::model::channel::permissions::OverwriteId;
-use crate::model::guild::{AuditLogEvent, Emoji};
+use crate::model::emoji::PartialEmoji;
+use crate::model::guild::audit_log::AuditLogEvent;
 use crate::model::id::*;
 
 /// Buckets grouping [rate limited] routes.
@@ -336,7 +337,7 @@ pub enum Route<'a> {
     CreateReaction {
         channel_id: ChannelId,
         message_id: MessageId,
-        emoji: Emoji,
+        emoji: PartialEmoji,
     },
     CreateRole {
         guild_id: GuildId,
@@ -372,12 +373,12 @@ pub enum Route<'a> {
     DeleteOwnReaction {
         channel_id: ChannelId,
         message_id: MessageId,
-        emoji: Emoji,
+        emoji: PartialEmoji,
     },
     DeleteReaction {
         channel_id: ChannelId,
         message_id: MessageId,
-        emoji: Emoji,
+        emoji: PartialEmoji,
         user_id: UserId,
     },
     DeleteReactions {
@@ -542,7 +543,7 @@ pub enum Route<'a> {
     GetReactionUsers {
         channel_id: ChannelId,
         message_id: MessageId,
-        emoji: Emoji,
+        emoji: PartialEmoji,
         before: Option<UserId>,
         after: Option<UserId>,
         limit: Option<u8>,

@@ -1,3 +1,5 @@
+//! Models related to emojis.
+
 mod partial;
 
 use std::fmt::{self, Display};

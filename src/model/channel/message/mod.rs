@@ -11,7 +11,7 @@ use serde::de;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::model::channel::ChannelType;
-use crate::model::guild::PartialEmoji;
+use crate::model::emoji::PartialEmoji;
 use crate::model::guild::PartialMember;
 use crate::model::id::{ChannelId, GuildId, MessageId, RoleId, WebhookId};
 use crate::model::user::User;

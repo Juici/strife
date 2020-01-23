@@ -6,17 +6,42 @@ mod store_channel;
 mod text_channel;
 mod voice_channel;
 
+use std::ops::{Deref, DerefMut};
+
 use serde::de;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::model::channel::ChannelType;
-use crate::model::id::{ChannelId, ToSnowflakeId};
+use crate::model::id::ChannelId;
 
 pub use self::category::Category;
 pub use self::news_channel::NewsChannel;
 pub use self::store_channel::StoreChannel;
 pub use self::text_channel::TextChannel;
 pub use self::voice_channel::VoiceChannel;
+
+/// A channel in a [`Guild`] with partial information.
+///
+/// [`Guild`]: ../../guild/struct.Guild.html
+#[non_exhaustive]
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct PartialGuildChannel {
+    /// The ID of the channel.
+    pub id: ChannelId,
+    /// The type of the channel.
+    #[serde(rename = "type")]
+    pub(crate) kind: ChannelType,
+    /// The name of the channel.
+    pub name: String,
+}
+
+impl PartialGuildChannel {
+    /// Returns the type of the channel.
+    #[inline]
+    pub fn kind(&self) -> ChannelType {
+        self.kind
+    }
+}
 
 /// A channel in a [`Guild`].
 ///
@@ -55,20 +80,28 @@ impl GuildChannel {
     }
 }
 
-#[doc(hidden)]
-impl crate::model::id::private::Sealed for GuildChannel {}
+impl Deref for GuildChannel {
+    type Target = PartialGuildChannel;
 
-impl ToSnowflakeId for GuildChannel {
-    type Id = ChannelId;
-
-    /// The ID of the channel.
-    fn id(&self) -> Self::Id {
+    fn deref(&self) -> &Self::Target {
         match self {
-            GuildChannel::Text(channel) => channel.id,
-            GuildChannel::Voice(channel) => channel.id,
-            GuildChannel::Category(channel) => channel.id,
-            GuildChannel::News(channel) => channel.id,
-            GuildChannel::Store(channel) => channel.id,
+            GuildChannel::Text(channel) => channel.deref(),
+            GuildChannel::Voice(channel) => channel.deref(),
+            GuildChannel::Category(channel) => channel.deref(),
+            GuildChannel::News(channel) => channel.deref(),
+            GuildChannel::Store(channel) => channel.deref(),
+        }
+    }
+}
+
+impl DerefMut for GuildChannel {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        match self {
+            GuildChannel::Text(channel) => channel.deref_mut(),
+            GuildChannel::Voice(channel) => channel.deref_mut(),
+            GuildChannel::Category(channel) => channel.deref_mut(),
+            GuildChannel::News(channel) => channel.deref_mut(),
+            GuildChannel::Store(channel) => channel.deref_mut(),
         }
     }
 }
@@ -128,6 +161,7 @@ impl<'de> Deserialize<'de> for GuildChannel {
     }
 }
 
+impl_eq_fields!(PartialGuildChannel: [id, kind, name]);
 impl_eq_fields!(GuildChannel: (a, b) => {
     match (a, b) {
         (GuildChannel::Text(a), GuildChannel::Text(b)) => assert_eq_fields!(a, b),

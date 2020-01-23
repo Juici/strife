@@ -1,22 +1,15 @@
 use serde::{Deserialize, Serialize};
 
+use crate::model::channel::guild::PartialGuildChannel;
 use crate::model::channel::permissions::PermissionOverwrite;
-use crate::model::channel::ChannelType;
-use crate::model::id::{ChannelId, GuildId};
+use crate::model::id::GuildId;
 
 /// An organizational category that contains non-category channels.
 #[non_exhaustive]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Category {
-    /// The ID of the channel.
-    pub id: ChannelId,
-    /// The type of the channel.
-    ///
-    /// This should always be [`ChannelType::Category`].
-    ///
-    /// [`ChannelType::Category`]: ../enum.ChannelType.html#variant.Category
-    #[serde(rename = "type")]
-    pub(crate) kind: ChannelType,
+    #[serde(flatten)]
+    channel: PartialGuildChannel,
     /// The ID of the guild.
     pub guild_id: GuildId,
     /// The sorting position of the chanel.
@@ -24,26 +17,24 @@ pub struct Category {
     /// A collection of explicit permission overwrites for members and roles.
     #[serde(default)]
     pub permission_overwrites: Vec<PermissionOverwrite>,
-    /// The name of the channel.
-    pub name: String,
 }
+wrap!(Category => mut channel: PartialGuildChannel);
 
 impl_eq_fields!(Category: [
-    id,
-    kind,
+    channel,
     guild_id,
     position,
     permission_overwrites,
-    name,
 ]);
 
 #[cfg(test)]
 mod tests {
     use serde_json::json;
 
-    use crate::model::channel::{Channel, GuildChannel};
+    use crate::model::channel::{Channel, ChannelType, GuildChannel};
 
     use super::*;
+    use crate::model::id::ChannelId;
 
     #[test]
     fn test_deserialize() {
@@ -58,12 +49,14 @@ mod tests {
           "id": "399942396007890945"
         });
         let channel = Category {
-            id: ChannelId::from(399942396007890945),
-            kind: ChannelType::Category,
+            channel: PartialGuildChannel {
+                id: ChannelId::from(399942396007890945),
+                kind: ChannelType::Category,
+                name: "Test".to_owned(),
+            },
             guild_id: GuildId::from(290926798629997250),
             position: 0,
             permission_overwrites: vec![],
-            name: "Test".to_owned(),
         };
 
         let deserialized = Category::deserialize(&value).unwrap();
@@ -85,12 +78,14 @@ mod tests {
           "id": "399942396007890945"
         });
         let channel = Category {
-            id: ChannelId::from(399942396007890945),
-            kind: ChannelType::Category,
+            channel: PartialGuildChannel {
+                id: ChannelId::from(399942396007890945),
+                kind: ChannelType::Category,
+                name: "Test".to_owned(),
+            },
             guild_id: GuildId::from(290926798629997250),
             position: 0,
             permission_overwrites: vec![],
-            name: "Test".to_owned(),
         };
 
         assert_eq!(value, serde_json::to_value(&channel).unwrap());

@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::model::guild::{
+use crate::model::guild::settings::{
     ExplicitContentFilterLevel, MessageNotificationLevel, VerificationLevel,
 };
 use crate::model::voice::VoiceRegionId;
