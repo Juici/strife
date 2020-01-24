@@ -593,7 +593,7 @@ impl Http {
     ///
     /// [`GuildChannel`]: ../model/channel/guild/enum.GuildChannel.html
     #[doc = "\n[`MANAGE_CHANNELS`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_CHANNELS"]
-    pub async fn edit_channel_positions<I>(
+    pub async fn edit_channel_positions(
         &self,
         guild_id: GuildId,
         channels: &[(ChannelId, usize)],
