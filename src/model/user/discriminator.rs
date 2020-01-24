@@ -155,3 +155,57 @@ impl<'de> Deserialize<'de> for Discriminator {
         deserializer.deserialize_any(U16Visitor).map(Discriminator)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use serde_json::json;
+
+    use super::*;
+
+    #[test]
+    fn test_serialize() {
+        let value = json!("0001");
+        let d = Discriminator::new(1).unwrap();
+
+        assert_eq!(value, serde_json::to_value(&d).unwrap());
+    }
+
+    #[test]
+    fn test_deserialize() {
+        let value = json!("0001");
+        let d = Discriminator::new(1).unwrap();
+
+        assert_eq!(d, Discriminator::deserialize(&value).unwrap());
+    }
+
+    #[test]
+    fn test_display() {
+        macro_rules! d {
+            (n: $n:literal) => {
+                &{ Discriminator::new($n).unwrap().to_string() }
+            };
+            (s: $s:literal) => {
+                &{ $s.parse::<Discriminator>().unwrap().to_string() }
+            };
+        }
+
+        assert_eq!(d!(n: 1), "0001");
+        assert_eq!(d!(n: 42), "0042");
+        assert_eq!(d!(n: 420), "0420");
+        assert_eq!(d!(n: 6969), "6969");
+
+        assert_eq!(d!(s: "1"), "0001");
+        assert_eq!(d!(s: "01"), "0001");
+        assert_eq!(d!(s: "001"), "0001");
+        assert_eq!(d!(s: "0001"), "0001");
+
+        assert_eq!(d!(s: "42"), "0042");
+        assert_eq!(d!(s: "042"), "0042");
+        assert_eq!(d!(s: "0042"), "0042");
+
+        assert_eq!(d!(s: "420"), "0420");
+        assert_eq!(d!(s: "0420"), "0420");
+
+        assert_eq!(d!(s: "6969"), "6969");
+    }
+}
