@@ -110,7 +110,7 @@ impl<'de> Deserialize<'de> for Permissions {
 
 
 #[cfg(test)]
-fn tests {
+mod tests {
     use serde_json::json;
 
     use super::*;
