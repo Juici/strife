@@ -6,18 +6,20 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 
 use crate::builder::marker::GuildChannelBuilder;
-use crate::builder::{CreateChannel, CreateGuild, CreateInvite, CreateMessage, EditChannel};
+use crate::builder::{
+    CreateChannel, CreateGuild, CreateInvite, CreateMessage, CreateRole, EditChannel,
+};
 use crate::internal::prelude::*;
-use crate::model::emoji::Emoji;
-use crate::model::guild::Guild;
-use crate::model::id::{ChannelId, GuildId, RoleId, ToSnowflakeId, UserId};
+use crate::model::emoji::{Emoji, PartialEmoji};
+use crate::model::guild::{Guild, Role};
+use crate::model::id::{ChannelId, GuildId, MessageId, RoleId, ToSnowflakeId, UserId};
 use crate::model::voice::VoiceRegionId;
 use crate::model::webhook::Webhook;
 
 use super::error::ErrorResponse;
 use super::prelude::*;
 use super::ratelimit::RateLimiter;
-use crate::model::channel::Message;
+use crate::model::channel::{DMChannel, Message};
 use crate::model::guild::invite::Invite;
 
 /// An HTTP client for performing requests to the REST API.
@@ -294,6 +296,60 @@ impl Http {
 
         let mut request = Request::new(Route::CreateMessage { channel_id });
         request.json(&msg)?;
+
+        self.request(request).await
+    }
+
+    /// Creates a new [`DMChannel`] with the specified recipient user.
+    ///
+    /// [`DMChannel`]: ../model/channel/struct.DMChannel.html
+    pub async fn create_dm(&self, recipient_id: UserId) -> Result<DMChannel> {
+        #[derive(Debug, Serialize)]
+        struct Params {
+            recipient_id: UserId,
+        }
+        let params = Params { recipient_id };
+
+        let mut request = Request::new(Route::CreatePrivateChannel);
+        request.json(&params)?;
+
+        self.request(request).await
+    }
+
+    /// Creates a reaction on the specified message.
+    ///
+    /// Requires the [`READ_MESSAGE_HISTORY`] permission for the channel.
+    ///
+    /// Additionally requires the [`ADD_REACTIONS`] permission for the channel,
+    /// if nobody else has reacted to the message using this emoji.
+    #[doc = "\n[`READ_MESSAGE_HISTORY`]: ../model/permissions/struct.Permissions.html#associatedconstant.READ_MESSAGE_HISTORY"]
+    #[doc = "\n[`ADD_REACTIONS`]: ../model/permissions/struct.Permissions.html#associatedconstant.ADD_REACTIONS"]
+    pub async fn create_reaction(
+        &self,
+        channel_id: ChannelId,
+        message_id: MessageId,
+        emoji: PartialEmoji,
+    ) -> Result<()> {
+        self.fire(Request::new(Route::CreateReaction {
+            channel_id,
+            message_id,
+            emoji,
+        }))
+        .await
+    }
+
+    /// Creates a new [`Role`] for the specified guild.
+    ///
+    /// [`Role`]: ../model/guild/struct.Role.html
+    pub async fn create_role<F>(&self, guild_id: GuildId, create_role: F) -> Result<Role>
+    where
+        F: FnOnce(&mut CreateRole),
+    {
+        let mut role = CreateRole::create();
+        create_role(&mut role);
+
+        let mut request = Request::new(Route::CreateRole { guild_id });
+        request.json(&role)?;
 
         self.request(request).await
     }
