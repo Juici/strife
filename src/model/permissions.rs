@@ -108,7 +108,6 @@ impl<'de> Deserialize<'de> for Permissions {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use serde_json::json;
@@ -134,8 +133,9 @@ mod tests {
     #[test]
     fn test_deserialize() {
         let value = json!(68608);
-        let perms =
-            Permissions::VIEW_CHANNEL | Permissions::READ_MESSAGE_HISTORY | Permissions::SEND_MESSAGES;
+        let perms = Permissions::VIEW_CHANNEL
+            | Permissions::READ_MESSAGE_HISTORY
+            | Permissions::SEND_MESSAGES;
 
         assert_eq!(perms, Permissions::deserialize(&value).unwrap());
     }
