@@ -122,8 +122,12 @@ impl<'a> CreateEmbed<'a> {
     ///
     /// # Notes
     ///
-    /// Prefer this function over [`field`] or [`field_inline`], due to the
-    /// reducing the amount of reallocation as more fields are added.
+    /// Prefer this function over [`field`] or [`field_inline`] when adding
+    /// multiple fields, due to the reduced number of reallocations as
+    /// more fields are added.
+    ///
+    /// [`field`]: #method.field
+    /// [`field_inline`]: #method.field_inline
     pub fn fields<I>(&mut self, fields: I)
     where
         I: IntoIterator<Item = &'a (&'a str, &'a str, bool)>,
