@@ -19,6 +19,7 @@ use crate::model::webhook::Webhook;
 use super::error::ErrorResponse;
 use super::prelude::*;
 use super::ratelimit::RateLimiter;
+use crate::model::channel::permissions::OverwriteId;
 use crate::model::channel::{Channel, DMChannel, Message};
 use crate::model::guild::invite::Invite;
 
@@ -253,7 +254,7 @@ impl Http {
         self.request(request).await
     }
 
-    // TODO: create_integration
+    // TODO: Add create_integration.
 
     /// Creates a new [`Invite`] for the specified [`GuildChannel`].
     ///
@@ -340,7 +341,10 @@ impl Http {
 
     /// Creates a new [`Role`] for the specified guild.
     ///
+    /// Requires the [`MANAGE_ROLES`] permission.
+    ///
     /// [`Role`]: ../model/guild/struct.Role.html
+    #[doc = "\n[`MANAGE_ROLES`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_ROLES"]
     pub async fn create_role<F>(&self, guild_id: GuildId, create_role: F) -> Result<Role>
     where
         F: FnOnce(&mut CreateRole),
@@ -376,6 +380,27 @@ impl Http {
     pub async fn delete_channel(&self, channel_id: ChannelId) -> Result<Channel> {
         self.request(Request::new(Route::DeleteChannel { channel_id }))
             .await
+    }
+
+    /// Deletes a channel permission overwrite for a [`User`] or [`Role`] in the
+    /// specified [`GuildChannel`].
+    ///
+    /// Requires the [`MANAGE_ROLES`] permission.
+    ///
+    /// [`User`]: ../model/user/struct.User.html
+    /// [`Role`]: ../model/guild/struct.Role.html
+    /// [`GuildChannel`]: ../model/channel/guild/enum.GuildChannel.html
+    #[doc = "\n[`MANAGE_ROLES`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_ROLES"]
+    pub async fn delete_channel_permission(
+        &self,
+        channel_id: ChannelId,
+        overwrite_id: OverwriteId,
+    ) -> Result<()> {
+        self.fire(Request::new(Route::DeleteChannelPermission {
+            channel_id,
+            overwrite_id,
+        }))
+        .await
     }
 
     /// Edits a [`GuildChannel`].
