@@ -12,7 +12,7 @@ use crate::builder::{
 use crate::internal::prelude::*;
 use crate::model::emoji::{Emoji, PartialEmoji};
 use crate::model::guild::{Guild, Role};
-use crate::model::id::{ChannelId, GuildId, MessageId, RoleId, ToSnowflakeId, UserId};
+use crate::model::id::{ChannelId, GuildId, MessageId, RoleId, UserId};
 use crate::model::voice::VoiceRegionId;
 use crate::model::webhook::Webhook;
 
