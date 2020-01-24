@@ -19,7 +19,7 @@ use crate::model::webhook::Webhook;
 use super::error::ErrorResponse;
 use super::prelude::*;
 use super::ratelimit::RateLimiter;
-use crate::model::channel::{DMChannel, Message};
+use crate::model::channel::{Channel, DMChannel, Message};
 use crate::model::guild::invite::Invite;
 
 /// An HTTP client for performing requests to the REST API.
@@ -195,9 +195,6 @@ impl Http {
     ///
     /// Requires the [`MANAGE_EMOJIS`] permission.
     ///
-    /// [`Emoji`]: ../model/guild/struct.Emoji.html
-    /// [`Guild`]: ../model/guild/struct.Guild.html
-    #[doc = "\n[`MANAGE_EMOJIS`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_EMOJIS"]
     /// # Notes
     ///
     /// The `image` must be a base64 encoded image in the form of a
@@ -208,7 +205,10 @@ impl Http {
     /// data:image/jpeg;base64,BASE64_ENCODED_JPEG_IMAGE_DATA
     /// ```
     ///
+    /// [`Emoji`]: ../model/guild/struct.Emoji.html
+    /// [`Guild`]: ../model/guild/struct.Guild.html
     /// [Data URI scheme]: https://en.wikipedia.org/wiki/Data_URI_scheme
+    #[doc = "\n[`MANAGE_EMOJIS`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_EMOJIS"]
     pub async fn create_emoji(
         &self,
         guild_id: GuildId,
@@ -354,20 +354,41 @@ impl Http {
         self.request(request).await
     }
 
+    /// Deletes a [`GuildChannel`] or closes a [`DMChannel`].
+    ///
+    /// Requires the [`MANAGE_CHANNELS`] permission to delete a guild channel.
+    ///
+    /// # Notes
+    ///
+    /// Deleting a [`Category`] does not delete its child channels.
+    ///
+    /// # Warnings
+    ///
+    /// Deleting a guild channel cannot be undone. Use this with caution, as it
+    /// is impossible to undo this action when performed on a guild channel. In
+    /// contrast, when used with a private message, it is possible to undo the
+    /// action by opening a private message with the recipient again.
+    ///
+    /// [`GuildChannel`]: ../model/channel/guild/enum.GuildChannel.html
+    /// [`DMChannel`]: ../model/channel/struct.DMChannel.html
+    /// [`Category`]: ../model/channel/guild/struct.Category.html
+    #[doc = "\n[`MANAGE_CHANNELS`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_CHANNELS"]
+    pub async fn delete_channel(&self, channel_id: ChannelId) -> Result<Channel> {
+        self.request(Request::new(Route::DeleteChannel { channel_id }))
+            .await
+    }
+
     /// Edits a [`GuildChannel`].
     ///
     /// Requires the [`MANAGE_CHANNELS`] permission.
     ///
     /// [`GuildChannel`]: ../model/channel/guild/enum.GuildChannel.html
     #[doc = "\n[`MANAGE_CHANNELS`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_CHANNELS"]
-    pub async fn edit_channel<G, C, F, T>(&self, channel: C, edit_channel: F) -> Result<T>
+    pub async fn edit_channel<F, T>(&self, channel_id: ChannelId, edit_channel: F) -> Result<T>
     where
-        C: ToSnowflakeId<Id = ChannelId>,
         F: FnOnce(&mut EditChannel<T>),
         T: GuildChannelBuilder + DeserializeOwned,
     {
-        let channel_id = channel.id();
-
         let mut channel = EditChannel::<T>::new();
         edit_channel(&mut channel);
 
