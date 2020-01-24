@@ -3,25 +3,25 @@ use async_std::sync::Arc;
 use bytes::Bytes;
 use hyper::StatusCode;
 use serde::de::DeserializeOwned;
-use serde::Serialize;
+use serde::{Serialize, Serializer};
 
 use crate::builder::marker::GuildChannelBuilder;
 use crate::builder::{
     CreateChannel, CreateGuild, CreateInvite, CreateMessage, CreateRole, EditChannel,
 };
 use crate::internal::prelude::*;
+use crate::model::channel::permissions::{OverwriteId, PermissionOverwrite};
+use crate::model::channel::{Channel, DMChannel, Message};
 use crate::model::emoji::{Emoji, PartialEmoji};
+use crate::model::guild::invite::Invite;
 use crate::model::guild::{Guild, Role};
-use crate::model::id::{ChannelId, GuildId, MessageId, RoleId, UserId};
+use crate::model::id::{ChannelId, EmojiId, GuildId, MessageId, RoleId, UserId, WebhookId};
 use crate::model::voice::VoiceRegionId;
 use crate::model::webhook::Webhook;
 
 use super::error::ErrorResponse;
 use super::prelude::*;
 use super::ratelimit::RateLimiter;
-use crate::model::channel::permissions::OverwriteId;
-use crate::model::channel::{Channel, DMChannel, Message};
-use crate::model::guild::invite::Invite;
 
 /// An HTTP client for performing requests to the REST API.
 pub struct Http {
@@ -403,6 +403,147 @@ impl Http {
         .await
     }
 
+    /// Deletes an [`Emoji`].
+    ///
+    /// Requires the [`MANAGE_EMOJIS`] permission.
+    ///
+    /// [`Emoji`]: ../model/emoji/struct.Emoji.html
+    #[doc = "\n[`MANAGE_EMOJIS`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_EMOJIS"]
+    pub async fn delete_emoji(&self, guild_id: GuildId, emoji_id: EmojiId) -> Result<()> {
+        self.fire(Request::new(Route::DeleteEmoji { guild_id, emoji_id }))
+            .await
+    }
+
+    /// Deletes a [`Guild`].
+    ///
+    /// **Must be the owner of the guild.**
+    ///
+    /// [`Guild`]: ../model/guild/struct.Guild.html
+    pub async fn delete_guild(&self, guild_id: GuildId) -> Result<()> {
+        self.fire(Request::new(Route::DeleteGuild { guild_id }))
+            .await
+    }
+
+    // TODO: Add delete_integration.
+
+    /// Deletes an [`Invite`].
+    ///
+    /// Requires either the [`MANAGE_CHANNELS`] permission on the channel the
+    /// invite belongs to, or the [`MANAGE_GUILD`] permission to delete an
+    /// invite across the guild.
+    ///
+    /// [`Invite`]: ../model/guild/invite/struct.Invite.html
+    #[doc = "\n[`MANAGE_CHANNELS`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_CHANNELS"]
+    #[doc = "\n[`MANAGE_GUILD`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_GUILD"]
+    pub async fn delete_invite(&self, invite_code: &str) -> Result<Invite> {
+        self.request(Request::new(Route::DeleteInvite { code: invite_code }))
+            .await
+    }
+
+    /// Deletes a [`Message`].
+    ///
+    /// Requires [`MANAGE_MESSAGES`] if trying to delete a message not sent by
+    /// the client user.
+    ///
+    /// [`Message`]: ../model/channel/message/struct.Message.html
+    #[doc = "\n[`MANAGE_MESSAGE`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_MESSAGE"]
+    pub async fn delete_message(&self, channel_id: ChannelId, message_id: MessageId) -> Result<()> {
+        self.fire(Request::new(Route::DeleteMessage {
+            channel_id,
+            message_id,
+        }))
+        .await
+    }
+
+    /// Deletes multiple [`Message`]s with a single request.
+    ///
+    /// Requires [`MANAGE_MESSAGES`] if trying to delete a message not sent by
+    /// the client user.
+    ///
+    /// [`Message`]: ../model/channel/message/struct.Message.html
+    #[doc = "\n[`MANAGE_MESSAGE`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_MESSAGE"]
+    pub async fn delete_messages_bulk(
+        &self,
+        channel_id: ChannelId,
+        messages: &[MessageId],
+    ) -> Result<()> {
+        #[derive(Debug, Serialize)]
+        struct Params<'a> {
+            messages: &'a [MessageId],
+        }
+        let params = Params { messages };
+
+        let mut request = Request::new(Route::DeleteMessagesBulk { channel_id });
+        request.json(&params)?;
+
+        self.fire(Request::new(Route::DeleteMessagesBulk { channel_id }))
+            .await
+    }
+
+    /// Deletes a [`Reaction`] on the specified [`Message`].
+    ///
+    /// Requires the [`MANAGE_MESSAGES`] permission if trying to delete a
+    /// reaction made by another user (ie. `user_id == Some(other_user_id)`).
+    ///
+    /// [`Reaction`]: ../model/channel/message/struct.Reaction.html
+    /// [`Message`]: ../model/channel/message/struct.Message.html
+    #[doc = "\n[`MANAGE_MESSAGES`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_MESSAGES"]
+    pub async fn delete_reaction(
+        &self,
+        channel_id: ChannelId,
+        message_id: MessageId,
+        emoji: PartialEmoji,
+        user_id: Option<UserId>,
+    ) -> Result<()> {
+        let route = match user_id {
+            Some(user_id) => Route::DeleteReaction {
+                channel_id,
+                message_id,
+                emoji,
+                user_id,
+            },
+            None => Route::DeleteOwnReaction {
+                channel_id,
+                message_id,
+                emoji,
+            },
+        };
+        self.fire(Request::new(route)).await
+    }
+
+    /// Deletes all [`Reaction`]s on the specified [`Message`].
+    ///
+    /// Requires the [`MANAGE_MESSAGES`] permission.
+    #[doc = "\n[`MANAGE_MESSAGES`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_MESSAGES"]
+    pub async fn delete_reactions(
+        &self,
+        channel_id: ChannelId,
+        message_id: MessageId,
+    ) -> Result<()> {
+        self.fire(Request::new(Route::DeleteReactions {
+            channel_id,
+            message_id,
+        }))
+        .await
+    }
+
+    /// Deletes a [`Role`].
+    ///
+    /// Requires the [`MANAGE_ROLES`] permission.
+    #[doc = "\n[`MANAGE_ROLES`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_ROLES"]
+    pub async fn delete_role(&self, guild_id: GuildId, role_id: RoleId) -> Result<()> {
+        self.fire(Request::new(Route::DeleteRole { guild_id, role_id }))
+            .await
+    }
+
+    /// Deletes a [`Webhook]` permanently.
+    ///
+    /// **Must be the owner of the guild.**
+    pub async fn delete_webhook(&self, webhook_id: WebhookId) -> Result<()> {
+        self.fire(Request::new(Route::DeleteWebhook { webhook_id }))
+            .await
+    }
+
     /// Edits a [`GuildChannel`].
     ///
     /// Requires the [`MANAGE_CHANNELS`] permission.
@@ -421,6 +562,75 @@ impl Http {
         request.json(&channel)?;
 
         self.request(request).await
+    }
+
+    /// Edits a channel permission overwrite for a [`User`] or [`Role`] in the
+    /// specified [`GuildChannel`].
+    ///
+    /// Requires the [`MANAGE_ROLES`] permission.
+    ///
+    /// [`User`]: ../model/user/struct.User.html
+    /// [`Role`]: ../model/guild/struct.Role.html
+    /// [`GuildChannel`]: ../model/channel/guild/enum.GuildChannel.html
+    #[doc = "\n[`MANAGE_ROLES`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_ROLES"]
+    pub async fn edit_channel_permission(
+        &self,
+        channel_id: ChannelId,
+        overwrite: PermissionOverwrite,
+    ) -> Result<()> {
+        let mut request = Request::new(Route::EditChannelPermission {
+            channel_id,
+            overwrite_id: overwrite.id,
+        });
+        request.json(&overwrite)?;
+
+        self.fire(request).await
+    }
+
+    /// Edits the positions of a set of [`GuildChannel`]s.
+    ///
+    /// Requires the [`MANAGE_CHANNELS`] permission.
+    ///
+    /// [`GuildChannel`]: ../model/channel/guild/enum.GuildChannel.html
+    #[doc = "\n[`MANAGE_CHANNELS`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_CHANNELS"]
+    pub async fn edit_channel_positions<I>(
+        &self,
+        guild_id: GuildId,
+        channels: &[(ChannelId, usize)],
+    ) -> Result<()> {
+        #[derive(Debug)]
+        struct Params<'a> {
+            channels: &'a [(ChannelId, usize)],
+        }
+
+        impl<'a> Serialize for Params<'a> {
+            fn serialize<S>(&self, serializer: S) -> StdResult<S::Ok, S::Error>
+            where
+                S: Serializer,
+            {
+                #[derive(Debug, Serialize)]
+                struct Param {
+                    id: ChannelId,
+                    position: usize,
+                }
+
+                use serde::ser::SerializeTuple;
+
+                let mut seq = serializer.serialize_tuple(self.channels.len())?;
+                for &(id, position) in self.channels {
+                    let param = Param { id, position };
+                    seq.serialize_element(&param)?;
+                }
+                seq.end()
+            }
+        }
+
+        let params = Params { channels };
+
+        let mut request = Request::new(Route::EditChannelPositions { guild_id });
+        request.json(&params)?;
+
+        self.fire(request).await
     }
 
     /// Performs a request with rate limiting if necessary.
