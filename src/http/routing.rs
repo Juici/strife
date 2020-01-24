@@ -911,19 +911,18 @@ impl<'a> Route<'a> {
                 message_id,
                 emoji,
             } => Cow::from(api!(
-                "/channels/{}/messages/{}/reactions/{}/@me",
+                "/channels/{}/messages/{}/reactions/{:#}/@me",
                 channel_id,
                 message_id,
                 emoji,
             )),
-
             DeleteReaction {
                 channel_id,
                 message_id,
                 emoji,
                 user_id,
             } => Cow::from(api!(
-                "/channels/{}/messages/{}/reactions/{}/{}",
+                "/channels/{}/messages/{}/reactions/{:#}/{}",
                 channel_id,
                 message_id,
                 emoji,
@@ -938,7 +937,7 @@ impl<'a> Route<'a> {
                 after,
                 limit,
             } => Cow::from(api!(
-                "/channels/{}/messages/{}/reactions/{}",
+                "/channels/{}/messages/{}/reactions/{:#}",
                 channel_id,
                 message_id,
                 emoji;

@@ -64,14 +64,15 @@ impl Display for CustomEmoji {
         /// Work around this issue by substituting unknown names with `_`.
         const UNKNOWN_NAME: &str = "_";
 
-        if self.animated {
-            f.write_str("<a:")?;
-        } else {
-            f.write_str("<:")?;
-        }
-
         let name = self.name.as_ref().map(Cow::borrow).unwrap_or(UNKNOWN_NAME);
-        write!(f, "{}:{}>", name, self.id)
+
+        if f.alternate() {
+            write!(f, "{}:{}", name, self.id)
+        } else if self.animated {
+            write!(f, "<a:{}:{}>", name, self.id)
+        } else {
+            write!(f, "<:{}:{}>", name, self.id)
+        }
     }
 }
 
