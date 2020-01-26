@@ -1,4 +1,4 @@
-use async_std::sync::Arc;
+use std::sync::Arc;
 
 use bytes::Bytes;
 use hyper::StatusCode;

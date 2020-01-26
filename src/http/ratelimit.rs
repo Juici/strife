@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 use std::str::FromStr;
+use std::sync::Arc;
 use std::time::{Duration, Instant};
 use std::{i64, str};
 
-use async_std::sync::{Arc, Mutex, RwLock};
 use bytes::Bytes;
-use futures_timer::Delay;
 use hyper::{HeaderMap, StatusCode};
+use tokio::sync::{Mutex, RwLock};
+use tokio::time::delay_for;
 
 use crate::internal::prelude::*;
 
@@ -145,7 +146,7 @@ impl RateLimiter {
                                 log::debug!("ratelimited globally for {}ms", retry_after);
 
                                 // Wait for delay.
-                                Delay::new(delay).await;
+                                delay_for(delay).await;
                             }
                         }
                     }
@@ -224,7 +225,7 @@ impl RateLimit {
                 delay
             );
 
-            Delay::new(Duration::from_millis(delay)).await;
+            delay_for(Duration::from_millis(delay)).await;
         }
 
         self.remaining -= 1;
@@ -262,7 +263,7 @@ impl RateLimit {
         match parse_header::<u64>(&response.headers(), RETRY_AFTER)? {
             Some(retry_after) => {
                 log::debug!("ratelimited on route {:?} for {}ms", bucket, retry_after);
-                Delay::new(Duration::from_millis(retry_after)).await;
+                delay_for(Duration::from_millis(retry_after)).await;
 
                 Ok(true)
             }
