@@ -598,6 +598,8 @@ impl Http {
         guild_id: GuildId,
         channels: &[(ChannelId, usize)],
     ) -> Result<()> {
+        // FIXME: Improve function.
+
         #[derive(Debug)]
         struct Params<'a> {
             channels: &'a [(ChannelId, usize)],
