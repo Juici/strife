@@ -8,6 +8,7 @@ pub mod emoji;
 pub mod gateway;
 pub mod guild;
 pub mod id;
+pub mod image;
 pub mod misc;
 pub mod permissions;
 pub mod snowflake;
