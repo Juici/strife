@@ -17,7 +17,7 @@ pub struct CreateMessage<'a> {
 }
 
 impl<'a> CreateMessage<'a> {
-    pub(crate) fn create() -> CreateMessage<'a> {
+    pub(crate) fn create() -> Self {
         CreateMessage {
             content: None,
             tts: None,

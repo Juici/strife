@@ -21,7 +21,7 @@ pub struct CreateChannel<T: GuildChannelBuilder> {
 }
 
 impl<T: GuildChannelBuilder> CreateChannel<T> {
-    pub(crate) fn create<S: Into<String>>(name: S) -> CreateChannel<T> {
+    pub(crate) fn create<S: Into<String>>(name: S) -> Self {
         CreateChannel {
             container: T::Container::default(),
             kind: T::kind(),

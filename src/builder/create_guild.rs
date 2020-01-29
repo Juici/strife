@@ -19,7 +19,7 @@ pub struct CreateGuild<'a> {
 }
 
 impl<'a> CreateGuild<'a> {
-    pub(crate) fn create(name: &'a str, region: VoiceRegionId) -> CreateGuild<'a> {
+    pub(crate) fn create(name: &'a str, region: VoiceRegionId) -> Self {
         CreateGuild {
             name,
             region,

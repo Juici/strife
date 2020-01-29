@@ -3,7 +3,7 @@ use serde::Serialize;
 use crate::model::color::Color;
 use crate::model::permissions::Permissions;
 
-/// A builder for creating a new invite.
+/// A builder for creating a new role.
 #[derive(Debug, Serialize)]
 pub struct CreateRole<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -20,7 +20,7 @@ pub struct CreateRole<'a> {
 }
 
 impl<'a> CreateRole<'a> {
-    pub(crate) fn create() -> CreateRole<'a> {
+    pub(crate) fn create() -> Self {
         CreateRole {
             name: None,
             permissions: None,

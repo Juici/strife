@@ -58,7 +58,7 @@ pub struct EditChannel<T: GuildChannelBuilder> {
 }
 
 impl<T: GuildChannelBuilder> EditChannel<T> {
-    pub(crate) fn new() -> EditChannel<T> {
+    pub(crate) fn new() -> Self {
         EditChannel {
             container: T::Container::default(),
             name: None,

@@ -5,17 +5,21 @@ use hyper::StatusCode;
 use serde::de::DeserializeOwned;
 use serde::{Serialize, Serializer};
 
+use crate::internal::prelude::*;
+
 use crate::builder::marker::GuildChannelBuilder;
 use crate::builder::{
     CreateChannel, CreateGuild, CreateInvite, CreateMessage, CreateRole, EditChannel,
+    EditCurrentUser,
 };
-use crate::internal::prelude::*;
+
 use crate::model::channel::permissions::{OverwriteId, PermissionOverwrite};
 use crate::model::channel::{Channel, DMChannel, Message};
 use crate::model::emoji::{Emoji, PartialEmoji};
 use crate::model::guild::invite::Invite;
 use crate::model::guild::{Guild, Role};
 use crate::model::id::{ChannelId, EmojiId, GuildId, MessageId, RoleId, UserId, WebhookId};
+use crate::model::user::ClientUser;
 use crate::model::voice::VoiceRegionId;
 use crate::model::webhook::Webhook;
 
@@ -633,6 +637,20 @@ impl Http {
         request.json(&params)?;
 
         self.fire(request).await
+    }
+
+    /// Edits the client user name or avatar.
+    pub async fn edit_current_user<F>(&self, edit_user: F) -> Result<ClientUser>
+    where
+        F: FnOnce(&mut EditCurrentUser),
+    {
+        let mut user = EditCurrentUser::create();
+        edit_user(&mut user);
+
+        let mut request = Request::new(Route::EditCurrentUser);
+        request.json(&user)?;
+
+        self.request(request).await
     }
 
     /// Performs a request with rate limiting if necessary.
