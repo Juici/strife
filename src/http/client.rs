@@ -19,6 +19,7 @@ use crate::model::emoji::{Emoji, PartialEmoji};
 use crate::model::guild::invite::Invite;
 use crate::model::guild::{Guild, Role};
 use crate::model::id::{ChannelId, EmojiId, GuildId, MessageId, RoleId, UserId, WebhookId};
+use crate::model::image::ImageDataRef;
 use crate::model::user::ClientUser;
 use crate::model::voice::VoiceRegionId;
 use crate::model::webhook::Webhook;
@@ -181,12 +182,12 @@ impl Http {
         &self,
         channel_id: ChannelId,
         name: &str,
-        avatar: Option<&str>,
+        avatar: Option<&ImageDataRef>,
     ) -> Result<Webhook> {
         #[derive(Debug, Serialize)]
         struct Params<'a> {
             name: &'a str,
-            avatar: Option<&'a str>,
+            avatar: Option<&'a ImageDataRef>,
         }
         let params = Params { name, avatar };
 
@@ -218,13 +219,13 @@ impl Http {
         &self,
         guild_id: GuildId,
         name: &str,
-        image: &str,
+        image: &ImageDataRef,
         roles: &[RoleId],
     ) -> Result<Emoji> {
         #[derive(Debug, Serialize)]
         struct Params<'a> {
             name: &'a str,
-            image: &'a str,
+            image: &'a ImageDataRef,
             roles: &'a [RoleId],
         }
         let params = Params { name, image, roles };

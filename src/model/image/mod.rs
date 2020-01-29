@@ -9,6 +9,7 @@ mod format;
 use std::borrow::Cow;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Read, Seek};
+use std::ops::Deref;
 use std::path::Path;
 
 use base64::display::Base64Display;
@@ -110,6 +111,22 @@ impl ImageData {
     }
 }
 
+impl Deref for ImageData {
+    type Target = ImageDataRef;
+
+    fn deref(&self) -> &Self::Target {
+        // SAFETY: The lifetime of the ImageDataRef is bound by the lifetime of the
+        //         ImageData.
+        unsafe { ImageDataRef::from_data_uri_unchecked(&self.0) }
+    }
+}
+
+impl AsRef<ImageDataRef> for ImageData {
+    fn as_ref(&self) -> &ImageDataRef {
+        self.deref()
+    }
+}
+
 impl AsRef<str> for ImageData {
     fn as_ref(&self) -> &str {
         &self.0
@@ -128,8 +145,103 @@ impl From<ImageData> for Cow<'static, str> {
     }
 }
 
+impl PartialEq<ImageDataRef> for ImageData {
+    fn eq(&self, other: &ImageDataRef) -> bool {
+        self.0[..] == other.inner[..]
+    }
+}
+
+impl PartialEq<&ImageDataRef> for ImageData {
+    fn eq(&self, other: &&ImageDataRef) -> bool {
+        self.0[..] == other.inner[..]
+    }
+}
+
 impl PartialEq<str> for ImageData {
     fn eq(&self, other: &str) -> bool {
         self.0[..] == other[..]
+    }
+}
+
+impl PartialEq<&str> for ImageData {
+    fn eq(&self, other: &&str) -> bool {
+        self.0[..] == other[..]
+    }
+}
+
+impl PartialEq<ImageData> for str {
+    fn eq(&self, other: &ImageData) -> bool {
+        self[..] == other.0[..]
+    }
+}
+
+impl PartialEq<ImageData> for &str {
+    fn eq(&self, other: &ImageData) -> bool {
+        self[..] == other.0[..]
+    }
+}
+
+/// A reference to image data supported by the Discord API.
+#[repr(transparent)]
+#[derive(Debug, Eq, PartialEq, Serialize)]
+#[serde(transparent)]
+pub struct ImageDataRef {
+    inner: str,
+}
+
+impl ImageDataRef {
+    /// Creates image data from a [Data URI scheme].
+    ///
+    /// Supports GIF, JPEG and PNG formats.
+    ///
+    /// An example Data URI format:
+    /// ```text
+    /// data:image/jpeg;base64,BASE64_ENCODED_JPEG_IMAGE_DATA
+    /// ```
+    ///
+    /// # Safety
+    ///
+    /// No checks are made that Data URI scheme is valid and supported, as a
+    /// result it is possible for the Discord API to to return errors due to
+    /// invalid an image format.
+    pub unsafe fn from_data_uri_unchecked(data: &str) -> &ImageDataRef {
+        // SAFETY: ImageDataRef and str have the same memory layout.
+        &*(data as *const str as *const ImageDataRef)
+    }
+}
+
+impl AsRef<str> for ImageDataRef {
+    fn as_ref(&self) -> &str {
+        &self.inner
+    }
+}
+
+impl From<&ImageDataRef> for String {
+    fn from(image: &ImageDataRef) -> Self {
+        image.inner.to_owned()
+    }
+}
+
+impl PartialEq<ImageData> for ImageDataRef {
+    fn eq(&self, other: &ImageData) -> bool {
+        self.inner[..] == other.0[..]
+    }
+}
+
+impl PartialEq<ImageData> for &ImageDataRef {
+    fn eq(&self, other: &ImageData) -> bool {
+        self.inner[..] == other.0[..]
+    }
+}
+
+impl PartialEq<str> for ImageDataRef {
+    fn eq(&self, other: &str) -> bool {
+        self.inner[..] == other[..]
+    }
+}
+
+impl PartialEq<ImageDataRef> for str {
+    fn eq(&self, other: &ImageDataRef) -> bool {
+        self[..] == other.inner[..]
     }
 }

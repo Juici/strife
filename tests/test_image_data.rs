@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use strife::model::image::{ImageData, ImageFormat};
+use strife::model::image::{ImageData, ImageDataRef, ImageFormat};
 
 macro_rules! data_uri {
     ($ext:literal) => {
@@ -64,4 +64,34 @@ fn test_png() {
     let image = ImageData::open(path).unwrap();
 
     assert_eq!(raw, image);
+}
+
+#[test]
+fn test_deref() {
+    const DATA: &str = data_uri!("png");
+
+    let raw1 = unsafe { ImageData::from_data_uri_unchecked(DATA) };
+    let raw2 = unsafe { ImageDataRef::from_data_uri_unchecked(DATA) };
+
+    assert_eq!(&*raw1, raw2);
+
+    let implicit: &ImageDataRef = &raw1;
+    assert_eq!(implicit, raw2);
+}
+
+#[test]
+fn test_eq() {
+    const DATA: &str = data_uri!("png");
+
+    let raw1 = unsafe { ImageData::from_data_uri_unchecked(DATA) };
+    let raw2 = unsafe { ImageDataRef::from_data_uri_unchecked(DATA) };
+
+    assert_eq!(raw1, raw2);
+    assert_eq!(raw2, raw1);
+
+    assert_eq!(raw2, DATA);
+    assert_eq!(DATA, raw2);
+
+    assert_eq!(raw1, DATA);
+    assert_eq!(DATA, raw1);
 }
