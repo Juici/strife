@@ -10,7 +10,7 @@ use crate::internal::prelude::*;
 use crate::builder::marker::GuildChannelBuilder;
 use crate::builder::{
     CreateChannel, CreateGuild, CreateInvite, CreateMessage, CreateRole, EditChannel,
-    EditCurrentUser, EditGuild, EditGuildEmbed, EditMember,
+    EditCurrentUser, EditGuild, EditGuildEmbed, EditMember, EditMessage,
 };
 
 use crate::model::channel::permissions::{OverwriteId, PermissionOverwrite};
@@ -738,6 +738,33 @@ impl Http {
 
         let mut request = Request::new(Route::EditMember { guild_id, user_id });
         request.json(&member)?;
+
+        self.request(request).await
+    }
+
+    /// Edits a previously sent [`Message`].
+    ///
+    /// If the client user is not the original author of the message, only the
+    /// message flags can be modified.
+    ///
+    /// [`Message`]: ../model/channel/message/struct.Message.html
+    pub async fn edit_message<F>(
+        &self,
+        channel_id: ChannelId,
+        message_id: MessageId,
+        edit_message: F,
+    ) -> Result<Message>
+    where
+        F: FnOnce(&mut EditMessage),
+    {
+        let mut message = EditMessage::new();
+        edit_message(&mut message);
+
+        let mut request = Request::new(Route::EditMessage {
+            channel_id,
+            message_id,
+        });
+        request.json(&message)?;
 
         self.request(request).await
     }

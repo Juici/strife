@@ -199,7 +199,7 @@ bitflags! {
         /// The message originated from a message in another channel (via Channel Following).
         const IS_CROSSPOST = 1 << 1;
         /// Do not include any embeds when serializing the message.
-        const SUPRESS_EMBEDS = 1 << 2;
+        const SUPPRESS_EMBEDS = 1 << 2;
         /// The source message for this crossposted message has been deleted.
         const SOURCE_MESSAGE_DELETED = 1 << 3;
         /// The message came from the urgent message system.
