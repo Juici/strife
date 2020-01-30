@@ -3,6 +3,7 @@ use serde::Serialize;
 use crate::model::guild::settings::{
     ExplicitContentFilterLevel, MessageNotificationLevel, VerificationLevel,
 };
+use crate::model::image::ImageDataRef;
 use crate::model::voice::VoiceRegionId;
 
 /// A builder for creating a new guild.
@@ -10,7 +11,7 @@ use crate::model::voice::VoiceRegionId;
 pub struct CreateGuild<'a> {
     name: &'a str,
     region: VoiceRegionId,
-    icon: Option<&'a str>,
+    icon: Option<&'a ImageDataRef>,
     verification_level: VerificationLevel,
     #[serde(rename = "default_message_notifications")]
     message_notifications: MessageNotificationLevel,
@@ -19,7 +20,7 @@ pub struct CreateGuild<'a> {
 }
 
 impl<'a> CreateGuild<'a> {
-    pub(crate) fn create(name: &'a str, region: VoiceRegionId) -> Self {
+    pub(crate) fn new(name: &'a str, region: VoiceRegionId) -> Self {
         CreateGuild {
             name,
             region,
@@ -31,7 +32,7 @@ impl<'a> CreateGuild<'a> {
     }
 
     /// Sets the icon for the guild.
-    pub fn icon(&mut self, icon: &'a str) {
+    pub fn icon(&mut self, icon: &'a ImageDataRef) {
         self.icon = Some(icon);
     }
 

@@ -31,7 +31,7 @@ pub struct CreateEmbed<'a> {
 // TODO: Add support for attachments `attachment://filename.png`.
 
 impl<'a> CreateEmbed<'a> {
-    pub(crate) fn create() -> Self {
+    pub(crate) fn new() -> Self {
         CreateEmbed {
             title: None,
             description: None,

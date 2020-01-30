@@ -13,7 +13,7 @@ pub struct EditCurrentUser<'a> {
 }
 
 impl<'a> EditCurrentUser<'a> {
-    pub(crate) fn create() -> Self {
+    pub(crate) fn new() -> Self {
         EditCurrentUser {
             name: None,
             avatar: None,

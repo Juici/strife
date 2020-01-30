@@ -14,7 +14,7 @@ pub struct CreateInvite {
 }
 
 impl CreateInvite {
-    pub(crate) fn create() -> Self {
+    pub(crate) fn new() -> Self {
         CreateInvite {
             max_age: None,
             max_uses: None,

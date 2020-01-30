@@ -20,7 +20,7 @@ pub struct CreateRole<'a> {
 }
 
 impl<'a> CreateRole<'a> {
-    pub(crate) fn create() -> Self {
+    pub(crate) fn new() -> Self {
         CreateRole {
             name: None,
             permissions: None,

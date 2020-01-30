@@ -44,7 +44,7 @@ guild_channel! {
     VoiceChannel = [EditVoiceChannel, ChannelType::Voice];
 }
 
-/// A builder for creating a new channel in a guild.
+/// A builder for editing a channel in a guild.
 #[derive(Debug, Serialize)]
 pub struct EditChannel<T: GuildChannelBuilder> {
     #[serde(flatten)]

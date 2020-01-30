@@ -17,7 +17,7 @@ pub struct CreateMessage<'a> {
 }
 
 impl<'a> CreateMessage<'a> {
-    pub(crate) fn create() -> Self {
+    pub(crate) fn new() -> Self {
         CreateMessage {
             content: None,
             tts: None,
@@ -43,7 +43,7 @@ impl<'a> CreateMessage<'a> {
     where
         F: FnOnce(&mut CreateEmbed),
     {
-        let mut embed = CreateEmbed::create();
+        let mut embed = CreateEmbed::new();
         create_embed(&mut embed);
 
         self.embed = Some(embed);

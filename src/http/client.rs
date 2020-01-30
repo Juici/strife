@@ -162,7 +162,7 @@ impl Http {
         T: GuildChannelBuilder + DeserializeOwned,
         F: FnOnce(&mut CreateChannel<T>),
     {
-        let mut channel = CreateChannel::<T>::create(name);
+        let mut channel = CreateChannel::<T>::new(name);
         create_channel(&mut channel);
 
         let mut request = Request::new(Route::CreateChannel { guild_id });
@@ -250,7 +250,7 @@ impl Http {
     where
         F: FnOnce(&mut CreateGuild),
     {
-        let mut guild = CreateGuild::create(name, region);
+        let mut guild = CreateGuild::new(name, region);
         create_guild(&mut guild);
 
         let mut request = Request::new(Route::CreateGuild);
@@ -272,7 +272,7 @@ impl Http {
     where
         F: FnOnce(&mut CreateInvite),
     {
-        let mut invite = CreateInvite::create();
+        let mut invite = CreateInvite::new();
         create_invite(&mut invite);
 
         let mut request = Request::new(Route::CreateInvite { channel_id });
@@ -297,7 +297,7 @@ impl Http {
     where
         F: FnOnce(&mut CreateMessage),
     {
-        let mut msg = CreateMessage::create();
+        let mut msg = CreateMessage::new();
         create_message(&mut msg);
 
         let mut request = Request::new(Route::CreateMessage { channel_id });
@@ -354,7 +354,7 @@ impl Http {
     where
         F: FnOnce(&mut CreateRole),
     {
-        let mut role = CreateRole::create();
+        let mut role = CreateRole::new();
         create_role(&mut role);
 
         let mut request = Request::new(Route::CreateRole { guild_id });
@@ -640,12 +640,12 @@ impl Http {
         self.fire(request).await
     }
 
-    /// Edits the client user name or avatar.
+    /// Edits the client user.
     pub async fn edit_current_user<F>(&self, edit_user: F) -> Result<ClientUser>
     where
         F: FnOnce(&mut EditCurrentUser),
     {
-        let mut user = EditCurrentUser::create();
+        let mut user = EditCurrentUser::new();
         edit_user(&mut user);
 
         let mut request = Request::new(Route::EditCurrentUser);
