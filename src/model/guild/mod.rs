@@ -29,6 +29,16 @@ use self::settings::{
 pub use self::member::{Member, PartialMember};
 pub use self::role::Role;
 
+/// Information about the embed widget for a guild.
+#[non_exhaustive]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
+pub struct GuildEmbed {
+    /// Whether the embed widget is enabled.
+    pub enabled: bool,
+    /// The ID of the channel that the embed widget will generate an invite to.
+    pub channel_id: Option<ChannelId>,
+}
+
 /// A feature enabled for a guild.
 #[non_exhaustive]
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]

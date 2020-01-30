@@ -10,14 +10,14 @@ use crate::internal::prelude::*;
 use crate::builder::marker::GuildChannelBuilder;
 use crate::builder::{
     CreateChannel, CreateGuild, CreateInvite, CreateMessage, CreateRole, EditChannel,
-    EditCurrentUser,
+    EditCurrentUser, EditGuild, EditGuildEmbed,
 };
 
 use crate::model::channel::permissions::{OverwriteId, PermissionOverwrite};
 use crate::model::channel::{Channel, DMChannel, Message};
 use crate::model::emoji::{Emoji, PartialEmoji};
 use crate::model::guild::invite::Invite;
-use crate::model::guild::{Guild, Role};
+use crate::model::guild::{Guild, GuildEmbed, Role};
 use crate::model::id::{ChannelId, EmojiId, GuildId, MessageId, RoleId, UserId, WebhookId};
 use crate::model::image::ImageDataRef;
 use crate::model::user::ClientUser;
@@ -650,6 +650,71 @@ impl Http {
 
         let mut request = Request::new(Route::EditCurrentUser);
         request.json(&user)?;
+
+        self.request(request).await
+    }
+
+    /// Edits an [`Emoji`].
+    ///
+    /// Requires the [`MANAGE_EMOJIS`] permission.
+    ///
+    /// [`Emoji`]: ../model/emoji/struct.Emoji.html
+    #[doc = "\n[`MANAGE_EMOJIS`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_EMOJIS"]
+    pub async fn edit_emoji(
+        &self,
+        guild_id: GuildId,
+        emoji_id: EmojiId,
+        name: &str,
+        roles: &[RoleId],
+    ) -> Result<Emoji> {
+        #[derive(Debug, Serialize)]
+        struct Params<'a> {
+            name: &'a str,
+            roles: &'a [RoleId],
+        }
+        let params = Params { name, roles };
+
+        let mut request = Request::new(Route::EditEmoji { guild_id, emoji_id });
+        request.json(&params)?;
+
+        self.request(request).await
+    }
+
+    /// Edits the settings of a [`Guild`].
+    ///
+    /// [`Guild`]: ../model/guild/struct.Guild.html
+    pub async fn edit_guild<F>(&self, guild_id: GuildId, edit_guild: F) -> Result<Guild>
+    where
+        F: FnOnce(&mut EditGuild),
+    {
+        let mut guild = EditGuild::new();
+        edit_guild(&mut guild);
+
+        let mut request = Request::new(Route::EditGuild { guild_id });
+        request.json(&guild)?;
+
+        self.request(request).await
+    }
+
+    /// Edits the guild embed widget for a [`Guild`].
+    ///
+    /// Requires the [`MANAGE_GUILD`] permission.
+    ///
+    /// [`Guild`]: ../model/guild/struct.Guild.html
+    #[doc = "\n[`MANAGE_GUILD`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_GUILD"]
+    pub async fn edit_guild_embed<F>(
+        &self,
+        guild_id: GuildId,
+        edit_guild_embed: F,
+    ) -> Result<GuildEmbed>
+    where
+        F: FnOnce(&mut EditGuildEmbed),
+    {
+        let mut guild_embed = EditGuildEmbed::new();
+        edit_guild_embed(&mut guild_embed);
+
+        let mut request = Request::new(Route::EditGuildEmbed { guild_id });
+        request.json(&guild_embed)?;
 
         self.request(request).await
     }
