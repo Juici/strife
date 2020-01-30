@@ -76,3 +76,34 @@ impl<'a> EditMember<'a> {
         self.channel_id = Some(None);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use serde_json::json;
+
+    use super::*;
+
+    #[test]
+    fn test_serialize_move() {
+        let value = json!({
+            "channel_id": "80351110224678912",
+        });
+
+        let mut member = EditMember::new();
+        member.move_channel(ChannelId::from(80351110224678912));
+
+        assert_eq!(value, serde_json::to_value(&member).unwrap());
+    }
+
+    #[test]
+    fn test_serialize_disconnect() {
+        let value = json!({
+            "channel_id": null,
+        });
+
+        let mut member = EditMember::new();
+        member.disconnect();
+
+        assert_eq!(value, serde_json::to_value(&member).unwrap());
+    }
+}
