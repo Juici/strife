@@ -17,9 +17,9 @@ const RATELIMIT_GLOBAL: &str = "x-ratelimit-global";
 const RATELIMIT_LIMIT: &str = "x-ratelimit-limit";
 const RATELIMIT_REMAINING: &str = "x-ratelimit-remaining";
 
-#[cfg(any(test, feature = "systime_ratelimits"))]
+#[cfg(any(test, feature = "systime-ratelimits"))]
 const RATELIMIT_RESET: &str = "x-ratelimit-reset";
-#[cfg(any(test, not(feature = "systime_ratelimits")))]
+#[cfg(any(test, not(feature = "systime-ratelimits")))]
 const RATELIMIT_RESET_AFTER: &str = "x-ratelimit-reset-after";
 
 const RETRY_AFTER: &str = "retry-after";
@@ -186,20 +186,20 @@ impl RateLimiter {
 struct RateLimit {
     limit: i64,
     remaining: i64,
-    #[cfg(feature = "systime_ratelimits")]
+    #[cfg(feature = "systime-ratelimits")]
     reset: i64,
-    #[cfg(not(feature = "systime_ratelimits"))]
+    #[cfg(not(feature = "systime-ratelimits"))]
     reset_after: i64,
 }
 
 impl RateLimit {
-    #[cfg(feature = "systime_ratelimits")]
+    #[cfg(feature = "systime-ratelimits")]
     fn delay(&self) -> i64 {
         let now = chrono::Utc::now().timestamp_millis();
         self.reset - now
     }
 
-    #[cfg(not(feature = "systime_ratelimits"))]
+    #[cfg(not(feature = "systime-ratelimits"))]
     fn delay(&self) -> i64 {
         self.reset_after
     }
@@ -240,14 +240,14 @@ impl RateLimit {
             self.remaining = remaining;
         }
 
-        #[cfg(feature = "systime_ratelimits")]
+        #[cfg(feature = "systime-ratelimits")]
         {
             if let Some(reset) = parse_header::<f64>(&response.headers(), RATELIMIT_RESET)? {
                 self.reset = f64::ceil(reset * 1000f64) as i64;
             }
         }
 
-        #[cfg(not(feature = "systime_ratelimits"))]
+        #[cfg(not(feature = "systime-ratelimits"))]
         {
             if let Some(reset_after) =
                 parse_header::<f64>(&response.headers(), RATELIMIT_RESET_AFTER)?
@@ -277,9 +277,9 @@ impl Default for RateLimit {
         RateLimit {
             limit: i64::MAX,
             remaining: i64::MAX,
-            #[cfg(feature = "systime_ratelimits")]
+            #[cfg(feature = "systime-ratelimits")]
             reset: i64::MAX,
-            #[cfg(not(feature = "systime_ratelimits"))]
+            #[cfg(not(feature = "systime-ratelimits"))]
             reset_after: i64::MAX,
         }
     }

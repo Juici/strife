@@ -5,6 +5,7 @@ authors = ["James Whaley <juicy66173@gmail.com>"]
 description = "A lightweight library for the Discord API."
 license = "MIT"
 readme = "README.md"
+build = "build.rs"
 
 documentation = "https://docs.rs/strife"
 homepage = "https://github.com/Juici/strife"
@@ -15,17 +16,30 @@ keywords = ["discord", "api", "async"]
 
 edition = "2018"
 
+[package.metadata.docs.rs]
+all-features = true
+
 [features]
-default = ["systime_ratelimits"]
-systime_ratelimits = []
+default = [
+    "rustls-tls",
+    "systime-ratelimits",
+]
+
+# TLS backend.
+# Enabling both TLS features will cause longer compile times and only rustls-tls will be used.
+rustls-tls = ["hyper-rustls"]
+native-tls = ["hyper-tls"]
+
+# Misc.
+systime-ratelimits = []
 
 [dependencies]
 base64 = "0.11"
 bitflags = "1.2"
 bytes = "0.5"
+cfg-if = "0.1"
 chrono = { version = "0.4", features = ["serde"] }
 hyper = "0.13"
-hyper-tls = "0.4"
 int-enum = { version = "0.3", features = ["serialize", "convert"] }
 log = "0.4"
 num-traits = "0.2"
@@ -35,6 +49,14 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "1.0"
 tokio = { version = "0.2", features = ["sync", "time"] }
+
+# Optional dependencies.
+
+# native-tls
+hyper-tls = { version = "0.4", optional = true }
+
+# rustls-tls
+hyper-rustls = { version = "0.19", optional = true }
 
 [dev-dependencies]
 anyhow = "1.0"
