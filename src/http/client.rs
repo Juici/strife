@@ -10,7 +10,7 @@ use crate::internal::prelude::*;
 use crate::builder::marker::GuildChannelBuilder;
 use crate::builder::{
     CreateChannel, CreateGuild, CreateInvite, CreateMessage, CreateRole, EditChannel,
-    EditCurrentUser, EditGuild, EditGuildEmbed,
+    EditCurrentUser, EditGuild, EditGuildEmbed, EditMember,
 };
 
 use crate::model::channel::permissions::{OverwriteId, PermissionOverwrite};
@@ -715,6 +715,29 @@ impl Http {
 
         let mut request = Request::new(Route::EditGuildEmbed { guild_id });
         request.json(&guild_embed)?;
+
+        self.request(request).await
+    }
+
+    // TODO: Add edit_integration.
+
+    /// Edits attributes of a guild [`Member`].
+    ///
+    /// [`Member`]: ../model/guild/struct.Member.html
+    pub async fn edit_member<F>(
+        &self,
+        guild_id: GuildId,
+        user_id: UserId,
+        edit_member: F,
+    ) -> Result<()>
+    where
+        F: FnOnce(&mut EditMember),
+    {
+        let mut member = EditMember::new();
+        edit_member(&mut member);
+
+        let mut request = Request::new(Route::EditMember { guild_id, user_id });
+        request.json(&member)?;
 
         self.request(request).await
     }
