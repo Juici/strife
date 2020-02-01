@@ -5,7 +5,7 @@ use crate::model::permissions::Permissions;
 
 /// A builder for creating a new role.
 #[derive(Debug, Serialize)]
-pub struct CreateRole<'a> {
+pub struct EditRole<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     name: Option<&'a str>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -19,9 +19,9 @@ pub struct CreateRole<'a> {
     mentionable: Option<bool>,
 }
 
-impl<'a> CreateRole<'a> {
+impl<'a> EditRole<'a> {
     pub(crate) fn new() -> Self {
-        CreateRole {
+        EditRole {
             name: None,
             permissions: None,
             color: None,

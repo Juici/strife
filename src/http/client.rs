@@ -9,8 +9,8 @@ use crate::internal::prelude::*;
 
 use crate::builder::marker::GuildChannelBuilder;
 use crate::builder::{
-    CreateChannel, CreateGuild, CreateInvite, CreateMessage, CreateRole, EditChannel,
-    EditCurrentUser, EditGuild, EditGuildEmbed, EditMember, EditMessage,
+    CreateChannel, CreateGuild, CreateInvite, CreateMessage, EditChannel, EditCurrentUser,
+    EditGuild, EditGuildEmbed, EditMember, EditMessage, EditRole,
 };
 
 use crate::model::channel::permissions::{OverwriteId, PermissionOverwrite};
@@ -352,9 +352,9 @@ impl Http {
     #[doc = "\n[`MANAGE_ROLES`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_ROLES"]
     pub async fn create_role<F>(&self, guild_id: GuildId, create_role: F) -> Result<Role>
     where
-        F: FnOnce(&mut CreateRole),
+        F: FnOnce(&mut EditRole),
     {
-        let mut role = CreateRole::new();
+        let mut role = EditRole::new();
         create_role(&mut role);
 
         let mut request = Request::new(Route::CreateRole { guild_id });
@@ -765,6 +765,44 @@ impl Http {
             message_id,
         });
         request.json(&message)?;
+
+        self.request(request).await
+    }
+
+    /// Edits the nickname of the client user in a [`Guild`].
+    ///
+    /// [`Guild`]: ../model/guild/struct.Guild.html
+    pub async fn edit_nickname(&self, guild_id: GuildId, nick: &str) -> Result<()> {
+        #[derive(Debug, Serialize)]
+        struct Params<'a> {
+            nick: &'a str,
+        }
+        let params = Params { nick };
+
+        let mut request = Request::new(Route::EditNickname { guild_id });
+        request.json(&params)?;
+
+        self.fire(request).await
+    }
+
+    /// Edits a [`Role`] in a [`Guild`].
+    ///
+    /// [`Role`]: ../model/guild/struct.Role.html
+    /// [`Guild`]: ../model/guild/struct.Guild.html
+    pub async fn edit_role<F>(
+        &self,
+        guild_id: GuildId,
+        role_id: RoleId,
+        edit_role: F,
+    ) -> Result<Role>
+    where
+        F: FnOnce(&mut EditRole),
+    {
+        let mut role = EditRole::new();
+        edit_role(&mut role);
+
+        let mut request = Request::new(Route::EditRole { guild_id, role_id });
+        request.json(&role)?;
 
         self.request(request).await
     }
