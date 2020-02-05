@@ -606,9 +606,7 @@ impl Http {
         // FIXME: Improve function.
 
         #[derive(Debug)]
-        struct Params<'a> {
-            channels: &'a [(ChannelId, usize)],
-        }
+        struct Params<'a>(&'a [(ChannelId, usize)]);
 
         impl<'a> Serialize for Params<'a> {
             fn serialize<S>(&self, serializer: S) -> StdResult<S::Ok, S::Error>
@@ -623,8 +621,8 @@ impl Http {
 
                 use serde::ser::SerializeTuple;
 
-                let mut seq = serializer.serialize_tuple(self.channels.len())?;
-                for &(id, position) in self.channels {
+                let mut seq = serializer.serialize_tuple(self.0.len())?;
+                for &(id, position) in self.0 {
                     let param = Param { id, position };
                     seq.serialize_element(&param)?;
                 }
@@ -632,7 +630,7 @@ impl Http {
             }
         }
 
-        let params = Params { channels };
+        let params = Params(channels);
 
         let mut request = Request::new(Route::EditChannelPositions { guild_id });
         request.json(&params)?;
@@ -805,6 +803,52 @@ impl Http {
         request.json(&role)?;
 
         self.request(request).await
+    }
+
+    /// Edits the positions of a set of [`Role`]s.
+    ///
+    /// Requires the [`MANAGE_ROLES`] permission.
+    ///
+    /// [`Role`]: ../model/guild/struct.Role.html
+    #[doc = "\n[`MANAGE_ROLES`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_ROLES"]
+    pub async fn edit_role_positions(
+        &self,
+        guild_id: GuildId,
+        roles: &[(RoleId, usize)],
+    ) -> Result<()> {
+        // FIXME: Improve function.
+
+        #[derive(Debug)]
+        struct Params<'a>(&'a [(RoleId, usize)]);
+
+        impl<'a> Serialize for Params<'a> {
+            fn serialize<S>(&self, serializer: S) -> StdResult<S::Ok, S::Error>
+            where
+                S: Serializer,
+            {
+                #[derive(Debug, Serialize)]
+                struct Param {
+                    id: RoleId,
+                    position: usize,
+                }
+
+                use serde::ser::SerializeTuple;
+
+                let mut seq = serializer.serialize_tuple(self.0.len())?;
+                for &(id, position) in self.0 {
+                    let param = Param { id, position };
+                    seq.serialize_element(&param)?;
+                }
+                seq.end()
+            }
+        }
+
+        let params = Params(roles);
+
+        let mut request = Request::new(Route::EditRolePositions { guild_id });
+        request.json(&params)?;
+
+        self.fire(request).await
     }
 
     /// Performs a request with rate limiting if necessary.
