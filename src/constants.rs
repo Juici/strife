@@ -1,5 +1,7 @@
 //! A collection of constants used by the library.
 
+use bitflags::bitflags;
+
 /// The gateway version used by the library, URI is retrieved via the REST API.
 pub const GATEWAY_VERSION: usize = 6;
 
@@ -66,4 +68,111 @@ pub mod close_codes {
     pub const INVALID_SHARD: u16 = 4010;
     /// The session would have handled too many guilds.
     pub const SHARDING_REQUIRED: u16 = 4011;
+}
+
+bitflags! {
+    /// Intents used when identifying to the gateway, to subscribe to events.
+    ///
+    /// Each intent represents a pre-defined group of events; these events will
+    /// not be sent by the gateway unless subscribed to.
+    pub struct Intents: u32 {
+        /// ```text
+        /// - GUILD_CREATE
+        /// - GUILD_DELETE
+        /// - GUILD_ROLE_CREATE
+        /// - GUILD_ROLE_UPDATE
+        /// - GUILD_ROLE_DELETE
+        /// - CHANNEL_CREATE
+        /// - CHANNEL_UPDATE
+        /// - CHANNEL_DELETE
+        /// - CHANNEL_PINS_UPDATE
+        /// ```
+        const GUILDS = (1 << 0);
+
+        /// ```text
+        /// - GUILD_MEMBER_ADD
+        /// - GUILD_MEMBER_UPDATE
+        /// - GUILD_MEMBER_REMOVE
+        /// ```
+        const GUILD_MEMBERS = (1 << 1);
+
+        /// ```text
+        /// - GUILD_BAN_ADD
+        /// - GUILD_BAN_REMOVE
+        /// ```
+        const GUILD_BANS = (1 << 2);
+
+        /// ```text
+        /// - GUILD_EMOJIS_UPDATE
+        /// ```
+        const GUILD_EMOJIS = (1 << 3);
+
+        /// ```text
+        /// - GUILD_INTEGRATIONS_UPDATE
+        /// ```
+        const GUILD_INTEGRATIONS = (1 << 4);
+
+        /// ```text
+        /// - WEBHOOKS_UPDATE
+        /// ```
+        const GUILD_WEBHOOKS = (1 << 5);
+
+        /// ```text
+        /// - INVITE_CREATE
+        /// - INVITE_DELETE
+        /// ```
+        const GUILD_INVITES = (1 << 6);
+
+        /// ```text
+        /// - VOICE_STATE_UPDATE
+        /// ```
+        const GUILD_VOICE_STATES = (1 << 7);
+
+        /// ```text
+        /// - PRESENCE_UPDATE
+        /// ```
+        const GUILD_PRESENCES = (1 << 8);
+
+        /// ```text
+        /// - MESSAGE_CREATE
+        /// - MESSAGE_UPDATE
+        /// - MESSAGE_DELETE
+        /// ```
+        const GUILD_MESSAGES = (1 << 9);
+
+        /// ```text
+        /// - MESSAGE_REACTION_ADD
+        /// - MESSAGE_REACTION_REMOVE
+        /// - MESSAGE_REACTION_REMOVE_ALL
+        /// - MESSAGE_REACTION_REMOVE_EMOJI
+        /// ```
+        const GUILD_MESSAGE_REACTIONS = (1 << 10);
+
+        /// ```text
+        /// - TYPING_START
+        /// ```
+        const GUILD_MESSAGE_TYPING = (1 << 11);
+
+        /// ```text
+        /// - CHANNEL_CREATE
+        /// - MESSAGE_CREATE
+        /// - MESSAGE_UPDATE
+        /// - MESSAGE_DELETE
+        /// - CHANNEL_PINS_UPDATE
+        /// ```
+        const DIRECT_MESSAGES = (1 << 12);
+
+        /// ```text
+        /// - MESSAGE_REACTION_ADD
+        /// - MESSAGE_REACTION_REMOVE
+        /// - MESSAGE_REACTION_REMOVE_ALL
+        /// - MESSAGE_REACTION_REMOVE_EMOJI
+        /// ```
+        const DIRECT_MESSAGE_REACTIONS = (1 << 13);
+
+        /// ```text
+        /// - TYPING_START
+        /// ```
+        const DIRECT_MESSAGE_TYPING = (1 << 14);
+    }
 }
