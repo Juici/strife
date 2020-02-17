@@ -13,6 +13,7 @@ mod edit_guild;
 mod edit_guild_embed;
 mod edit_member;
 mod edit_message;
+mod edit_webhook;
 
 pub use self::create_channel::CreateChannel;
 pub use self::create_embed::CreateEmbed;
@@ -27,6 +28,7 @@ pub use self::edit_guild_embed::EditGuildEmbed;
 pub use self::edit_member::EditMember;
 pub use self::edit_message::EditMessage;
 pub use self::edit_role::EditRole;
+pub use self::edit_webhook::EditWebhook;
 
 pub(crate) mod marker {
     pub use super::edit_channel::GuildChannelBuilder;

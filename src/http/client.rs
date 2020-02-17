@@ -10,7 +10,7 @@ use crate::internal::prelude::*;
 use crate::builder::marker::GuildChannelBuilder;
 use crate::builder::{
     CreateChannel, CreateGuild, CreateInvite, CreateMessage, EditChannel, EditCurrentUser,
-    EditGuild, EditGuildEmbed, EditMember, EditMessage, EditRole,
+    EditGuild, EditGuildEmbed, EditMember, EditMessage, EditRole, EditWebhook,
 };
 
 use crate::model::channel::permissions::{OverwriteId, PermissionOverwrite};
@@ -33,6 +33,8 @@ pub struct Http {
     /// Internal rate limit manager.
     ratelimiter: RateLimiter,
 }
+
+// TODO: Add better support for webhooks that don't require authentication.
 
 impl Http {
     /// Creates a new HTTP client with the given API token.
@@ -849,6 +851,25 @@ impl Http {
         request.json(&params)?;
 
         self.fire(request).await
+    }
+
+    /// Edits a [`Webhook`].
+    ///
+    /// Requires the [`MANAGE_WEBHOOKS`] permission.
+    ///
+    /// [`Webhook`]: ../model/webhook/struct.Webhook.html
+    #[doc = "\n[`MANAGE_WEBHOOKS`]: ../model/permissions/struct.Permissions.html#associatedconstant.MANAGE_WEBHOOKS"]
+    pub async fn edit_webhook<F>(&self, webhook_id: WebhookId, edit_webhook: F) -> Result<Webhook>
+    where
+        F: FnOnce(&mut EditWebhook),
+    {
+        let mut webhook = EditWebhook::new();
+        edit_webhook(&mut webhook);
+
+        let mut request = Request::new(Route::EditWebhook { webhook_id });
+        request.json(&webhook)?;
+
+        self.request(request).await
     }
 
     /// Performs a request with rate limiting if necessary.
