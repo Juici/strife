@@ -1,11 +1,12 @@
 //! Builders for making or editing models.
 
+mod audit_log_filter;
+
 mod create_channel;
 mod create_embed;
 mod create_guild;
 mod create_invite;
 mod create_message;
-mod edit_role;
 
 mod edit_channel;
 mod edit_current_user;
@@ -13,7 +14,10 @@ mod edit_guild;
 mod edit_guild_embed;
 mod edit_member;
 mod edit_message;
+mod edit_role;
 mod edit_webhook;
+
+pub use self::audit_log_filter::AuditLogFilter;
 
 pub use self::create_channel::CreateChannel;
 pub use self::create_embed::CreateEmbed;

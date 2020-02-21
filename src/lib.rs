@@ -4,6 +4,8 @@
 #![deny(missing_docs)]
 #![allow(clippy::identity_op)]
 
+#![feature(const_if_match)]
+
 mod error;
 #[macro_use]
 mod internal;

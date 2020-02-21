@@ -5,6 +5,7 @@ mod role;
 
 pub mod audit_log;
 pub mod invite;
+pub mod integration;
 pub mod settings;
 
 use std::collections::{HashMap, HashSet};

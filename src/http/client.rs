@@ -9,13 +9,14 @@ use crate::internal::prelude::*;
 
 use crate::builder::marker::GuildChannelBuilder;
 use crate::builder::{
-    CreateChannel, CreateGuild, CreateInvite, CreateMessage, EditChannel, EditCurrentUser,
-    EditGuild, EditGuildEmbed, EditMember, EditMessage, EditRole, EditWebhook,
+    AuditLogFilter, CreateChannel, CreateGuild, CreateInvite, CreateMessage, EditChannel,
+    EditCurrentUser, EditGuild, EditGuildEmbed, EditMember, EditMessage, EditRole, EditWebhook,
 };
 
 use crate::model::channel::permissions::{OverwriteId, PermissionOverwrite};
 use crate::model::channel::{Channel, DMChannel, Message};
 use crate::model::emoji::{Emoji, PartialEmoji};
+use crate::model::guild::audit_log::AuditLog;
 use crate::model::guild::invite::Invite;
 use crate::model::guild::{Guild, GuildEmbed, Role};
 use crate::model::id::{ChannelId, EmojiId, GuildId, MessageId, RoleId, UserId, WebhookId};
@@ -868,6 +869,21 @@ impl Http {
 
         let mut request = Request::new(Route::EditWebhook { webhook_id });
         request.json(&webhook)?;
+
+        self.request(request).await
+    }
+
+    /// Returns audit logs for a [`Guild`].
+    ///
+    /// [`Guild`]: ../model/guild/struct.Guild.html
+    pub async fn get_audit_logs<F>(&self, guild_id: GuildId, filter: F) -> Result<AuditLog>
+    where
+        F: FnOnce(&mut AuditLogFilter),
+    {
+        let mut filter_params = AuditLogFilter::new();
+        filter(&mut filter_params);
+
+        let request = Request::new(filter_params.into_route(guild_id));
 
         self.request(request).await
     }
