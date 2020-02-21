@@ -38,7 +38,8 @@ macro_rules! changes {
         }
 
         impl $enum_name {
-            const fn key(&self) -> &'static str {
+            // TODO: Make const when `const_if_match` is stabilised.
+            fn key(&self) -> &'static str {
                 // Hack to error on duplicate keys.
                 const __ASSERT_NO_DUPE_KEY: fn() = || {
                     #[forbid(unreachable_patterns)]
