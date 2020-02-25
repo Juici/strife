@@ -1,10 +1,12 @@
+use int_enum::IntEnum;
+
 /// The [type of action] that occurred in an [`AuditLogEntry`].
 ///
 /// [type of action]: https://discordapp.com/developers/docs/resources/audit-log#audit-log-entry-object-audit-log-events
 /// [`AuditLogEntry`]: ../struct.AuditLogEntry.html
+#[repr(u8)]
 #[non_exhaustive]
-#[int_enum::int_enum(u8)]
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, IntEnum)]
 pub enum AuditLogEvent {
     /// The guild settings were updated.
     GuildUpdate = 1,

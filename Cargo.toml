@@ -40,7 +40,7 @@ bytes = "0.5"
 cfg-if = "0.1"
 chrono = { version = "0.4", features = ["serde"] }
 hyper = "0.13"
-int-enum = { version = "0.3", features = ["serialize", "convert"] }
+int-enum = { version = "0.4", features = ["serde", "convert"] }
 log = "0.4"
 num-traits = "0.2"
 remain = "0.2"

@@ -7,6 +7,7 @@ mod rich_presence;
 
 use bitflags::bitflags;
 use chrono::{DateTime, FixedOffset};
+use int_enum::IntEnum;
 use serde::de;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -116,9 +117,9 @@ pub struct Message {
 /// [`Message`]: struct.Message.html
 // TODO: Add docs.
 #[allow(missing_docs)]
+#[repr(u8)]
 #[non_exhaustive]
-#[int_enum::int_enum(u8)]
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, IntEnum)]
 pub enum MessageType {
     Default = 0,
     RecipientAdd = 1,

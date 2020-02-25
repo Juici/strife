@@ -1,12 +1,14 @@
 //! Models related to guild settings.
 
+use int_enum::IntEnum;
+
 /// The required level of criteria a user must meet, prior to being able to send
 /// messages in a [`Guild`].
 ///
 /// [`Guild`]: struct.Guild.html
+#[repr(u8)]
 #[non_exhaustive]
-#[int_enum::int_enum(u8)]
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, IntEnum)]
 pub enum VerificationLevel {
     /// Does not require any verification.
     None = 0,
@@ -27,9 +29,9 @@ impl Default for VerificationLevel {
 }
 
 /// The default level of message notifications in a guild.
+#[repr(u8)]
 #[non_exhaustive]
-#[int_enum::int_enum(u8)]
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, IntEnum)]
 pub enum MessageNotificationLevel {
     /// All messages will send notifications.
     AllMessages = 0,
@@ -46,9 +48,9 @@ impl Default for MessageNotificationLevel {
 
 /// The level of filter to apply to users that send messages containing explicit
 /// content.
+#[repr(u8)]
 #[non_exhaustive]
-#[int_enum::int_enum(u8)]
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, IntEnum)]
 pub enum ExplicitContentFilterLevel {
     /// No filter will be applied.
     Disabled = 0,
@@ -65,9 +67,9 @@ impl Default for ExplicitContentFilterLevel {
 }
 
 /// The required level of multi-factor authentication required for a guild.
+#[repr(u8)]
 #[non_exhaustive]
-#[int_enum::int_enum(u8)]
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, IntEnum)]
 pub enum MfaLevel {
     /// Multi-factor authentication is not required.
     None = 0,

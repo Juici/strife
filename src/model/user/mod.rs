@@ -5,6 +5,7 @@
 mod discriminator;
 mod flags;
 
+use int_enum::IntEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::model::id::UserId;
@@ -71,9 +72,9 @@ pub struct User {
 /// The level of premium a [`User`] has.
 ///
 /// [`User`]: struct.User.html
+#[repr(u8)]
 #[non_exhaustive]
-#[int_enum::int_enum(u8)]
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, IntEnum)]
 pub enum PremiumType {
     /// Nitro Classic.
     NitroClassic = 1,

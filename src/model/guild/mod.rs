@@ -4,13 +4,14 @@ mod member;
 mod role;
 
 pub mod audit_log;
-pub mod invite;
 pub mod integration;
+pub mod invite;
 pub mod settings;
 
 use std::collections::{HashMap, HashSet};
 
 use chrono::{DateTime, FixedOffset};
+use int_enum::IntEnum;
 use num_traits::Zero;
 use serde::{Deserialize, Serialize};
 
@@ -73,9 +74,9 @@ pub enum GuildFeature {
 }
 
 /// The tier of premium for a guild, provided by Nitro boosts.
+#[repr(u8)]
 #[non_exhaustive]
-#[int_enum::int_enum(u8)]
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, IntEnum)]
 pub enum PremiumTier {
     /// Not premium.
     None = 0,

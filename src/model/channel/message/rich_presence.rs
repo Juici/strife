@@ -1,5 +1,7 @@
-use crate::model::id::ApplicationId;
+use int_enum::IntEnum;
 use serde::{Deserialize, Serialize};
+
+use crate::model::id::ApplicationId;
 
 /// Rich Presence activity information.
 #[non_exhaustive]
@@ -16,9 +18,9 @@ pub struct MessageActivity {
 ///
 /// [`Message`]: struct.MessageActivity.html
 #[allow(missing_docs)]
+#[repr(u8)]
 #[non_exhaustive]
-#[int_enum::int_enum(u8)]
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, IntEnum)]
 pub enum MessageActivityType {
     Join = 1,
     Spectate = 2,

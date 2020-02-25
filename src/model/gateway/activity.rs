@@ -2,6 +2,7 @@
 
 use bitflags::bitflags;
 use chrono::{DateTime, Utc};
+use int_enum::IntEnum;
 use serde::de;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -27,9 +28,9 @@ pub struct ActivityTimestamps {
 /// The type of an [`Activity`].
 ///
 /// [`Activity`]: struct.Activity.html
+#[repr(u8)]
 #[non_exhaustive]
-#[int_enum::int_enum(u8)]
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, IntEnum)]
 pub enum ActivityType {
     /// Format: `Playing {`[`name`]`}`.
     ///

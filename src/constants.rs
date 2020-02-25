@@ -1,6 +1,7 @@
 //! A collection of constants used by the library.
 
 use bitflags::bitflags;
+use int_enum::IntEnum;
 
 /// The gateway version used by the library, URI is retrieved via the REST API.
 pub const GATEWAY_VERSION: usize = 6;
@@ -14,9 +15,9 @@ pub const MESSAGE_MAX_LENGTH: usize = 2000;
 pub const USER_AGENT: &str = concat!("DiscordBot (", pkg_repo!(), ", ", pkg_version!(), ")");
 
 /// Gateway opcodes.
+#[repr(u8)]
 #[non_exhaustive]
-#[int_enum::int_enum(u8)]
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, IntEnum)]
 pub enum OpCode {
     /// Dispatches an event.
     Event = 0,

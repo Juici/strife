@@ -1,5 +1,6 @@
 //! Models related to invites.
 
+use int_enum::IntEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::model::channel::guild::PartialGuildChannel;
@@ -7,9 +8,9 @@ use crate::model::guild::PartialGuild;
 use crate::model::user::User;
 
 #[allow(missing_docs)]
+#[repr(u8)]
 #[non_exhaustive]
-#[int_enum::int_enum(u8)]
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, IntEnum)]
 pub enum TargetUserType {
     Stream = 1,
 }

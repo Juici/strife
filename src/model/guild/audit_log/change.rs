@@ -4,9 +4,11 @@ use std::fmt;
 use serde::de;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::model::id::{UserId, ChannelId};
+use crate::model::guild::settings::{
+    ExplicitContentFilterLevel, MessageNotificationLevel, MfaLevel,
+};
+use crate::model::id::{ChannelId, UserId};
 use crate::model::voice::VoiceRegionId;
-use crate::model::guild::settings::{MfaLevel, ExplicitContentFilterLevel, MessageNotificationLevel};
 
 macro_rules! changes {
     (

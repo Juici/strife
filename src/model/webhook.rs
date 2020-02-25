@@ -1,5 +1,6 @@
 //! Models related to webhooks.
 
+use int_enum::IntEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::model::id::{ChannelId, GuildId, WebhookId};
@@ -45,9 +46,9 @@ pub struct Webhook {
 /// The type of a [`Webhook`].
 ///
 /// [`Webhook`]: struct.Webhook.html
+#[repr(u8)]
 #[non_exhaustive]
-#[int_enum::int_enum(u8)]
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, IntEnum)]
 pub enum WebhookType {
     /// Incoming Webhooks can post messages to channels with a generated token.
     Incoming = 1,

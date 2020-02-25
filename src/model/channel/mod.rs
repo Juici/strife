@@ -7,6 +7,7 @@ pub mod guild;
 pub mod message;
 pub mod permissions;
 
+use int_enum::IntEnum;
 use serde::de;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -18,9 +19,9 @@ pub use self::guild::GuildChannel;
 pub use self::message::Message;
 
 /// The type of a channel.
+#[repr(u8)]
 #[non_exhaustive]
-#[int_enum::int_enum(u8)]
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, IntEnum)]
 pub enum ChannelType {
     /// A text channel in a guild.
     Text = 0,
