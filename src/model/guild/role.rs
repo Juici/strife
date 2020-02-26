@@ -4,6 +4,16 @@ use crate::model::color::Color;
 use crate::model::id::RoleId;
 use crate::model::permissions::Permissions;
 
+/// Represents a set of permissions attached to a group of users with partial
+/// information.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct PartialRole {
+    /// The ID of the role.
+    pub id: RoleId,
+    /// The name of the role.
+    pub name: String,
+}
+
 /// Represents a set of permissions attached to a group of users.
 ///
 /// Roles have unique names, colors, and can be pinned to the side bar, causing
@@ -14,10 +24,7 @@ use crate::model::permissions::Permissions;
 /// The `@everyone` role has the same ID as the guild it belongs to.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Role {
-    /// The ID of the role.
-    pub id: RoleId,
-    /// The name of the role.
-    pub name: String,
+    role: PartialRole,
     /// The color of the role.
     #[serde(default, alias = "colour")]
     pub color: Color,
@@ -33,10 +40,11 @@ pub struct Role {
     /// Whether the role is mentionable.
     pub mentionable: bool,
 }
+wrap!(Role => mut role: PartialRole);
 
+impl_eq_fields!(PartialRole: [id, name]);
 impl_eq_fields!(Role: [
-    id,
-    name,
+    role,
     color,
     pinned,
     position,
@@ -64,8 +72,10 @@ mod tests {
           "mentionable": false
         });
         let role = Role {
-            id: RoleId::from(41771983423143936),
-            name: "WE DEM BOYZZ!!!!!!".to_owned(),
+            role: PartialRole {
+                id: RoleId::from(41771983423143936),
+                name: "WE DEM BOYZZ!!!!!!".to_owned(),
+            },
             color: Color::new(3447003),
             pinned: true,
             position: 1,
@@ -91,8 +101,10 @@ mod tests {
           "mentionable": false
         });
         let role = Role {
-            id: RoleId::from(41771983423143936),
-            name: "WE DEM BOYZZ!!!!!!".to_owned(),
+            role: PartialRole {
+                id: RoleId::from(41771983423143936),
+                name: "WE DEM BOYZZ!!!!!!".to_owned(),
+            },
             color: Color::new(3447003),
             pinned: true,
             position: 1,

@@ -4,6 +4,7 @@ use std::fmt;
 use serde::de;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
+use crate::model::guild::role::PartialRole;
 use crate::model::guild::settings::{
     ExplicitContentFilterLevel, MessageNotificationLevel, MfaLevel,
 };
@@ -96,15 +97,15 @@ changes! {
         #[key = "icon_hash"]
         IconHash: String,
 
-        /// Invite splash page artwork changed.
+        /// Guild invite splash page artwork changed.
         #[key = "splash_hash"]
         SplashHash: String,
 
-        /// Owner changed.
+        /// Guild owner changed.
         #[key = "owner_id"]
         Owner: UserId,
 
-        /// Voice region changed.
+        /// Guild voice region changed.
         #[key = "region"]
         Region: VoiceRegionId,
 
@@ -128,7 +129,47 @@ changes! {
         #[key = "default_message_notifications"]
         NotificationLevel: MessageNotificationLevel,
 
+        /// Guild invite vanity url changed.
+        #[key = "vanity_url_code"]
+        VanityUrlCode: String,
+
+        /// New role added.
+        #[key = "$add"]
+        AddRole: Vec<PartialRole>,
+
+        /// Role removed.
+        #[key = "$remove"]
+        RemoveRole: Vec<PartialRole>,
+
+        /// Change in number of days after which inactive and role-unassigned members are kicked.
+        #[key = "prune_delete_days"]
+        PruneDeleteDays: u64,
+
+        /// Guild widget enabled/disabled.
+        #[key = "widget_enabled"]
+        WidgetEnabled: bool,
+
+        /// Guild widget channel changed.
+        #[key = "widget_channel_id"]
+        WidgetChannel: ChannelId,
+
+        /// Guild system channel changed.
+        #[key = "system_channel_id"]
+        SystemChannel: ChannelId,
+
         // Channel
+
+        /// Text or voice channel position changed.
+        #[key = "position"]
+        Position: usize,
+
+        /// Text channel topic changed.
+        #[key = "topic"]
+        Topic: String,
+
+        /// Voice channel bitrate changed.
+        #[key = "bitrate"]
+        Bitrate: u32,
     }
 }
 
