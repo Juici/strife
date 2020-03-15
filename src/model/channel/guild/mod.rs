@@ -124,7 +124,7 @@ impl GuildChannel {
                 return Err(E::custom(format_args!(
                     "invalid channel type for guild channel: {:?}",
                     kind
-                )))
+                )));
             }
         };
         result.map_err(E::custom)

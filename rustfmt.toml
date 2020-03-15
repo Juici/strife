@@ -1,0 +1,10 @@
+#wrap_comments = true
+#comment_width = 80
+#normalize_comments = true
+
+unstable_features = true
+
+version = "Two"
+edition = "2018"
+
+use_small_heuristics = "Default"

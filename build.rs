@@ -13,6 +13,8 @@ macro_rules! warn {
 
 fn main() {
     if feature_enabled("rustls-tls") && feature_enabled("native-tls") {
-        warn!("both `rustls-tls` and `native-tls` features are enabled, but only one can be used (using `rustls-tls`)");
+        warn!(
+            "both `rustls-tls` and `native-tls` features are enabled, but only one can be used (using `rustls-tls`)"
+        );
     }
 }
