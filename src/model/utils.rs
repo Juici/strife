@@ -79,7 +79,7 @@ pub mod serde_id_map {
     where
         V: ToSnowflakeId + Deserialize<'de>,
     {
-        _value: &'de PhantomData<V>,
+        _value: PhantomData<&'de V>,
     }
 
     impl<'de, V: 'de> de::Visitor<'de> for Visitor<'de, V>
@@ -120,7 +120,7 @@ pub mod serde_id_map {
         V: ToSnowflakeId + Deserialize<'de>,
     {
         deserializer.deserialize_seq(Visitor {
-            _value: &PhantomData,
+            _value: PhantomData,
         })
     }
 
